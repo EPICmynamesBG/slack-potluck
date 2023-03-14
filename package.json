@@ -1,0 +1,22 @@
+{
+  "name": "slack-potluck",
+  "version": "1.0.0",
+  "description": "Slack Potluck app",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "slack"
+  ],
+  "author": "EPICmynamesBG@users.noreply.github.com",
+  "license": "ISC",
+  "dependencies": {
+    "@slack/bolt": "^3.12.2"
+  },
+  "engines": {
+    "node": "18.5.0",
+    "npm": "9.6.1"
+  }
+}
