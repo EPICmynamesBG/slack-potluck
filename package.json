@@ -2,9 +2,12 @@
   "name": "slack-potluck",
   "version": "1.0.0",
   "description": "Slack Potluck app",
-  "main": "app.js",
+  "main": "src/app.js",
   "scripts": {
-    "start": "node app.js",
+    "start": "node src/app.js",
+    "db:create": "npx sequelize-cli db:create",
+    "db:migrate": "npx sequelize-cli db:migrate",
+    "db:migrate:undo": "npx sequelize-cli db:migrate:undo",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
@@ -13,10 +16,18 @@
   "author": "EPICmynamesBG@users.noreply.github.com",
   "license": "ISC",
   "dependencies": {
-    "@slack/bolt": "^3.12.2"
+    "@slack/bolt": "^3.12.2",
+    "dotenv": "^16.0.3",
+    "lodash": "^4.17.21",
+    "mysql2": "^3.2.0",
+    "sequelize": "^6.29.3",
+    "sqlite3": "^5.1.6"
   },
   "engines": {
     "node": "18.5.0",
     "npm": "9.6.1"
+  },
+  "devDependencies": {
+    "sequelize-cli": "^6.6.0"
   }
 }
