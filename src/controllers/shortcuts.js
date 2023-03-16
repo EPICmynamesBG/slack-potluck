@@ -1,4 +1,5 @@
 const CreateMeetup = require('../services/CreateMeetup');
+const NextMeetup = require('../services/NextMeetup');
 
 
 let singleton;
@@ -11,6 +12,7 @@ class Shortcuts {
 
     _setup() {
         this._app.shortcut('meetup.create', this.meetupCreate.bind(this));
+        this._app.shortcut('meetup.view.upcoming', this.viewUpcoming.bind(this));
     }
 
     async meetupCreate(payload) {
@@ -27,6 +29,12 @@ class Shortcuts {
         catch (error) {
             console.error(error);
         }
+    }
+
+    async viewUpcoming(payload) {
+        const { ack } = payload;
+        ack();
+        await NextMeetup.execute(this._app, payload);
     }
 
     static init(app) {

@@ -24,6 +24,7 @@ module.exports = {
           field: "id"
         },
         field: "meetup_registration_id",
+        onDelete: 'CASCADE'
       },
       foodSlot: {
         type: Sequelize.STRING,

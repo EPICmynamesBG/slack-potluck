@@ -1,11 +1,14 @@
 const _ = require("lodash");
 const db = require("../models");
 const DateTimeHelpers = require("../helpers/datetime");
+const ErrorAssistant = require("../helpers/ErrorAssistant");
+const FoodSignup = require("./FoodSignup");
 
 class AnnounceMeetup {
   static ChannelSelectAction = "meetup.created.announce.channel_select";
   static SubmitAnnounceAction = "meetup.created.announce.submit";
   static IgnoreAnnounceAction = "meetup.created.announce.ignore";
+  static GoogleMapLinkAction = "meetup.location.url.click";
 
   static async ignore({ respond }) {
     await respond({
@@ -14,14 +17,22 @@ class AnnounceMeetup {
     });
   }
 
-  static async announce({ action, body, respond }) {
+  static async announce(app, payload) {
+    const { action, body, respond } = payload;
     const { state } = body;
-    const channel = _.get(state, [
-      "values",
-      "meetup.created.actions",
-      AnnounceMeetup.ChannelSelectAction,
-      "selected_channel",
-    ]);
+    const channel =
+      _.get(state, [
+        "values",
+        "meetup.created.actions",
+        AnnounceMeetup.ChannelSelectAction,
+        "selected_channel",
+      ]) ||
+      _.get(state, [
+        "values",
+        "meetup.created.actions",
+        AnnounceMeetup.ChannelSelectAction,
+        "selected_conversation",
+      ]);
     if (!channel) {
       await respond({
         response_type: "ephemeral",
@@ -30,37 +41,63 @@ class AnnounceMeetup {
       });
       return;
     }
+    const helper = new ErrorAssistant(app, payload);
     const meetupId = action.value;
     try {
       const meetup = await db.Meetup.findByPk(Number.parseInt(meetupId, 10));
-      console.log(meetup);
 
-      //   await app.client.postMessage({
-      //       channel,
-      //       unfurl_links: false,
-      //       blocks: [
-      //         {
-      //             type: "section",
-      //             text: {
-      //               type: "plain_text",
-      //               text: "Upcoming Meetup!",
-      //             },
-      //           },
-      //         ...AnnounceMeetup.renderMeetupDetails(meetup),
-      //         // { // TODO: setup food signup message
-      //         //     type: "actions",
-
-      //         // }
-      //       ]
-      //   });
+      await app.client.chat.postMessage({
+        channel,
+        unfurl_links: false,
+        blocks: this.renderAnnouncementBlock(meetup),
+      });
 
       await respond({
         text: "Announcement shared!",
         replace_original: true,
       });
     } catch (e) {
-      console.error(e);
+      await helper.handleError(e);
     }
+  }
+
+  static renderAnnouncementBlock(meetup) {
+    const blocks = [
+      {
+        type: "section",
+        text: {
+          type: "plain_text",
+          text: "Upcoming Meetup!",
+        },
+      },
+      ...AnnounceMeetup.renderMeetupDetails(meetup),
+    ];
+    if (meetup.includeFoodSignup) {
+      const signupBlocks = FoodSignup.renderSignupActions(meetup);
+      blocks.push(...signupBlocks);
+    }
+    console.log('blocks', blocks);
+    return blocks;
+  }
+
+  static renderMeetupAdditionalNotes(notes = null) {
+    if (!notes) {
+      return;
+    }
+    return {
+      type: "context",
+      elements: [
+        {
+          type: "plain_text",
+          emoji: true,
+          text: ":thought_balloon:",
+        },
+        {
+          type: "mrkdwn",
+          text: notes,
+        },
+      ],
+    };
   }
 
   static renderMeetupDetails(meetup) {
@@ -72,55 +109,51 @@ class AnnounceMeetup {
       meetup.locationAddress.replace("\n", ",")
     );
     const formattedLocation = meetup.locationAlias
-      ? `*${meetup.locationAlias}*\n<${addressUrl.toString()}|${
-          meetup.locationAddress
-        }>`
-      : `<${addressUrl.toString()}|${meetup.locationAddress}>`;
+      ? `*${meetup.locationAlias}*\n${meetup.locationAddress}`
+      : meetup.locationAddress;
 
-    return [
+    const details = [
       {
         type: "context",
         elements: [
           {
-            type: "plain_text",
-            emoji: true,
-            text: ":clock5:",
-          },
-          {
             type: "mrkdwn",
-            text: `*${formattedTime}*`,
+            text: `:clock5: *${formattedTime}*`,
           },
         ],
       },
       {
-        type: "context",
-        elements: [
-          {
+        type: "section",
+        text: {
+          type: "mrkdwn",
+          text: `:pushpin: ${formattedLocation}`,
+        },
+        accessory: {
+          type: "button",
+          action_id: this.GoogleMapLinkAction,
+          text: {
             type: "plain_text",
-            emoji: true,
-            text: ":pushpin:",
+            text: "Directions",
           },
-          {
-            type: "mrkdwn",
-            text: formattedLocation,
-          },
-        ],
-      },
-      {
-        type: "context",
-        elements: [
-          {
-            type: "plain_text",
-            emoji: true,
-            text: ":thought_balloon:",
-          },
-          {
-            type: "mrkdwn",
-            text: "Additional comments -- coming soon!",
-          },
-        ],
+          url: addressUrl.toString(),
+        },
       },
     ];
+    if (meetup.additionalNotes) {
+      details.push(this.renderMeetupAdditionalNotes(meetup.additionalNotes));
+    }
+    if (meetup.includeFoodSignup) {
+      details.push({
+        type: "context",
+        elements: [
+          {
+            type: "mrkdwn",
+            text: "Please bring :shallow_pan_of_food: :yum:",
+          },
+        ],
+      });
+    }
+    return details;
   }
 }
 

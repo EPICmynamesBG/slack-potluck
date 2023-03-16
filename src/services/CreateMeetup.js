@@ -5,6 +5,13 @@ const AnnounceMeetup = require("./AnnounceMeetup");
 
 class CreateMeetup {
   static VIEW_ID = "meetup.create";
+  static ACTIONS = {
+    CREATE_MEETUP_WHEN: "meetup.create.when",
+    CREATE_MEETUP_WHERE_FRIENDLY: "meetup.create.where.friendly",
+    CREATE_MEETUP_WHERE_ADDRESS: "meetup.create.where.address",
+    CREATE_MEETUP_INCLUDE_FOOD_SIGNUP: "meetup.create.include_food_signup",
+    CREATE_MEETUP_ADDITIONAL_NOTES: "meetup.create.additional_notes",
+  };
 
   static renderCreateForm(botToken, triggerId) {
     return {
@@ -32,10 +39,10 @@ class CreateMeetup {
         blocks: [
           {
             type: "input",
-            block_id: "section.meetup.create.when",
+            block_id: `section.${this.ACTIONS.CREATE_MEETUP_WHEN}`,
             element: {
               type: "datetimepicker",
-              action_id: "meetup.create.when",
+              action_id: this.ACTIONS.CREATE_MEETUP_WHEN,
             },
             label: {
               type: "plain_text",
@@ -44,14 +51,15 @@ class CreateMeetup {
           },
           {
             type: "input",
-            block_id: "section.meetup.create.where.friendly",
+            optional: true,
+            block_id: `section.${this.ACTIONS.CREATE_MEETUP_WHERE_FRIENDLY}`,
             label: {
               type: "plain_text",
               text: "Who's hosting?",
             },
             element: {
               type: "plain_text_input",
-              action_id: "meetup.create.where.friendly",
+              action_id: this.ACTIONS.CREATE_MEETUP_WHERE_FRIENDLY,
               placeholder: {
                 type: "plain_text",
                 text: "George's House",
@@ -60,7 +68,7 @@ class CreateMeetup {
           },
           {
             type: "input",
-            block_id: "section.meetup.create.where.address",
+            block_id: `section.${this.ACTIONS.CREATE_MEETUP_WHERE_ADDRESS}`,
             label: {
               type: "plain_text",
               text: "Where?",
@@ -68,11 +76,61 @@ class CreateMeetup {
             element: {
               type: "plain_text_input",
               multiline: true,
-              action_id: "meetup.create.where.address",
+              action_id: this.ACTIONS.CREATE_MEETUP_WHERE_ADDRESS,
               placeholder: {
                 type: "plain_text",
                 text: "111 Water Marq Path",
               },
+            },
+          },
+          {
+            type: "input",
+            optional: true,
+            block_id: `section.${this.ACTIONS.CREATE_MEETUP_ADDITIONAL_NOTES}`,
+            label: {
+              type: "plain_text",
+              text: "Additional Remarks",
+            },
+            element: {
+              type: "plain_text_input",
+              multiline: true,
+              action_id: this.ACTIONS.CREATE_MEETUP_ADDITIONAL_NOTES,
+              placeholder: {
+                type: "plain_text",
+                text: "Any additional remarks?",
+              },
+            },
+          },
+          {
+            type: "input",
+            block_id: `section.${this.ACTIONS.CREATE_MEETUP_INCLUDE_FOOD_SIGNUP}`,
+            label: {
+              type: 'plain_text',
+              text: 'People should bring food :shallow_pan_of_food:'
+            },
+            optional: true,
+            element: {
+              type: "checkboxes",
+              action_id: this.ACTIONS.CREATE_MEETUP_INCLUDE_FOOD_SIGNUP,
+              initial_options: [
+                {
+                  value: "true",
+                  text: {
+                    type: "plain_text",
+                    emoji: true,
+                    text: "Yes please! :drooling_face:",
+                  },
+                },
+              ],
+              options: [
+                {
+                  value: "true",
+                  text: {
+                    type: "plain_text",
+                    emoji: true,
+                    text: "Yes please! :drooling_face:",                  },
+                },
+              ],
             },
           },
         ],
@@ -83,23 +141,40 @@ class CreateMeetup {
   static extractFormValues(viewState = {}) {
     const when = _.get(viewState, [
       "values",
-      "section.meetup.create.when",
-      "meetup.create.when",
+      `section.${this.ACTIONS.CREATE_MEETUP_WHEN}`,
+      this.ACTIONS.CREATE_MEETUP_WHEN,
       "selected_date_time",
     ]);
     const whereFriendly = _.get(viewState, [
       "values",
-      "section.meetup.create.where.friendly",
-      "meetup.create.where.friendly",
+      `section.${this.ACTIONS.CREATE_MEETUP_WHERE_FRIENDLY}`,
+      this.ACTIONS.CREATE_MEETUP_WHERE_FRIENDLY,
       "value",
     ]);
     const whereAddress = _.get(viewState, [
       "values",
-      "section.meetup.create.where.address",
-      "meetup.create.where.address",
+      `section.${this.ACTIONS.CREATE_MEETUP_WHERE_ADDRESS}`,
+      this.ACTIONS.CREATE_MEETUP_WHERE_ADDRESS,
+      "value",
+    ]);
+    const includeFoodSignup =
+      _.get(viewState, [
+        "values",
+        `section.${this.ACTIONS.CREATE_MEETUP_INCLUDE_FOOD_SIGNUP}`,
+        this.ACTIONS.CREATE_MEETUP_INCLUDE_FOOD_SIGNUP,
+        "selected_options",
+        0,
+        "value"
+      ]) === "true";
+    const additionalNotes = _.get(viewState, [
+      "values",
+      `section.${this.ACTIONS.CREATE_MEETUP_ADDITIONAL_NOTES}`,
+      this.ACTIONS.CREATE_MEETUP_ADDITIONAL_NOTES,
       "value",
     ]);
     return {
+      additionalNotes,
+      includeFoodSignup,
       when,
       whereFriendly,
       whereAddress,
@@ -108,21 +183,44 @@ class CreateMeetup {
 
   static async execute(viewState, slackUserId, slackTeamId) {
     const formValues = this.extractFormValues(viewState);
-    console.log(formValues, slackTeamId, slackUserId);
+    console.log(formValues, JSON.stringify(viewState));
     const meetup = await db.Meetup.create({
       timestamp: DateTimeHelpers.dateFromUnix(formValues.when),
       locationAddress: formValues.whereAddress,
       locationAlias: formValues.whereFriendly,
       createdBy: slackUserId,
       slackTeamId,
+      includeFoodSignup: formValues.includeFoodSignup,
+      additionalNotes: formValues.additionalNotes
     });
     return meetup;
+  }
+
+  static renderChannelSelectBlock() {
+    if (process.env.DEBUG) {
+      return {
+        action_id: AnnounceMeetup.ChannelSelectAction,
+        type: "conversations_select",
+        placeholder: {
+          type: "plain_text",
+          text: "Select a Channel",
+        },
+      };
+    }
+    return {
+      action_id: AnnounceMeetup.ChannelSelectAction,
+      type: "channels_select",
+      placeholder: {
+        type: "plain_text",
+        text: "Select a Channel",
+      },
+    };
   }
 
   static renderMeetupCreatedMessage(meetup) {
     return [
       {
-        type: "section",
+        type: "header",
         text: {
           type: "plain_text",
           text: "Your meetup is scheduled!",
@@ -133,14 +231,7 @@ class CreateMeetup {
         type: "actions",
         block_id: "meetup.created.actions",
         elements: [
-          {
-            action_id: AnnounceMeetup.ChannelSelectAction,
-            type: "channels_select",
-            placeholder: {
-              type: "plain_text",
-              text: "Select a Channel",
-            },
-          },
+          this.renderChannelSelectBlock(),
           {
             type: "button",
             text: {

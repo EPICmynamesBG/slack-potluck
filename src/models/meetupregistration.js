@@ -13,10 +13,11 @@ module.exports = (sequelize, DataTypes) => {
         as: "meetup",
       });
       this.hasOne(MeetupRegistrationFood, {
-        foreignKey: "uniq_meetupregid_team_creator",
+        foreignKey: "meetup_registration_id",
+        // uniqueKey: "uniq_meetupregid_team_creator",
         as: "foodRegistration",
         onDelete: "CASCADE",
-        hooks: true,
+        hooks: true
       });
     }
   }
@@ -29,6 +30,7 @@ module.exports = (sequelize, DataTypes) => {
           key: "id",
         },
         field: "meetup_id",
+        onDelete: 'CASCADE'
       },
       adultRegistrationCount: {
         type: DataTypes.SMALLINT,
@@ -69,6 +71,14 @@ module.exports = (sequelize, DataTypes) => {
       sequelize,
       modelName: "MeetupRegistration",
       tableName: "meetup_registrations",
+      indexes: [
+        {
+          name: "uniq_meetup_team_creator",
+          type: "UNIQUE",
+          unique: true,
+          fields: ["meetup_id", "slack_team_id", "created_by"],
+        },
+      ],
     }
   );
   return MeetupRegistration;

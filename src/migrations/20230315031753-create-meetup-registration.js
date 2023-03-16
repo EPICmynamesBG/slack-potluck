@@ -15,7 +15,8 @@ module.exports = {
           model: 'meetups',
           key: 'id'
         },
-        field: 'meetup_id'
+        field: 'meetup_id',
+        onDelete: 'CASCADE'
       },
       adultRegistrationCount: {
         type: Sequelize.SMALLINT,

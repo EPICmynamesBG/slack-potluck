@@ -53,6 +53,18 @@ module.exports = (sequelize, DataTypes) => {
       field: "updated_at",
       defaultValue: () => new Date(),
     },
+    includeFoodSignup: {
+      allowNull: false,
+      type: DataTypes.BOOLEAN,
+      field: 'include_food_signup',
+      defaultValue: () => false
+    },
+    additionalNotes: {
+      field: 'additional_notes',
+      type: DataTypes.TEXT,
+      allowNull: true,
+      defaultValue: null
+    }
   }, {
     sequelize,
     modelName: 'Meetup',

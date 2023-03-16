@@ -3,7 +3,7 @@ const SlackUserAudit = require("./constants/SlackUserAudit");
 const FoodSlot = require('./constants/FoodSlot');
 
 module.exports = (sequelize, DataTypes) => {
-  class MeetupRegistration extends SlackUserAudit {
+  class MeetupRegistrationFood extends SlackUserAudit {
     /**
      * Helper method for defining associations.
      * This method is not a part of DataTypes lifecycle.
@@ -16,7 +16,7 @@ module.exports = (sequelize, DataTypes) => {
       });
     }
   }
-  MeetupRegistration.init(
+  MeetupRegistrationFood.init(
     {
       meetupRegistrationId: {
         type: DataTypes.INTEGER,
@@ -26,13 +26,14 @@ module.exports = (sequelize, DataTypes) => {
           field: "id",
         },
         field: "meetup_registration_id",
+        onDelete: 'CASCADE'
       },
       foodSlot: {
         type: DataTypes.STRING,
         allowNull: false,
         field: "food_slot",
         validate: {
-          isIn: Object.values(FoodSlot),
+          isIn: () => Object.values(FoodSlot),
         },
         defaultValue: () => FoodSlot.UNDECIDED,
       },
@@ -66,7 +67,7 @@ module.exports = (sequelize, DataTypes) => {
     },
     {
       sequelize,
-      modelName: "MeetupRegistration",
+      modelName: "MeetupRegistrationFood",
       tableName: "meetup_registration_food",
       indexes: [
         {
@@ -78,5 +79,5 @@ module.exports = (sequelize, DataTypes) => {
       ],
     }
   );
-  return MeetupRegistration;
+  return MeetupRegistrationFood;
 };
