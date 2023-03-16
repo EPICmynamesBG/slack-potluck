@@ -9,6 +9,7 @@ dotenv.config();
 const Views = require('./controllers/views');
 const Shortcuts = require('./controllers/shortcuts');
 const Actions = require('./controllers/actions');
+const Events = require("./controllers/events");
 
 
 const app = new App({
@@ -16,7 +17,7 @@ const app = new App({
   clientSecret: process.env.SLACK_CLIENT_SECRET,
   token: process.env.SLACK_BOT_TOKEN,
   signingSecret: process.env.SLACK_SIGNING_SECRET,
-  endpoints: ['/slack/events', process.env.API_ENDPOINT_INTERACTIVE, process.env.API_ENDPOINT_SELECT_OPTIONS],
+  endpoints: [process.env.API_ENDPOINT_EVENTS, process.env.API_ENDPOINT_SELECT_OPTIONS, process.env.API_ENDPOINT_INTERACTIVE],
   developerMode: true,
   socketMode: false
 });
@@ -25,6 +26,7 @@ const app = new App({
 // All the room in the world for your code
 // Interactive.init(app);
 Actions.init(app);
+Events.init(app);
 Shortcuts.init(app);
 Views.init(app);
 

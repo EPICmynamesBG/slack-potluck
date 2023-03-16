@@ -197,24 +197,32 @@ class CreateMeetup {
   }
 
   static renderChannelSelectBlock() {
-    if (process.env.DEBUG) {
-      return {
-        action_id: AnnounceMeetup.ChannelSelectAction,
-        type: "conversations_select",
-        placeholder: {
-          type: "plain_text",
-          text: "Select a Channel",
-        },
-      };
-    }
+    // if (process.env.DEBUG) {
+    //   return {
+    //     action_id: AnnounceMeetup.ChannelSelectAction,
+    //     type: "conversations_select",
+    //     placeholder: {
+    //       type: "plain_text",
+    //       text: "Select a Channel",
+    //     },
+    //   };
+    // }
     return {
       action_id: AnnounceMeetup.ChannelSelectAction,
-      type: "channels_select",
+      type: "conversations_select",
       placeholder: {
         type: "plain_text",
         text: "Select a Channel",
       },
     };
+    // return {
+    //   action_id: AnnounceMeetup.ChannelSelectAction,
+    //   type: "channels_select",
+    //   placeholder: {
+    //     type: "plain_text",
+    //     text: "Select a Channel",
+    //   },
+    // };
   }
 
   static renderMeetupCreatedMessage(meetup) {
