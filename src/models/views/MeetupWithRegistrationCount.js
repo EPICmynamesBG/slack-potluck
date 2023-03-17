@@ -12,6 +12,8 @@ class MeetupWithRegistrationCount extends db.Meetup {
         meetups.created_by AS createdBy,
         meetups.created_at AS createdAt,
         meetups.updated_at AS updatedAt,
+        meetups.additional_notes AS additionalNotes,
+        meetups.include_food_signup AS includeFoodSignup,
         SUM(meetup_registrations.adult_registration_count) AS adultsRegistered,
         SUM(meetup_registrations.child_registration_count) AS childrenRegistered
     `;
@@ -29,6 +31,7 @@ class MeetupWithRegistrationCount extends db.Meetup {
             `, {
                 replacements: [meetupId],
                 type: QueryTypes.SELECT,
+                plain: true,
                 model: MeetupWithRegistrationCount
             }
         );

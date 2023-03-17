@@ -1,6 +1,8 @@
+const _ = require('lodash');
 const MeetupDetails = require("./MeetupDetails");
 
 class MeetupScheduledResponse {
+  static BLOCK_ID = "meetup.created.actions";
   static ACTIONS = {
     CHANNEL_SELECT_ACTION: "meetup.created.announce.channel_select",
     SUBMIT_ANNOUNCE_ACTION: "meetup.created.announce.submit",
@@ -11,14 +13,14 @@ class MeetupScheduledResponse {
     const channel =
       _.get(state, [
         "values",
-        "meetup.created.actions",
-        AnnounceMeetup.ChannelSelectAction,
+        this.BLOCK_ID,
+        this.ACTIONS.CHANNEL_SELECT_ACTION,
         "selected_channel",
       ]) ||
       _.get(state, [
         "values",
-        "meetup.created.actions",
-        AnnounceMeetup.ChannelSelectAction,
+        this.BLOCK_ID,
+        this.ACTIONS.CHANNEL_SELECT_ACTION,
         "selected_conversation",
       ]);
     return {
@@ -67,7 +69,7 @@ class MeetupScheduledResponse {
       ...MeetupDetails.render(meetup),
       {
         type: "actions",
-        block_id: "meetup.created.actions",
+        block_id: this.BLOCK_ID,
         elements: [
           this._renderChannelSelectBlock(),
           {

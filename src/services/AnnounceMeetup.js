@@ -25,11 +25,12 @@ class AnnounceMeetup {
       return;
     }
     const helper = new ErrorAssistant(app, payload);
-    const meetupId = action.value;
+    const meetupId = Number.parseInt(action.value, 10);
+    let posted;
     try {
-      const meetup = await db.Meetup.findByPk(Number.parseInt(meetupId, 10));
+      const meetup = await db.Meetup.findByPk(meetupId);
 
-      await app.client.chat.postMessage({
+      posted = await app.client.chat.postMessage({
         channel,
         unfurl_links: false,
         blocks: MeetupAnnouncement.render(meetup),
@@ -41,6 +42,19 @@ class AnnounceMeetup {
       });
     } catch (e) {
       await helper.handleError(e);
+      return;
+    }
+
+    try {
+      await db.MeetupAnnouncement.create({
+        meetupId,
+        postingChannelId: posted.channel,
+        postingMessageId: posted.message.ts,
+        slackTeamId: body.user.team_id,
+        createdBy: body.user.id
+      });
+    } catch (e) {
+      console.error(e);
     }
   }
 }

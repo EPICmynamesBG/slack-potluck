@@ -2,6 +2,7 @@ const _ = require("lodash");
 const db = require("../models");
 const ErrorAssistant = require("../helpers/ErrorAssistant");
 const RegistrationForm = require("../views/RegistrationModal/RegistrationForm");
+const SyncAnnouncementPosting = require("./SyncAnnouncementPosting");
 
 class MeetupRegistration {
   static async _createOrUpdateRegistration(
@@ -64,7 +65,7 @@ class MeetupRegistration {
     const helper = new ErrorAssistant(app, payload);
     const meetupId = action.value;
 
-    return await this._createOrUpdateRegistration(helper, {
+    const result = await this._createOrUpdateRegistration(helper, {
       meetupId,
       slackUserId: body.user.id,
       slackTeamId: body.user.team_id,
@@ -72,6 +73,10 @@ class MeetupRegistration {
       childRegistrationCount: 0,
       skipUpdatesForNonZeroRegistration: true,
     });
+    if (result) {
+      await this.onMeetupRegistrationChange(app, meetupId);
+    }
+    return result;
   }
 
   static async updateAttendance(app, payload) {
@@ -82,7 +87,7 @@ class MeetupRegistration {
       view.state
     );
 
-    return await this._createOrUpdateRegistration(
+    const registration = await this._createOrUpdateRegistration(
       new ErrorAssistant(app, payload),
       {
         meetupId,
@@ -92,6 +97,10 @@ class MeetupRegistration {
         childRegistrationCount: childCount,
       }
     );
+    if (registration) {
+      await this.onMeetupRegistrationChange(app, meetupId);
+    }
+    return registration;
   }
 
   static async notAttending(app, payload) {
@@ -109,12 +118,17 @@ class MeetupRegistration {
     if (!registration) {
       return;
     }
+    await this.onMeetupRegistrationChange(app, meetupId);
 
     await app.client.chat.postEphemeral({
       channel: body.container.channel_id,
       user: body.user.id,
       text: "We're sad you can't make it; if you change your mind, let us know!",
     });
+  }
+
+  static async onMeetupRegistrationChange(app, meetupId) {
+    SyncAnnouncementPosting.defer(app, meetupId);
   }
 }
 
