@@ -1,9 +1,9 @@
 const AnnounceMeetup = require("../services/AnnounceMeetup");
-const CreateMeetup = require("../services/CreateMeetup");
 const FoodSignup = require("../services/FoodSignup");
 const MeetupRegistration = require("../services/MeetupRegistration");
 const CreateMeetupModal = require("../views/CreateMeetupModal");
 const MeetupDetails = require("../views/MeetupDetails");
+const MeetupDetailsWithAttendance = require("../views/MeetupDetailsWithAttendance");
 const MeetupScheduledResponse = require("../views/MeetupScheduledResponse");
 const QuickRegistrationActions = require("../views/QuickRegistrationActions");
 const RegistrationModal = require("../views/RegistrationModal");
@@ -32,6 +32,7 @@ class Actions {
         this._app.action(RegistrationModal.ACTIONS.CHILD_SIGNUP, this.emptyAck.bind(this));
         this._app.action(QuickRegistrationActions.ACTIONS.SIGNUP, this.userSignupForMeetup.bind(this));
         this._app.action(QuickRegistrationActions.ACTIONS.NOT_ATTENDING, this.userUnableToAttendMeetup.bind(this));
+        this._app.action(MeetupDetailsWithAttendance.ACTIONS.VIEW_ATTENDANCE, this.viewAttendanceTrigger.bind(this));
     }
 
     async emptyAck({ ack }) {
@@ -71,6 +72,12 @@ class Actions {
         ack();
 
         await MeetupRegistration.notAttending(this._app, payload);
+    }
+
+    async viewAttendanceTrigger(payload) {
+        // TODO: Open modal
+        const { ack } = payload;
+        ack();
     }
 
     static init(app) {
