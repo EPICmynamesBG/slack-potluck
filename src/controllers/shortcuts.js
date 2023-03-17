@@ -1,5 +1,7 @@
+const ErrorAssistant = require('../helpers/ErrorAssistant');
 const CreateMeetup = require('../services/CreateMeetup');
 const NextMeetup = require('../services/NextMeetup');
+const CreateMeetupModal = require('../views/CreateMeetupModal');
 
 
 let singleton;
@@ -20,14 +22,19 @@ class Shortcuts {
 
         ack();
 
+        const errorHelper = new ErrorAssistant(this._app, payload);
         try {
+            const renderer = new CreateMeetupModal();
+            const modal = await renderer.render({
+                botToken: context.botToken,
+                triggerId: body.trigger_id
+            })
             const result = await this._app.client.views.open(
-                CreateMeetup.renderCreateForm(context.botToken, body.trigger_id)
+                modal
             );
-            console.log(result);
         }
         catch (error) {
-            console.error(error);
+            errorHelper.handleError(error);
         }
     }
 

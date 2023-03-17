@@ -9,15 +9,8 @@ class Events {
     }
 
     _setup() {
-        // this._app.event('url_verification', this.initialVerification.bind(this));
         this._app.event('app_home_opened', this.appHome.bind(this));
     }
-
-    // async initialVerification(payload) {
-    //     const { challenge } = payload;
-    //     console.log(payload);
-    //     return challenge;
-    // }
 
     async appHome(payload) {
         const { event, client, logger } = payload;

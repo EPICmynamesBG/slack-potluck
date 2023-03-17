@@ -2,7 +2,7 @@ const { Op } = require("sequelize");
 
 const db = require('../models');
 const ErrorAssistant = require('../helpers/ErrorAssistant');
-const AnnounceMeetup = require('./AnnounceMeetup');
+const MeetupAnnouncement = require("../views/MeetupAnnouncement");
 
 class NextMeetup {
 
@@ -38,7 +38,7 @@ class NextMeetup {
         await app.client.chat.postMessage({
             channel: body.user.id,
             unfurl_links: false,
-            blocks: AnnounceMeetup.renderAnnouncementBlock(nextMeetup),
+            blocks: MeetupAnnouncement.render(nextMeetup),
         });
     }
 }

@@ -2,6 +2,11 @@ const AnnounceMeetup = require("../services/AnnounceMeetup");
 const CreateMeetup = require("../services/CreateMeetup");
 const FoodSignup = require("../services/FoodSignup");
 const MeetupRegistration = require("../services/MeetupRegistration");
+const CreateMeetupModal = require("../views/CreateMeetupModal");
+const MeetupDetails = require("../views/MeetupDetails");
+const MeetupScheduledResponse = require("../views/MeetupScheduledResponse");
+const QuickRegistrationActions = require("../views/QuickRegistrationActions");
+const RegistrationModal = require("../views/RegistrationModal");
 
 let singleton;
 
@@ -12,19 +17,21 @@ class Actions {
     }
 
     _setup() {
-        this._app.action(AnnounceMeetup.ChannelSelectAction, this.announceMeetupHandler.bind(this));
-        this._app.action(AnnounceMeetup.IgnoreAnnounceAction, this.announceMeetupHandler.bind(this));
-        this._app.action(AnnounceMeetup.SubmitAnnounceAction, this.announceMeetupHandler.bind(this));
-        this._app.action(AnnounceMeetup.GoogleMapLinkAction, this.emptyAck.bind(this));
-        this._app.action(CreateMeetup.ACTIONS.CREATE_MEETUP_INCLUDE_FOOD_SIGNUP, this.emptyAck.bind(this));
-        this._app.action(CreateMeetup.ACTIONS.CREATE_MEETUP_WHEN, this.emptyAck.bind(this));
-        this._app.action(CreateMeetup.ACTIONS.CREATE_MEETUP_WHERE_ADDRESS, this.emptyAck.bind(this));
-        this._app.action(CreateMeetup.ACTIONS.CREATE_MEETUP_WHERE_FRIENDLY, this.emptyAck.bind(this));
-        this._app.action(CreateMeetup.ACTIONS.CREATE_MEETUP_ADDITIONAL_NOTES, this.emptyAck.bind(this));
-        this._app.action(FoodSignup.ACTIONS.FOOD_TYPE_SELECT, this.emptyAck.bind(this));
-        this._app.action(FoodSignup.ACTIONS.FOOD_DESCRIPTION, this.emptyAck.bind(this));
-        this._app.action(FoodSignup.ACTIONS.SIGNUP, this.userSignupForMeetup.bind(this));
-        this._app.action(FoodSignup.ACTIONS.NOT_ATTENDING, this.userUnableToAttendMeetup.bind(this));
+        this._app.action(MeetupScheduledResponse.ACTIONS.CHANNEL_SELECT_ACTION, this.emptyAck.bind(this));
+        this._app.action(MeetupScheduledResponse.ACTIONS.IGNORE_ANNOUNCE_ACTION, this.announceMeetupHandler.bind(this));
+        this._app.action(MeetupScheduledResponse.ACTIONS.SUBMIT_ANNOUNCE_ACTION, this.announceMeetupHandler.bind(this));
+        this._app.action(MeetupDetails.ACTIONS.GOOGLE_MAP_LINK_ACTION, this.emptyAck.bind(this));
+        this._app.action(CreateMeetupModal.ACTIONS.CREATE_MEETUP_INCLUDE_FOOD_SIGNUP, this.emptyAck.bind(this));
+        this._app.action(CreateMeetupModal.ACTIONS.CREATE_MEETUP_WHEN, this.emptyAck.bind(this));
+        this._app.action(CreateMeetupModal.ACTIONS.CREATE_MEETUP_WHERE_ADDRESS, this.emptyAck.bind(this));
+        this._app.action(CreateMeetupModal.ACTIONS.CREATE_MEETUP_WHERE_FRIENDLY, this.emptyAck.bind(this));
+        this._app.action(CreateMeetupModal.ACTIONS.CREATE_MEETUP_ADDITIONAL_NOTES, this.emptyAck.bind(this));
+        this._app.action(RegistrationModal.ACTIONS.FOOD_TYPE_SELECT, this.emptyAck.bind(this));
+        this._app.action(RegistrationModal.ACTIONS.FOOD_DESCRIPTION, this.emptyAck.bind(this));
+        this._app.action(RegistrationModal.ACTIONS.ADULT_SIGNUP, this.emptyAck.bind(this));
+        this._app.action(RegistrationModal.ACTIONS.CHILD_SIGNUP, this.emptyAck.bind(this));
+        this._app.action(QuickRegistrationActions.ACTIONS.SIGNUP, this.userSignupForMeetup.bind(this));
+        this._app.action(QuickRegistrationActions.ACTIONS.NOT_ATTENDING, this.userUnableToAttendMeetup.bind(this));
     }
 
     async emptyAck({ ack }) {
@@ -32,7 +39,6 @@ class Actions {
     }
 
     async createMeetup(payload) {
-        console.log('createMeetup');
         const { ack, body, context } = payload;
         ack();
         return;
@@ -42,9 +48,9 @@ class Actions {
         const { ack, action } = payload;
         ack();
 
-        if (action.action_id === AnnounceMeetup.IgnoreAnnounceAction) {
+        if (action.action_id === MeetupScheduledResponse.ACTIONS.IGNORE_ANNOUNCE_ACTION) {
             await AnnounceMeetup.ignore(payload);
-        } else if (action.action_id === AnnounceMeetup.SubmitAnnounceAction) {
+        } else if (action.action_id === MeetupScheduledResponse.ACTIONS.SUBMIT_ANNOUNCE_ACTION) {
             await AnnounceMeetup.announce(this._app, payload);
         }
         // else nothing to be concerned with

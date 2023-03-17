@@ -9,26 +9,27 @@ class Home {
         const { body } = payload;
         const { event } = body;
 
-        await this._app.client.views.publish(Home.render(event.user));
-    }
-
-    static render(userId) {
-        return {
-            user_id: userId,
+        await this._app.client.views.publish({
+            user_id: event.user,
+            team_id: event.team,
             view: {
                 type: "home",
-                blocks: [
-                    {
-                        type: "header",
-                        block_id: DateTimeHelpers.unixFromDate(new Date()).toString(),
-                        text: {
-                            type: "plain_text",
-                            text: "Welcome home!"
-                        }
-                    }
-                ]
+                blocks: Home.render()
             }
-        };
+        });
+    }
+
+    static render() {
+        return [
+            {
+                type: "header",
+                block_id: DateTimeHelpers.unixFromDate(new Date()).toString(),
+                text: {
+                    type: "plain_text",
+                    text: "Welcome home!"
+                }
+            }
+        ];
     }
 }
 

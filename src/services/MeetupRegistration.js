@@ -1,12 +1,9 @@
 const _ = require("lodash");
 const db = require("../models");
 const ErrorAssistant = require("../helpers/ErrorAssistant");
+const RegistrationForm = require("../views/RegistrationModal/RegistrationForm");
 
 class MeetupRegistration {
-  static ACTIONS = {
-    ADULT_SIGNUP: "form.signup.adult_count",
-    CHILD_SIGNUP: "form.signup.child_count",
-  };
   static async _createOrUpdateRegistration(
     errorHelper,
     {
@@ -63,12 +60,11 @@ class MeetupRegistration {
   }
 
   static async initAttending(app, payload) {
-    console.log("INIT ATTENDING");
     const { action, body } = payload;
     const helper = new ErrorAssistant(app, payload);
     const meetupId = action.value;
 
-    const registration = await this._createOrUpdateRegistration(helper, {
+    return await this._createOrUpdateRegistration(helper, {
       meetupId,
       slackUserId: body.user.id,
       slackTeamId: body.user.team_id,
@@ -78,34 +74,15 @@ class MeetupRegistration {
     });
   }
 
-  static getRegistrationFormValues(viewState) {
-    const adultCount = _.get(viewState, [
-      "values",
-      `section.${this.ACTIONS.ADULT_SIGNUP}`,
-      this.ACTIONS.ADULT_SIGNUP,
-      "value",
-    ]);
-    const childCount = _.get(viewState, [
-      "values",
-      `section.${this.ACTIONS.CHILD_SIGNUP}`,
-      this.ACTIONS.CHILD_SIGNUP,
-      "value",
-    ]);
-    return {
-      adultCount,
-      childCount,
-    };
-  }
-
   static async updateAttendance(app, payload) {
     const { body, view } = payload;
     const meta = JSON.parse(_.get(view, "private_metadata", "{}"));
-    const { meetupId, channel = body.user.id } = meta;
-    const { adultCount, childCount } = this.getRegistrationFormValues(
+    const { meetupId } = meta;
+    const { adultCount, childCount } = RegistrationForm.getFormValues(
       view.state
     );
 
-    const registration = await this._createOrUpdateRegistration(
+    return await this._createOrUpdateRegistration(
       new ErrorAssistant(app, payload),
       {
         meetupId,
@@ -115,7 +92,6 @@ class MeetupRegistration {
         childRegistrationCount: childCount,
       }
     );
-    return registration;
   }
 
   static async notAttending(app, payload) {
@@ -134,7 +110,6 @@ class MeetupRegistration {
       return;
     }
 
-    console.log(body);
     await app.client.chat.postEphemeral({
       channel: body.container.channel_id,
       user: body.user.id,

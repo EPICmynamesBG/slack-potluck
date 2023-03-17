@@ -3,6 +3,9 @@ const CreateMeetup = require('../services/CreateMeetup');
 const ErrorAssistant = require('../helpers/ErrorAssistant');
 const FoodSignup = require('../services/FoodSignup');
 const MeetupRegistration = require('../services/MeetupRegistration');
+const MeetupScheduledResponse = require('../views/MeetupScheduledResponse');
+const CreateMeetupModal = require('../views/CreateMeetupModal');
+const RegistrationModal = require('../views/RegistrationModal');
 
 let singleton;
 
@@ -13,8 +16,8 @@ class Views {
     }
 
     _setup() {
-        this._app.view(CreateMeetup.VIEW_ID, this.createMeetupSubmit.bind(this));
-        this._app.view(FoodSignup.VIEW_ID, this.foodSignupSubmit.bind(this));
+        this._app.view(CreateMeetupModal.VIEW_ID, this.createMeetupSubmit.bind(this));
+        this._app.view(RegistrationModal.VIEW_ID, this.registrationModalSubmit.bind(this));
         this._app.view({ callback_id: FoodSignup.VIEW_ID, type: 'view_closed' }, this.foodSignupClosed.bind(this));
     }
 
@@ -34,14 +37,14 @@ class Views {
             await this._app.client.chat.postMessage({
                 channel: body.user.id,
                 unfurl_links: false,
-                blocks: CreateMeetup.renderMeetupCreatedMessage(meetup)
+                blocks: MeetupScheduledResponse.render(meetup)
             });
         } catch (e) {
             await helper.handleError(e, 'Meetup created, but something went wrong preparing the announcement :thinking_face:');
         }
     }
 
-    async foodSignupSubmit(payload) {
+    async registrationModalSubmit(payload) {
         const { ack, body, view } = payload;
         ack();
 
