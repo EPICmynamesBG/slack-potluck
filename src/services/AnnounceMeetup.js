@@ -34,6 +34,10 @@ class AnnounceMeetup {
     try {
       const meetup = await db.Meetup.findByPk(meetupId);
 
+      await app.client.conversations.join({
+        channel
+      });
+
       posted = await app.client.chat.postMessage({
         channel,
         unfurl_links: false,
