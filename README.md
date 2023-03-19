@@ -1,11 +1,20 @@
 # Slack-Potluck
 
-- Schedule group meetups
-- Sign up for food slots
 
 
+## Version 1
 
+### Features
+[x] Schedule group meetups
+[x] Sign up for food slots
+[ ] View Attendees/Signups
+[x] Google Map Directions
+[ ] Announce meetups
 
+## Future Versions
+### Possible Features
+[ ] Private Meetups
+[ ] Calendar integration
 
 ## References
 Logo Credits

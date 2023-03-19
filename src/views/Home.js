@@ -1,4 +1,6 @@
+const _ = require('lodash');
 const DateTimeHelpers = require("../helpers/datetime");
+const ViewHelper = require("../helpers/ViewHelper");
 const MeetupWithRegistrationCount = require("../models/views/MeetupWithRegistrationCount");
 const MeetupDetailsWithAttendance = require("./MeetupDetailsWithAttendance");
 
@@ -30,12 +32,15 @@ class Home {
    * @returns
    */
   static render(meetups) {
-    const meetupBlocks = meetups.reduce((arr, meetup) => {
-      arr.push(...MeetupDetailsWithAttendance.render(meetup));
-      arr.push({ type: "divider" });
-      return arr;
-    }, []);
-    meetupBlocks.pop();
+    // const meetupBlocks = meetups.reduce((arr, meetup) => {
+    //   arr.push(...MeetupDetailsWithAttendance.render(meetup));
+    //   arr.push({ type: "divider" });
+    //   return arr;
+    // }, []);
+    // meetupBlocks.pop();
+
+    const meetupBlocks = ViewHelper.separateWithDivider(meetups.map(MeetupDetailsWithAttendance.render));
+    
     return [
       {
         type: "header",

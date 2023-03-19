@@ -1,0 +1,107 @@
+const db = require("../../models");
+const MeetupWithRegistrationCount = require("../../models/views/MeetupWithRegistrationCount");
+const { dateOnly } = require("../../helpers/datetime");
+const MeetupAttendanceSection = require("../MeetupAttendanceSection");
+const ViewHelper = require("../../helpers/ViewHelper");
+const AttendeeRow = require('./AttendeeRow');
+
+class ViewAttendanceModal {
+  constructor(app) {
+    this._app = app;
+  }
+
+  static VIEW_ID = "meetup.attendance.view.modal";
+  static ACTIONS = {};
+
+  async render({
+    botToken,
+    triggerId,
+    meetupId,
+    channel,
+    slackUserId,
+    slackTeamId,
+  }) {
+    const meetup = await MeetupWithRegistrationCount.getMeetup(meetupId);
+    const registrations = await db.MeetupRegistration.findAll({
+      where: {
+        meetupId
+      },
+      include: ['foodRegistration']
+    });
+
+    const attendeeRows = await Promise.all(
+      registrations.map((registrationWithFoodSignup) => {
+        const row = new AttendeeRow(this._app, registrationWithFoodSignup);
+        return row.render();
+      })
+    );
+
+    await this._app.client.views.open({
+      token: botToken,
+      trigger_id: triggerId,
+      // Pass the view_id
+      view_id: ViewAttendanceModal.VIEW_ID,
+      // View payload with updated blocks
+      view: {
+        type: "modal",
+        // View identifier
+        callback_id: ViewAttendanceModal.VIEW_ID,
+        notify_on_close: true,
+        clear_on_close: true,
+        private_metadata: JSON.stringify({
+          meetupId,
+          channel,
+        }),
+        title: {
+          type: "plain_text",
+          text: `${dateOnly(meetup.timestamp)} Meetup`,
+        },
+        close: {
+          type: "plain_text",
+          text: "Close",
+        },
+        blocks: ViewAttendanceModal.render(
+          meetup.adultsRegistered,
+          meetup.childrenRegistered,
+          attendeeRows
+        ),
+      },
+    });
+  }
+
+  static _renderTotalsHeader(adultCount = 0, childCount = 0) {
+    return {
+      type: "section",
+      fields: MeetupAttendanceSection._attendanceFields(adultCount, childCount),
+    };
+  }
+
+  /**
+   *
+   * @param {Meetup} meetup
+   * @param {AttendeeRow[]} attendeeRows
+   * @returns
+   */
+  static render(adultsRegistered, childrenRegistered, attendeeRows = []) {
+    const blocks = [
+      this._renderTotalsHeader(adultsRegistered, childrenRegistered),
+      { type: 'divider' }
+    ];
+    if (attendeeRows.length > 0) {
+      const renderAttendees = ViewHelper.separateWithDivider(attendeeRows);
+      blocks.push(...renderAttendees);
+    } else {
+      blocks.push({
+        type: "section",
+        text: {
+          type: "mrkdwn",
+          text: "No responses",
+        },
+      });
+    }
+
+    return blocks;
+  }
+}
+
+module.exports = ViewAttendanceModal;

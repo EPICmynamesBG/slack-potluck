@@ -3,14 +3,16 @@ const db = require("../models");
 const ErrorAssistant = require("../helpers/ErrorAssistant");
 const RegistrationModal = require('../views/RegistrationModal');
 const FoodSignupForm = require('../views/RegistrationModal/FoodSignupForm');
+const PayloadHelper = require("../helpers/PayloadHelper");
 
 class FoodSignup {
   static async renderSignupModal(payload) {
     const { action, context, body } = payload;
+    const payloadHelper = new PayloadHelper(payload);
     
     const renderer = new RegistrationModal();
     return await renderer.render({
-      channel: body.channel.id,
+      channel: payloadHelper.getChannel(),
       botToken: context.botToken,
       triggerId: body.trigger_id,
       meetupId: action.value,

@@ -19,28 +19,24 @@ class MeetupAttendanceSection {
     };
   }
 
+  static _attendanceFields(adultCount = 0, childCount = 0) {
+    return [
+      {
+        type: "mrkdwn",
+        text: `*Adults* ${adultCount || 0}`,
+      },
+      {
+        type: "mrkdwn",
+        text: `*Children* ${childCount || 0}`,
+      }
+    ];
+  }
+
   static _attendanceSection(meetupId, adultCount = 0, childCount = 0) {
     return {
       type: "section",
       block_id: `${this.ATTENDANCE_BLOCK_ID}.${meetupId}.${unixFromDate(new Date())}`,
-      fields: [
-        {
-          type: "mrkdwn",
-          text: "*Adults*",
-        },
-        {
-          type: "mrkdwn",
-          text: "*Children*",
-        },
-        {
-          type: "plain_text",
-          text: `${adultCount || 0}`,
-        },
-        {
-          type: "plain_text",
-          text: `${childCount || 0}`,
-        },
-      ],
+      fields: this._attendanceFields(adultCount, childCount),
       accessory: this._viewAttendanceButton(meetupId),
     };
   }

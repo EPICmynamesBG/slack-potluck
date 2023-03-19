@@ -20,7 +20,7 @@ class RegistrationModal {
         include: "foodRegistration",
       });
     const existingFoodSignup = _.get(existingRegistration, 'foodRegistration');
-
+    const meetup = await db.Meetup.findByPk(meetupId);
 
     return {
       token: botToken,
@@ -50,17 +50,20 @@ class RegistrationModal {
           type: "plain_text",
           text: "Ask me Later",
         },
-        blocks: [
-          ...RegistrationForm.render(existingRegistration),
-          ...FoodSignupForm.render(existingFoodSignup),
-        ],
+        blocks: RegistrationModal.renderBlocks(meetup, existingRegistration, existingFoodSignup),
       },
     };
   }
 
-  // static renderModalActions(meetup) {
-  //   return RegistrationForm.renderQuickActions(meetup);
-  // }
+  static renderBlocks(meetup, existingRegistration, existingFoodSignup) {
+    const blocks = [
+      ...RegistrationForm.render(existingRegistration),
+    ];
+    if (meetup.includeFoodSignup) {
+      blocks.push(...FoodSignupForm.render(existingFoodSignup));
+    }
+    return blocks;
+  }
 }
 
 module.exports = RegistrationModal;
