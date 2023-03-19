@@ -97,7 +97,7 @@ class AttendeeRow {
       ...AttendeeRow._renderUserInfo(slackUserId, userInfo),
       ...MeetupAttendanceSection._attendanceFields(
         this.registrationWithFoodSignup.adultRegistrationCount,
-        this.registrationWithFoodSignup.adultRegistrationCount
+        this.registrationWithFoodSignup.childRegistrationCount
       )
     ];
     if (includeFoodSignups) {
