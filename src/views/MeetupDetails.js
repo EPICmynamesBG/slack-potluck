@@ -21,17 +21,12 @@ class MeetupDetails {
     }
     return {
       type: "section",
-      elements: [
-        {
-          type: "plain_text",
-          emoji: true,
-          text: ":thought_balloon:",
-        },
+      fields: [
         {
           type: "mrkdwn",
-          text: notes,
-        },
-      ],
+          text: `:thought_balloon: ${notes}`,
+        }
+      ]
     };
   }
 
