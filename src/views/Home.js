@@ -21,7 +21,7 @@ class Home {
       team_id: body.team_id,
       view: {
         type: "home",
-        blocks: Home.render(meetups),
+        blocks: Home.render(meetups, event.user),
       },
     });
   }
@@ -31,8 +31,8 @@ class Home {
    * @param {MeetupWithRegistrationCount[]} meetups
    * @returns
    */
-  static render(meetups) {
-    const meetupBlocks = ViewHelper.separateWithDivider(meetups.map(meetup => MeetupDetailsWithAttendance.render(meetup, true)));
+  static render(meetups, renderingForSlackUserId = undefined) {
+    const meetupBlocks = ViewHelper.separateWithDivider(meetups.map(meetup => MeetupDetailsWithAttendance.render(meetup, renderingForSlackUserId)));
     
     return [
       {

@@ -135,7 +135,6 @@ class Actions {
   }
 
   async viewAttendanceTrigger(payload) {
-    // TODO: Open modal
     const { ack } = payload;
     ack();
 

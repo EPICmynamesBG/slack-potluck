@@ -63,7 +63,8 @@ class MeetupDetails {
           text: {
             type: "plain_text",
             text: "Manage",
-          }
+          },
+          value: meetup.id.toString()
         }
       }
 

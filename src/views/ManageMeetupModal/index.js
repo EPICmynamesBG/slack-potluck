@@ -1,5 +1,7 @@
 const db = require('../../models');
 const CreateMeetupForm = require('../CreateMeetupModal/CreateMeetupForm');
+const { dateOnly } = require('../../helpers/datetime');
+const DateTimeHelpers = require('../../helpers/datetime');
 
 class ManageMeetupModal {
     static VIEW_ID = 'meetup.manage.modal';
@@ -21,6 +23,9 @@ class ManageMeetupModal {
         slackTeamId,    
     }) {
         const meetup = await db.Meetup.findByPk(meetupId);
+        if (!meetup) {
+            throw new Error('Meetup not found');
+        }
 
         await this._app.client.views.open({
             token: botToken,
@@ -55,14 +60,35 @@ class ManageMeetupModal {
           });      
     }
 
-    static getFormValues() {
-        // TODO
+    static getFormValues(viewState) {
         return {
             
         };
     }
 
-    static _deleteAction() {
+    static _deleteConfirmation(meetup) {
+      return {
+        title: {
+          type: 'plain_text',
+          text: 'Delete Meetup'
+        },
+        text: {
+          type: 'mrkdwn',
+          text: `Are you sure want to delete the *${DateTimeHelpers.humanReadable(meetup.timestamp)}* Meetup? This will update & *notify* all existing announcements.`
+        },
+        confirm: {
+          type: 'plain_text',
+          text: 'Delete'
+        },
+        deny: {
+          type: 'plain_text',
+          text: 'Cancel'
+        },
+        style: 'danger'
+      };
+    }
+
+    static _deleteAction(meetup) {
         return [
             {
                 type: 'actions',
@@ -76,7 +102,7 @@ class ManageMeetupModal {
                         },
                         style: "danger",
                         value: meetup.id.toString(),
-                        confirm: true,
+                        confirm: this._deleteConfirmation(meetup),
                         action_id: this.ACTIONS.CANCEL_MEETUP,
                       }
                 ]
@@ -86,7 +112,7 @@ class ManageMeetupModal {
 
     static render(meetup) {
         const blocks = CreateMeetupForm.render(meetup);
-        blocks.add(...this._deleteAction());
+        blocks.push(...this._deleteAction(meetup));
         return blocks;
     }
 }
