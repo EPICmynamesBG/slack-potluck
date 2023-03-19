@@ -41,7 +41,8 @@ class AttendeeRow {
     return this._userInfo;
   }
 
-  static _renderUserInfo(slackUserId, userInfo = undefined) {
+  static _renderUserInfo(slackUserId, userInfo = undefined, organizerSlackId = undefined) {
+    const isOrganizerIndicator = slackUserId === organizerSlackId ? ' :clipboard:' : '';
     if (userInfo) {
       return [
         {
@@ -51,7 +52,7 @@ class AttendeeRow {
         },
         {
           type: "mrkdwn",
-          text: `@${userInfo.name}`,
+          text: `@${userInfo.name}${isOrganizerIndicator}`,
         },
       ];
     }
@@ -62,7 +63,7 @@ class AttendeeRow {
       },
       {
         type: "mrkdwn",
-        text: `*${slackUserId}*`,
+        text: `*${slackUserId}*${isOrganizerIndicator}`,
       },
     ];
   }
@@ -83,7 +84,7 @@ class AttendeeRow {
     ];
   }
 
-  async render(includeFoodSignups = false) {
+  async render(includeFoodSignups = false, organizerSlackId = undefined) {
     const userInfo = await this.getUserInfo();
     const isGoing = AttendeeRow.ResponseIndicatesAttending(
       this.registrationWithFoodSignup
@@ -94,7 +95,7 @@ class AttendeeRow {
         type: "mrkdwn",
         text: isGoing ? ":white_check_mark:" : ":x:",
       },
-      ...AttendeeRow._renderUserInfo(slackUserId, userInfo),
+      ...AttendeeRow._renderUserInfo(slackUserId, userInfo, organizerSlackId),
       ...MeetupAttendanceSection._attendanceFields(
         this.registrationWithFoodSignup.adultRegistrationCount,
         this.registrationWithFoodSignup.childRegistrationCount
