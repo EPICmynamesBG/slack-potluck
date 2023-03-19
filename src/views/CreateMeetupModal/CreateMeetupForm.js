@@ -53,7 +53,8 @@ class CreateMeetupForm {
     };
   }
 
-  static render() {
+  static render(existingMeetup = undefined) {
+    // TODO: populate when existing
     return [
       {
         type: "input",

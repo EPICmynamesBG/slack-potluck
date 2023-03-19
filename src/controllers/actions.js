@@ -4,6 +4,7 @@ const AnnounceMeetup = require("../services/AnnounceMeetup");
 const FoodSignup = require("../services/FoodSignup");
 const MeetupRegistration = require("../services/MeetupRegistration");
 const CreateMeetupModal = require("../views/CreateMeetupModal");
+const ManageMeetupModal = require("../views/ManageMeetupModal");
 const MeetupDetails = require("../views/MeetupDetails");
 const MeetupDetailsWithAttendance = require("../views/MeetupDetailsWithAttendance");
 const MeetupScheduledResponse = require("../views/MeetupScheduledResponse");
@@ -84,6 +85,14 @@ class Actions {
       MeetupDetailsWithAttendance.ACTIONS.VIEW_ATTENDANCE,
       this.viewAttendanceTrigger.bind(this)
     );
+    this._app.action(
+      MeetupDetails.ACTIONS.MANAGE_MEETUP_ACTION,
+      this.manageMeetupTrigger.bind(this)
+    );
+    this._app.action(
+      ManageMeetupModal.ACTIONS.CANCEL_MEETUP,
+      this.cancelMeetup.bind(this)
+    );
   }
 
   async emptyAck({ ack }) {
@@ -146,6 +155,34 @@ class Actions {
     } catch (e) {
       await errorHelper.handleError(e);
     }
+  }
+
+  async manageMeetupTrigger(payload) {
+    const { ack } = payload;
+    ack();
+
+    const payloadHelper = new PayloadHelper(payload);
+    const { action, context, body } = payload;
+    const errorHelper = new ErrorAssistant(this._app, payload);
+    const modal = new ManageMeetupModal(this._app);
+    try {
+      await modal.render({
+        channel: payloadHelper.getChannel(),
+        botToken: context.botToken,
+        triggerId: body.trigger_id,
+        meetupId: action.value,
+        slackUserId: body.user.id,
+        slackTeamId: body.user.team_id,
+      });
+    } catch (e) {
+      await errorHelper.handleError(e);
+    }    
+  }
+
+  async cancelMeetup(payload) {
+    const { ack } = payload;
+    ack();
+    // TODO
   }
 
   static init(app) {

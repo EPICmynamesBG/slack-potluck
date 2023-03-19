@@ -7,6 +7,7 @@ const MeetupScheduledResponse = require("../views/MeetupScheduledResponse");
 const CreateMeetupModal = require("../views/CreateMeetupModal");
 const RegistrationModal = require("../views/RegistrationModal");
 const ViewAttendanceModal = require("../views/ViewAttendanceModal");
+const ManageMeetupModal = require("../views/ManageMeetupModal");
 
 let singleton;
 
@@ -40,6 +41,12 @@ class Views {
       this.emptyAck.bind(this)
     );
     this._app.view(ViewAttendanceModal.VIEW_ID, this.emptyAck.bind(this));
+
+    this._app.view(
+      { callback_id: ManageMeetupModal.VIEW_ID, type: "view_closed" },
+      this.emptyAck.bind(this)
+    );
+    this._app.view(ManageMeetupModal.VIEW_ID, this.submitMeetupChanges.bind(this));
   }
 
   async emptyAck({ ack }) {
@@ -111,6 +118,13 @@ class Views {
       user: body.user.id,
       text: "You're going, hooray! You can always hit Sign Up again to update details :simple_smile:",
     });
+  }
+
+  async submitMeetupChanges(payload) {
+    const { ack } = payload;
+    ack();
+
+    // TODO
   }
 
   static init(app) {
