@@ -3,6 +3,7 @@ const db = require("../models");
 const ErrorAssistant = require("../helpers/ErrorAssistant");
 const MeetupAnnouncement = require("../views/MeetupAnnouncement");
 const MeetupScheduledResponse = require("../views/MeetupScheduledResponse");
+const PayloadHelper = require("../helpers/PayloadHelper");
 
 class AnnounceMeetup {
   static async ignore({ respond }) {
@@ -13,15 +14,18 @@ class AnnounceMeetup {
   }
 
   static async announce(app, payload) {
-    const { action, body, respond } = payload;
-    const { state } = body;
+    const { action, body } = payload;
+    const payloadHelper = new PayloadHelper(payload);
+    const state = payloadHelper.getState();
     const { channel } = MeetupScheduledResponse.getFormValues(state);
     if (!channel) {
-      await respond({
-        response_type: "ephemeral",
-        replace_original: false,
-        text: "Hmm, but what channel?",
-      });
+      await payloadHelper.respond(
+        {
+          response_type: "ephemeral",
+          replace_original: false,
+          text: "Hmm, but what channel?",
+        }
+      );
       return;
     }
     const helper = new ErrorAssistant(app, payload);
@@ -36,7 +40,7 @@ class AnnounceMeetup {
         blocks: MeetupAnnouncement.render(meetup),
       });
 
-      await respond({
+      await payloadHelper.respond({
         text: "Announcement shared!",
         replace_original: true,
       });

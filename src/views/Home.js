@@ -32,14 +32,7 @@ class Home {
    * @returns
    */
   static render(meetups) {
-    // const meetupBlocks = meetups.reduce((arr, meetup) => {
-    //   arr.push(...MeetupDetailsWithAttendance.render(meetup));
-    //   arr.push({ type: "divider" });
-    //   return arr;
-    // }, []);
-    // meetupBlocks.pop();
-
-    const meetupBlocks = ViewHelper.separateWithDivider(meetups.map(MeetupDetailsWithAttendance.render));
+    const meetupBlocks = ViewHelper.separateWithDivider(meetups.map(meetup => MeetupDetailsWithAttendance.render(meetup, true)));
     
     return [
       {
@@ -54,6 +47,9 @@ class Home {
         type: "divider",
       },
       ...meetupBlocks,
+      {
+        type: 'divider'
+      }
     ];
   }
 }

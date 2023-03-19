@@ -7,14 +7,39 @@
 ### Features
 [x] Schedule group meetups
 [x] Sign up for food slots
-[ ] View Attendees/Signups
+[x] View Attendees/Signups
 [x] Google Map Directions
-[ ] Announce meetups
+[x] Announce meetups
 
 ## Future Versions
-### Possible Features
+### Possible Features/Improvements
+[ ] Render date-times in user's active TZ
 [ ] Private Meetups
 [ ] Calendar integration
+
+## Development
+
+## Dependencies
+- Node.JS
+- Docker
+- ngrok.io (optional, recommended)
+
+#### Sample .env
+```
+NODE_ENV=development
+DEBUG=1
+SLACK_APP_ID=
+SLACK_CLIENT_ID=
+SLACK_CLIENT_SECRET=
+SLACK_BOT_TOKEN=
+SLACK_SIGNING_SECRET=
+SLACK_VERIFICATION_TOKEN=
+DATABASE_CONNECTION_STRING="mysql://root:example@127.0.0.1/database_dev"
+API_ENDPOINT_INTERACTIVE=/api/interactive
+API_ENDPOINT_SELECT_OPTIONS=/api/select-options
+API_ENDPOINT_EVENTS=/slack/events
+```
+
 
 ## References
 Logo Credits

@@ -20,7 +20,7 @@ class MeetupDetails {
       return;
     }
     return {
-      type: "context",
+      type: "section",
       elements: [
         {
           type: "plain_text",
@@ -54,13 +54,11 @@ class MeetupDetails {
 
     const details = [
       {
-        type: "context",
-        elements: [
-          {
-            type: "mrkdwn",
-            text: `:clock5: *${formattedTime}*`,
-          },
-        ],
+        type: "section",
+        text: {
+          type: "mrkdwn",
+          text: `:clock5: *${formattedTime}*`,
+        }
       },
       {
         type: "section",

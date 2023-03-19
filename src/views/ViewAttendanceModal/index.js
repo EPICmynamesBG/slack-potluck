@@ -32,7 +32,7 @@ class ViewAttendanceModal {
     const attendeeRows = await Promise.all(
       registrations.map((registrationWithFoodSignup) => {
         const row = new AttendeeRow(this._app, registrationWithFoodSignup);
-        return row.render();
+        return row.render(meetup.includeFoodSignup);
       })
     );
 
