@@ -47,6 +47,11 @@ class PayloadHelper {
       text,
     });
   }
+
+  getPrivateMetadata() {
+    const meta = JSON.parse(_.get(this.payload, "view.private_metadata", "{}"));
+    return meta;
+  }
 }
 
 module.exports = PayloadHelper;

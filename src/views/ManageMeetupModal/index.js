@@ -61,9 +61,7 @@ class ManageMeetupModal {
     }
 
     static getFormValues(viewState) {
-        return {
-            
-        };
+        return CreateMeetupForm.getFormValues(viewState);
     }
 
     static _deleteConfirmation(meetup) {

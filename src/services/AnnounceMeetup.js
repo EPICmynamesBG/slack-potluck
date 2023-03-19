@@ -13,6 +13,16 @@ class AnnounceMeetup {
     });
   }
 
+  static async joinChannel(channel) {
+    try {
+      await app.client.conversations.join({
+        channel
+      });
+    } catch (e) {
+      console.warn(`[AnnounceMeetup] Failed to join channel ${channel}`);
+    }
+  }
+
   static async announce(app, payload) {
     const { action, body } = payload;
     const payloadHelper = new PayloadHelper(payload);
@@ -34,9 +44,7 @@ class AnnounceMeetup {
     try {
       const meetup = await db.Meetup.findByPk(meetupId);
 
-      await app.client.conversations.join({
-        channel
-      });
+      await this.joinChannel(channel);
 
       posted = await app.client.chat.postMessage({
         channel,

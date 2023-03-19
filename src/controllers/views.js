@@ -8,6 +8,7 @@ const CreateMeetupModal = require("../views/CreateMeetupModal");
 const RegistrationModal = require("../views/RegistrationModal");
 const ViewAttendanceModal = require("../views/ViewAttendanceModal");
 const ManageMeetupModal = require("../views/ManageMeetupModal");
+const UpdateMeetup = require("../services/UpdateMeetup");
 
 let singleton;
 
@@ -124,7 +125,12 @@ class Views {
     const { ack } = payload;
     ack();
 
-    // TODO
+    try {
+      await UpdateMeetup.execute(this._app, payload);
+    } catch (e) {
+      const errAssistant = new ErrorAssistant(this._app, payload);
+      await errAssistant.handleError(e, 'Something went wrong trying to update the Meetup');
+    }
   }
 
   static init(app) {
