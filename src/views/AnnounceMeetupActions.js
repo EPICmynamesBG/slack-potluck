@@ -56,7 +56,7 @@ class AnnounceMeetupActions {
     // };
   }
 
-  static render(meetup, includeIgnore = true) {
+  static render(meetup, includeIgnore = true, additionalElements = []) {
     const elements = [
       this._renderChannelSelectBlock(),
       {
@@ -81,6 +81,7 @@ class AnnounceMeetupActions {
         action_id: this.ACTIONS.IGNORE_ANNOUNCE_ACTION,
       });
     }
+    elements.push(...additionalElements);
     return [
       {
         type: "actions",

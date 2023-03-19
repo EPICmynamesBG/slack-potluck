@@ -24,7 +24,8 @@ class SyncJob {
 }
 
 class UpdateAnnouncementPosting {
-    static DEFER_TIME = 1000 * 60 * 5; // 5 minutes
+    static DEFER_TIME = 5000;
+    // static DEFER_TIME = 1000 * 60 * 5; // 5 minutes
 
     // { id: SyncJob }
     static jobs = {};

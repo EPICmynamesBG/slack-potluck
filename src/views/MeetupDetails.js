@@ -3,7 +3,7 @@ const DateTimeHelpers = require("../helpers/datetime");
 class MeetupDetails {
   static ACTIONS = {
     GOOGLE_MAP_LINK_ACTION: 'meetup.location.url.click',
-    MANAGE_MEETUP_ACTION: 'meetup.manage.modal.trigger'
+    // MANAGE_MEETUP_ACTION: 'meetup.manage.modal.trigger'
   };
   //   constructor(app) {
   //     this._app = app;
@@ -56,17 +56,17 @@ class MeetupDetails {
           text: `:clock5: *${formattedTime}*`,
         }
       };
-      if (meetup.isOrganizer(forSlackUserId)) {
-        timeSection.accessory = {
-          type: "button",
-          action_id: this.ACTIONS.MANAGE_MEETUP_ACTION,
-          text: {
-            type: "plain_text",
-            text: "Manage",
-          },
-          value: meetup.id.toString()
-        }
-      }
+      // if (meetup.isOrganizer(forSlackUserId)) {
+      //   timeSection.accessory = {
+      //     type: "button",
+      //     action_id: this.ACTIONS.MANAGE_MEETUP_ACTION,
+      //     text: {
+      //       type: "plain_text",
+      //       text: "Manage",
+      //     },
+      //     value: meetup.id.toString()
+      //   }
+      // }
 
     const details = [
       timeSection,

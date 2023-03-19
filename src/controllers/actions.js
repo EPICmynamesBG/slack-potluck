@@ -1,12 +1,14 @@
 const ErrorAssistant = require("../helpers/ErrorAssistant");
 const PayloadHelper = require("../helpers/PayloadHelper");
 const AnnounceMeetup = require("../services/AnnounceMeetup");
+const CancelMeetup = require("../services/CancelMeetup");
 const FoodSignup = require("../services/FoodSignup");
 const MeetupRegistration = require("../services/MeetupRegistration");
 const CreateMeetupModal = require("../views/CreateMeetupModal");
 const ManageMeetupModal = require("../views/ManageMeetupModal");
 const MeetupDetails = require("../views/MeetupDetails");
 const MeetupDetailsWithAttendance = require("../views/MeetupDetailsWithAttendance");
+const MeetupManagementActions = require("../views/MeetupManagementActions");
 const MeetupScheduledResponse = require("../views/MeetupScheduledResponse");
 const QuickRegistrationActions = require("../views/QuickRegistrationActions");
 const RegistrationModal = require("../views/RegistrationModal");
@@ -86,11 +88,11 @@ class Actions {
       this.viewAttendanceTrigger.bind(this)
     );
     this._app.action(
-      MeetupDetails.ACTIONS.MANAGE_MEETUP_ACTION,
+      MeetupManagementActions.ACTIONS.MANAGE_MEETUP_ACTION,
       this.manageMeetupTrigger.bind(this)
     );
     this._app.action(
-      ManageMeetupModal.ACTIONS.CANCEL_MEETUP,
+      MeetupManagementActions.ACTIONS.CANCEL_MEETUP,
       this.cancelMeetup.bind(this)
     );
   }
@@ -181,7 +183,16 @@ class Actions {
   async cancelMeetup(payload) {
     const { ack } = payload;
     ack();
-    // TODO
+    
+    const errorHelper = new ErrorAssistant(this._app, payload);
+
+    try {
+      await CancelMeetup.execute(this._app, payload);
+    } catch (e) {
+      await errorHelper.handleError(e);
+    }
+    // if view.home
+    // re-render home
   }
 
   static init(app) {

@@ -2,6 +2,7 @@ const MeetupWithRegistrationCount = require('../models/views/MeetupWithRegistrat
 const MeetupAttendanceSection = require('./MeetupAttendanceSection');
 const MeetupDetails = require('./MeetupDetails');
 const AnnounceMeetupActions = require("./AnnounceMeetupActions");
+const MeetupManagementActions = require('./MeetupManagementActions');
 
 class MeetupDetailsWithAttendance {
     static ATTENDANCE_BLOCK_ID = MeetupAttendanceSection.ATTENDANCE_BLOCK_ID;
@@ -16,7 +17,7 @@ class MeetupDetailsWithAttendance {
         return [
             ...MeetupDetails.render(meetupWithRegistrationCount, renderForSlackUserId),
             ...MeetupAttendanceSection.render(meetupWithRegistrationCount),
-            ...AnnounceMeetupActions.render(meetupWithRegistrationCount, false)
+            ...MeetupManagementActions.render(meetupWithRegistrationCount, renderForSlackUserId)
         ];
     }
 }

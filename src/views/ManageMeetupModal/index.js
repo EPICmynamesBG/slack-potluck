@@ -110,7 +110,7 @@ class ManageMeetupModal {
 
     static render(meetup) {
         const blocks = CreateMeetupForm.render(meetup);
-        blocks.push(...this._deleteAction(meetup));
+        // blocks.push(...this._deleteAction(meetup));
         return blocks;
     }
 }

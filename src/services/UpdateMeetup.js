@@ -62,7 +62,7 @@ class UpdateMeetup {
       payloadHelper.getPrivateMetadata();
     const meetup = await db.Meetup.findByPk(meetupId);
     if (!meetup) {
-      throw new Error(`Meetup ${meetupID} not found`);
+      throw new Error(`Meetup ${meetupId} not found`);
     }
     const changes = this.meetupChanges(meetup, formValues);
     if (Object.keys(changes).length === 0) {
