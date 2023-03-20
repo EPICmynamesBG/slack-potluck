@@ -1,13 +1,11 @@
 const db = require('../../models');
 const CreateMeetupForm = require('../CreateMeetupModal/CreateMeetupForm');
 const { dateOnly } = require('../../helpers/datetime');
-const DateTimeHelpers = require('../../helpers/datetime');
 
 class ManageMeetupModal {
     static VIEW_ID = 'meetup.manage.modal';
-    static BLOCK_ID = 'meetup.manage.actions';
     static ACTIONS = {
-        CANCEL_MEETUP: 'meetup.cancel'
+      ...CreateMeetupForm.ACTIONS
     };
 
     constructor(app) {
@@ -64,53 +62,8 @@ class ManageMeetupModal {
         return CreateMeetupForm.getFormValues(viewState);
     }
 
-    static _deleteConfirmation(meetup) {
-      return {
-        title: {
-          type: 'plain_text',
-          text: 'Delete Meetup'
-        },
-        text: {
-          type: 'mrkdwn',
-          text: `Are you sure want to delete the *${DateTimeHelpers.humanReadable(meetup.timestamp)}* Meetup? This will update & *notify* all existing announcements.`
-        },
-        confirm: {
-          type: 'plain_text',
-          text: 'Delete'
-        },
-        deny: {
-          type: 'plain_text',
-          text: 'Cancel'
-        },
-        style: 'danger'
-      };
-    }
-
-    static _deleteAction(meetup) {
-        return [
-            {
-                type: 'actions',
-                block_id: this.BLOCK_ID,
-                elements: [
-                    {
-                        type: "button",
-                        text: {
-                          type: "plain_text",
-                          text: "Cancel Meetup",
-                        },
-                        style: "danger",
-                        value: meetup.id.toString(),
-                        confirm: this._deleteConfirmation(meetup),
-                        action_id: this.ACTIONS.CANCEL_MEETUP,
-                      }
-                ]
-            }
-        ];
-    }
-
     static render(meetup) {
         const blocks = CreateMeetupForm.render(meetup);
-        // blocks.push(...this._deleteAction(meetup));
         return blocks;
     }
 }

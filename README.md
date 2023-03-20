@@ -10,6 +10,7 @@
 [x] View Attendees/Signups
 [x] Google Map Directions
 [x] Announce meetups
+[x] Manage (edit, delete) Meetups
 
 ## Future Versions
 ### Possible Features/Improvements

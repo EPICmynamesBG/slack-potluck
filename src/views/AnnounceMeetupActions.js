@@ -8,17 +8,24 @@ class AnnounceMeetupActions {
     IGNORE_ANNOUNCE_ACTION: "meetup.created.announce.ignore",
   };
 
-  static getFormValues(state) {
+  static getBlockId(meetupId) {
+    if (!meetupId) {
+      return this.BLOCK_ID;
+    }
+    return `${this.BLOCK_ID}.${meetupId}`;
+  }
+
+  static getFormValues(state, forMeetupId = undefined) {
     const channel =
       _.get(state, [
         "values",
-        this.BLOCK_ID,
+        this.getBlockId(forMeetupId),
         this.ACTIONS.CHANNEL_SELECT_ACTION,
         "selected_channel",
       ]) ||
       _.get(state, [
         "values",
-        this.BLOCK_ID,
+        this.getBlockId(forMeetupId),
         this.ACTIONS.CHANNEL_SELECT_ACTION,
         "selected_conversation",
       ]);
@@ -28,32 +35,24 @@ class AnnounceMeetupActions {
   }
 
   static _renderChannelSelectBlock() {
-    // if (process.env.DEBUG) {
-    //   return {
-    //     action_id: this.ACTIONS.CHANNEL_SELECT_ACTION,
-    //     type: "conversations_select",
-    //     placeholder: {
-    //       type: "plain_text",
-    //       text: "Select a Channel",
-    //     },
-    //   };
-    // }
+    if (process.env.DEBUG) {
+      return {
+        action_id: this.ACTIONS.CHANNEL_SELECT_ACTION,
+        type: "conversations_select",
+        placeholder: {
+          type: "plain_text",
+          text: "Select a Channel",
+        },
+      };
+    }
     return {
       action_id: this.ACTIONS.CHANNEL_SELECT_ACTION,
-      type: "conversations_select",
+      type: "channels_select",
       placeholder: {
         type: "plain_text",
         text: "Select a Channel",
       },
     };
-    // return {
-    //   action_id: this.ACTIONS.CHANNEL_SELECT_ACTION,
-    //   type: "channels_select",
-    //   placeholder: {
-    //     type: "plain_text",
-    //     text: "Select a Channel",
-    //   },
-    // };
   }
 
   static render(meetup, includeIgnore = true, additionalElements = []) {
@@ -85,7 +84,7 @@ class AnnounceMeetupActions {
     return [
       {
         type: "actions",
-        block_id: this.BLOCK_ID,
+        block_id: this.getBlockId(_.get(meetup, 'id')),
         elements,
       },
     ];

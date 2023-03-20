@@ -2,7 +2,7 @@
 const _ = require('lodash');
 
 class ViewHelper {
-    static separateWithDivider(blockElements = []) {
+    static separateWithDivider(blockElements = [], includeEndingDivider = false) {
         const dividedBlocks = blockElements.reduce((arr, block) => {
             arr.push(block);
             arr.push({
@@ -10,7 +10,9 @@ class ViewHelper {
             });
             return arr;
         }, []);
-        dividedBlocks.pop();
+        if (!includeEndingDivider) {
+            dividedBlocks.pop();
+        }
         return _.flatten(dividedBlocks);
     }
 

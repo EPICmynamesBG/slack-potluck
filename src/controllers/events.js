@@ -13,11 +13,13 @@ class Events {
     }
 
     async appHome(payload) {
-        const { event, client, logger } = payload;
-        // ack();
-
+        const { body } = payload;
+        const { event } = body;
+        const slackTeamId = body.team_id;
+        const slackUserId = event.user;
+    
         const home = new Home(this._app);
-        await home.render(payload);
+        await home.render(slackTeamId, slackUserId);
     }
 
 

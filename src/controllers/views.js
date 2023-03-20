@@ -9,6 +9,8 @@ const RegistrationModal = require("../views/RegistrationModal");
 const ViewAttendanceModal = require("../views/ViewAttendanceModal");
 const ManageMeetupModal = require("../views/ManageMeetupModal");
 const UpdateMeetup = require("../services/UpdateMeetup");
+const PayloadHelper = require('../helpers/PayloadHelper');
+const Home = require('../views/Home');
 
 let singleton;
 
@@ -47,7 +49,10 @@ class Views {
       { callback_id: ManageMeetupModal.VIEW_ID, type: "view_closed" },
       this.emptyAck.bind(this)
     );
-    this._app.view(ManageMeetupModal.VIEW_ID, this.submitMeetupChanges.bind(this));
+    this._app.view(
+      ManageMeetupModal.VIEW_ID,
+      this.submitMeetupChanges.bind(this)
+    );
   }
 
   async emptyAck({ ack }) {
@@ -85,6 +90,7 @@ class Views {
         "Meetup created, but something went wrong preparing the announcement :thinking_face:"
       );
     }
+    await this._reRenderHome(payload);
   }
 
   async registrationModalSubmit(payload) {
@@ -129,7 +135,23 @@ class Views {
       await UpdateMeetup.execute(this._app, payload);
     } catch (e) {
       const errAssistant = new ErrorAssistant(this._app, payload);
-      await errAssistant.handleError(e, 'Something went wrong trying to update the Meetup');
+      await errAssistant.handleError(
+        e,
+        "Something went wrong trying to update the Meetup"
+      );
+    }
+    await this._reRenderHome(payload);
+  }
+
+  async _reRenderHome(payload) {
+    const { body } = payload;
+    const errorHelper = new ErrorAssistant(this._app, payload);
+    try {
+      const payloadHelper = new PayloadHelper(payload);
+      const home = new Home(this._app);
+      await home.render(body.user.team_id, payloadHelper.getUserId());
+    } catch (e) {
+      await errorHelper.handleError(e, "Failed to re-render app Home");
     }
   }
 

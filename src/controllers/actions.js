@@ -13,6 +13,8 @@ const MeetupScheduledResponse = require("../views/MeetupScheduledResponse");
 const QuickRegistrationActions = require("../views/QuickRegistrationActions");
 const RegistrationModal = require("../views/RegistrationModal");
 const ViewAttendanceModal = require("../views/ViewAttendanceModal");
+const Home = require("../views/Home");
+const CreateMeetupActions = require("../views/CreateMeetupActions");
 
 let singleton;
 
@@ -95,10 +97,32 @@ class Actions {
       MeetupManagementActions.ACTIONS.CANCEL_MEETUP,
       this.cancelMeetup.bind(this)
     );
+    this._app.action(
+      CreateMeetupActions.ACTIONS.CREATE_MEETUP,
+      this.meetupCreate.bind(this)
+    );
   }
 
   async emptyAck({ ack }) {
     ack();
+  }
+
+  // redundant to shortcuts
+  async meetupCreate(payload) {
+    const { ack, body, context } = payload;
+
+    ack();
+
+    const errorHelper = new ErrorAssistant(this._app, payload);
+    try {
+      const modal = new CreateMeetupModal(this._app);
+      await modal.render({
+        botToken: context.botToken,
+        triggerId: body.trigger_id,
+      });
+    } catch (error) {
+      await errorHelper.handleError(error);
+    }
   }
 
   async announceMeetupHandler(payload) {
@@ -177,13 +201,13 @@ class Actions {
       });
     } catch (e) {
       await errorHelper.handleError(e);
-    }    
+    }
   }
 
   async cancelMeetup(payload) {
-    const { ack } = payload;
+    const { ack, body } = payload;
     ack();
-    
+
     const errorHelper = new ErrorAssistant(this._app, payload);
 
     try {
@@ -191,8 +215,19 @@ class Actions {
     } catch (e) {
       await errorHelper.handleError(e);
     }
-    // if view.home
-    // re-render home
+    await this._reRenderHome(payload);
+  }
+
+  async _reRenderHome(payload) {
+    const { body } = payload;
+    const errorHelper = new ErrorAssistant(this._app, payload);
+    try {
+      const payloadHelper = new PayloadHelper(payload);
+      const home = new Home(this._app);
+      await home.render(body.user.team_id, payloadHelper.getUserId());
+    } catch (e) {
+      await errorHelper.handleError(e, "Failed to re-render app Home");
+    }
   }
 
   static init(app) {
