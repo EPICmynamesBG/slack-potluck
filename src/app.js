@@ -10,16 +10,19 @@ const Views = require('./controllers/views');
 const Shortcuts = require('./controllers/shortcuts');
 const Actions = require('./controllers/actions');
 const Events = require("./controllers/events");
+const OAuthInstallationStore = require("./services/OAuthInstallationStore");
 
 
 const app = new App({
   clientId: process.env.SLACK_CLIENT_ID,
   clientSecret: process.env.SLACK_CLIENT_SECRET,
-  token: process.env.SLACK_BOT_TOKEN,
+  // token: process.env.SLACK_BOT_TOKEN,
   signingSecret: process.env.SLACK_SIGNING_SECRET,
+  scopes: ['app_mentions:read', 'channels:join', 'chat:write', 'commands', 'users:read'],
   endpoints: [process.env.API_ENDPOINT_EVENTS, process.env.API_ENDPOINT_SELECT_OPTIONS, process.env.API_ENDPOINT_INTERACTIVE],
   developerMode: true,
-  socketMode: false
+  socketMode: false,
+  installationStore: new OAuthInstallationStore(process.env.SLACK_CLIENT_ID)
 });
 
 
