@@ -27,7 +27,8 @@ class AnnounceMeetup {
     const { action, body } = payload;
     const payloadHelper = new PayloadHelper(payload);
     const state = payloadHelper.getState();
-    const { channel } = MeetupScheduledResponse.getFormValues(state);
+    const meetupId = Number.parseInt(action.value, 10);
+    const { channel } = MeetupScheduledResponse.getFormValues(state, meetupId);
     if (!channel) {
       await payloadHelper.respond(
         {
@@ -39,7 +40,6 @@ class AnnounceMeetup {
       return;
     }
     const helper = new ErrorAssistant(app, payload);
-    const meetupId = Number.parseInt(action.value, 10);
     let posted;
     try {
       const meetup = await db.Meetup.findByPk(meetupId);
