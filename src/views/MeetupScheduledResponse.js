@@ -8,8 +8,8 @@ class MeetupScheduledResponse {
     ...AnnounceMeetupActions.ACTIONS
   };
 
-  static getFormValues(state) {
-    return AnnounceMeetupActions.getFormValues(state);
+  static getFormValues(state, meetupId = undefined) {
+    return AnnounceMeetupActions.getFormValues(state, meetupId);
   }
 
   static render(meetup) {
