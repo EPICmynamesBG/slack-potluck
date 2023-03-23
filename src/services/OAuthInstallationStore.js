@@ -3,6 +3,8 @@ const { FileInstallationStore } = require("@slack/bolt");
 const db = require("../models");
 const OAuthInstallationDTO = require("../DTO/OAuthInstallationDTO");
 
+let singleton;
+
 /**
  * @type {import('@slack/bolt').InstallationStore}
  */
@@ -100,7 +102,6 @@ class OAuthInstallationStore extends FileInstallationStore {
    * @returns {db.OAuthInstallation}
    */
   async _findInstallation(query, logger) {
-    // NOTE: so long as we're only utilizing bot token, this query is sufficient
     logger.debug(`[OAuthInstallationStore] Lookup with by team ${query.teamId}`);
     const existing = await this._multiLookup(query, logger);
     if (!existing) {
@@ -133,6 +134,9 @@ class OAuthInstallationStore extends FileInstallationStore {
    * @param {*} logger
    */
   async deleteInstallation(query, logger) {
+    logger.debug(
+      `[OAuthInstallationStore] Delete requested for team ${query.teamId}`
+    );
     const existing = await this._findInstallation(query, logger);
     logger.info(
       `[OAuthInstallationStore] Deleting installation ${existing.id} for team ${query.teamId}`
@@ -140,7 +144,7 @@ class OAuthInstallationStore extends FileInstallationStore {
     await existing.destroy();
     // TODO: Purge all DB tables by slackTeamId when all of a team's installations are
     if (await OAuthInstallationStore.shouldPurgeTeamData(query.teamId)) {
-      await this.purgeTeamData(query.teamId);
+      await OAuthInstallationStore.purgeTeamData(query.teamId, logger);
     }
   }
 
@@ -153,16 +157,30 @@ class OAuthInstallationStore extends FileInstallationStore {
     return count == 0;
   }
 
-  static async purgeTeamData(slackTeamId) {
+  static async purgeTeamData(slackTeamId, logger) {
     // due to Cascade, all related should be deleted.
-    console.warn(
-      `[OAuthInstallationStore] Remove all data for slack team ${slackTeamId}`
+    logger.warn(
+      `[OAuthInstallationStore] Purge all data for slack team ${slackTeamId}`
     );
     // await db.Meetup.destroy({
     //   where: {
     //     slackTeamId
     //   }
     // });
+  }
+
+  static init(clientId) {
+    if (!singleton) {
+      singleton = new OAuthInstallationStore(clientId);
+    }
+    return singleton;
+  }
+
+  static get() {
+    if (!singleton) {
+      this.init(process.env.SLACK_CLIENT_ID);
+    }
+    return singleton;
   }
 }
 

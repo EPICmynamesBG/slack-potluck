@@ -1,4 +1,5 @@
 const Home = require('../views/Home');
+const OAuthInstallationStore = require('../services/OAuthInstallationStore');
 
 let singleton;
 
@@ -10,6 +11,7 @@ class Events {
 
     _setup() {
         this._app.event('app_home_opened', this.appHome.bind(this));
+        this._app.event('app_uninstalled', this.appUninstalled.bind(this));
     }
 
     async appHome(payload) {
@@ -20,6 +22,22 @@ class Events {
     
         const home = new Home(payload.client);
         await home.render(slackTeamId, slackUserId);
+    }
+
+    async appUninstalled(payload) {
+        const { body, context } = payload;
+        const store = OAuthInstallationStore.get();
+        /**
+         * @type {import('@slack/bolt').InstallationQuery}
+         */
+        const query = {
+            teamId: body.team_id,
+            enterpriseId: context.enterpriseId,
+            userId: context.userId,
+            conversationId: context.conversationId,
+            isEnterpriseInstall: context.isEnterpriseInstall
+        };
+        await store.deleteInstallation(query, this._app.logger);
     }
 
 
