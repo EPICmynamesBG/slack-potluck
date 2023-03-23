@@ -11,6 +11,7 @@ const ManageMeetupModal = require("../views/ManageMeetupModal");
 const UpdateMeetup = require("../services/UpdateMeetup");
 const PayloadHelper = require('../helpers/PayloadHelper');
 const Home = require('../views/Home');
+const { tryJoinChannel } = require('../helpers/ChannelJoiner');
 
 let singleton;
 
@@ -78,6 +79,8 @@ class Views {
       );
       return;
     }
+    await tryJoinChannel(client, body.user.id);
+
     try {
       await client.chat.postMessage({
         channel: body.user.id,
@@ -107,6 +110,8 @@ class Views {
     const meta = JSON.parse(_.get(view, "private_metadata", "{}"));
     const { channel = body.user.id } = meta;
 
+    await tryJoinChannel(client, channel);
+
     await client.chat.postEphemeral({
       channel: channel,
       user: body.user.id,
@@ -123,6 +128,8 @@ class Views {
     ack();
     const meta = JSON.parse(_.get(view, "private_metadata", "{}"));
     const { channel = body.user.id } = meta;
+
+    await tryJoinChannel(client, channel);
 
     await client.chat.postEphemeral({
       channel: channel,

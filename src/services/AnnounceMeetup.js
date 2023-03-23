@@ -4,6 +4,7 @@ const ErrorAssistant = require("../helpers/ErrorAssistant");
 const MeetupAnnouncement = require("../views/MeetupAnnouncement");
 const MeetupScheduledResponse = require("../views/MeetupScheduledResponse");
 const PayloadHelper = require("../helpers/PayloadHelper");
+const { tryJoinChannel } = require('../helpers/ChannelJoiner');
 
 class AnnounceMeetup {
   static async ignore({ respond }) {
@@ -44,7 +45,7 @@ class AnnounceMeetup {
     try {
       const meetup = await db.Meetup.findByPk(meetupId);
 
-      await this.joinChannel(client, channel);
+      await tryJoinChannel(client, channel);
 
       posted = await client.chat.postMessage({
         channel,

@@ -1,5 +1,6 @@
 const { dateFromUnix } = require("../../helpers/datetime");
 const DateTimeHelpers = require("../../helpers/datetime");
+const { tryJoinChannel } = require('../../helpers/ChannelJoiner');
 
 class AnnounceChanges {
     constructor(client, meetupId, changes) {
@@ -18,6 +19,7 @@ class AnnounceChanges {
             return;
         }
 
+        await tryJoinChannel(client, payloadHelper.getChannel());
         await this.client.chat.postMessage({
             channel,
             thread_ts: originalMessageId,

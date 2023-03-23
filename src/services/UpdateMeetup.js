@@ -4,6 +4,7 @@ const db = require("../models");
 const ManageMeetupModal = require("../views/ManageMeetupModal");
 const MeetupUpdatedEphemeral = require("../views/ManageMeetupModal/MeetupUpdatedEphemeral");
 const UpdateAnnouncementPosting = require("./UpdateAnnouncementPosting");
+const { tryJoinChannel } = require('../helpers/ChannelJoiner');
 
 class UpdateMeetup {
   static _fieldIsChanged(originalValue, proposedValue = undefined) {
@@ -73,6 +74,8 @@ class UpdateMeetup {
     await this.applyMeetupChanges(meetup, changes);
 
     UpdateAnnouncementPosting.defer(client, meetup.id, changes);
+    await tryJoinChannel(client, channel);
+
     await client.chat.postEphemeral({
       channel,
       user: payloadHelper.getUserId(),

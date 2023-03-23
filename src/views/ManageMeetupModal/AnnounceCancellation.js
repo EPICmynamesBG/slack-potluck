@@ -1,3 +1,5 @@
+const { tryJoinChannel } = require('../../helpers/ChannelJoiner');
+
 class AnnounceCancellation {
     constructor(client, meetup) {
         this.client = client;
@@ -8,6 +10,7 @@ class AnnounceCancellation {
         channel,
         originalMessageId
     }) {
+        await tryJoinChannel(this.client, channel);
         await this.client.chat.postMessage({
             channel,
             thread_ts: originalMessageId,

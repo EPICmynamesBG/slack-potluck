@@ -1,4 +1,5 @@
 const _ = require("lodash");
+const { tryJoinChannel } = require('./ChannelJoiner');
 
 class PayloadHelper {
   constructor(payload) {
@@ -10,10 +11,10 @@ class PayloadHelper {
   }
 
   getChannel() {
-    let channel = _.get(this.payload, ["body", "channel", "id"]);
+    let channel = _.get(this.payload, ["body", "channel", "id"]) || _.get(this.payload, 'body.channel_id');
     if (!channel) {
-      this.logger.debug("body.channel.id not found; fallback to body.user.id");
-      channel = _.get(this.payload, ["body", "user", "id"]);
+      this.logger.debug("body.channel.id not found; fallback to userId");
+      channel = this.getUserId();
     }
     return channel;
   }
@@ -32,7 +33,11 @@ class PayloadHelper {
   }
 
   getUserId() {
-    return this.payload.body.user.id;
+    return _.get(this.payload, 'body.user.id') || _.get(this.payload, 'body.user_id') || _.get(this.payload, 'context.userId');
+  }
+
+  getTeamId() {
+    return _.get(this.payload, 'body.user.team_id') || _.get(this.payload, 'body.team_id')  || _.get(this.payload, 'context.teamId');
   }
 
   async respond(blob) {
@@ -41,6 +46,7 @@ class PayloadHelper {
       return;
     }
     const { text } = blob;
+    await tryJoinChannel(this.payload.client, payloadHelper.getChannel());
     await this.payload.client.chat.postEphemeral({
       channel: this.getChannel(),
       user: this.getUserId(),

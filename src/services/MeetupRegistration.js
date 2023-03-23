@@ -3,6 +3,7 @@ const db = require("../models");
 const ErrorAssistant = require("../helpers/ErrorAssistant");
 const RegistrationForm = require("../views/RegistrationModal/RegistrationForm");
 const SyncAnnouncementPosting = require("./SyncAnnouncementPosting");
+const { tryJoinChannel } = require('../helpers/ChannelJoiner');
 
 class MeetupRegistration {
   static async _createOrUpdateRegistration(
@@ -120,6 +121,7 @@ class MeetupRegistration {
     }
     await this.onMeetupRegistrationChange(client, meetupId);
 
+    await tryJoinChannel(client, body.container.channel_id);
     await client.chat.postEphemeral({
       channel: body.container.channel_id,
       user: body.user.id,

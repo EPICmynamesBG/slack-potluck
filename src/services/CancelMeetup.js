@@ -2,6 +2,7 @@ const DeleteAnnouncementPosting = require("./DeleteAnnouncementPosting");
 const MeetupCancellation = require("../views/MeetupCancellation");
 const PayloadHelper = require('../helpers/PayloadHelper');
 const db = require('../models');
+const { tryJoinChannel } = require('../helpers/ChannelJoiner');
 
 class CancelMeetup {
   static async execute(payload) {
@@ -22,6 +23,7 @@ class CancelMeetup {
 
     const { channel = payloadHelper.getChannel() } =
     payloadHelper.getPrivateMetadata();
+    await tryJoinChannel(client, channel);
     await client.chat.postEphemeral({
       channel,
       user: payloadHelper.getUserId(),
