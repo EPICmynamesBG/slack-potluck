@@ -22,7 +22,8 @@ const app = new App({
   endpoints: [process.env.API_ENDPOINT_EVENTS, process.env.API_ENDPOINT_SELECT_OPTIONS, process.env.API_ENDPOINT_INTERACTIVE],
   developerMode: true,
   socketMode: false,
-  installationStore: new OAuthInstallationStore(process.env.SLACK_CLIENT_ID)
+  installationStore: new OAuthInstallationStore(process.env.SLACK_CLIENT_ID),
+  stateSecret: process.env.SLACK_STATE_SECRET
 });
 
 

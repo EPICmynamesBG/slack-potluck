@@ -18,7 +18,7 @@ class Events {
         const slackTeamId = body.team_id;
         const slackUserId = event.user;
     
-        const home = new Home(this._app);
+        const home = new Home(payload.client);
         await home.render(slackTeamId, slackUserId);
     }
 

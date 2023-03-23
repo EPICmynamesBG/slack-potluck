@@ -39,7 +39,7 @@ class AnnounceMeetup {
       );
       return;
     }
-    const helper = new ErrorAssistant(app, payload);
+    const helper = new ErrorAssistant(payload);
     let posted;
     try {
       const meetup = await db.Meetup.findByPk(meetupId);

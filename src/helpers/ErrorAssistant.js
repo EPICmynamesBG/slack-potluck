@@ -1,8 +1,7 @@
 const _ = require('lodash');
 
 class ErrorAssistant {
-  constructor(app, payload) {
-    this.app = app;
+  constructor(payload) {
     this.payload = payload;
   }
 
@@ -14,7 +13,7 @@ class ErrorAssistant {
         console.log(meta);
     }
 
-    const { body, respond } = this.payload;
+    const { body, respond, client } = this.payload;
     if (respond) {
       await respond({
         error: true,
@@ -24,7 +23,7 @@ class ErrorAssistant {
       return;
     }
 
-    await this.app.client.chat.postMessage({
+    await client.chat.postMessage({
       channel: body.user.id,
       text: userMessage
     });

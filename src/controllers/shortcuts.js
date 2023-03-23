@@ -23,7 +23,7 @@ class Shortcuts {
 
         ack();
 
-        const errorHelper = new ErrorAssistant(this._app, payload);
+        const errorHelper = new ErrorAssistant(payload);
         try {
             const modal = new CreateMeetupModal(this._app);
             await modal.render({

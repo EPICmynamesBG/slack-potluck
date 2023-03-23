@@ -66,7 +66,7 @@ class FoodSignup {
     const { meetupId } = meta;
     const { foodType, description } = FoodSignupForm.getFormValues(view.state);
 
-    await this._createOrUpdateRegistration(new ErrorAssistant(app, payload), {
+    await this._createOrUpdateRegistration(new ErrorAssistant(payload), {
       meetupId,
       slackTeamId: body.user.team_id,
       slackUserId: body.user.id,

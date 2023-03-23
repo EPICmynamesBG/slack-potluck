@@ -62,7 +62,7 @@ class Views {
   async createMeetupSubmit(payload) {
     const { ack, body, view } = payload;
     ack();
-    const helper = new ErrorAssistant(this._app, payload);
+    const helper = new ErrorAssistant(payload);
 
     let meetup;
     try {
@@ -97,7 +97,7 @@ class Views {
     const { ack, body, view } = payload;
     ack();
 
-    const helper = new ErrorAssistant(this._app, payload);
+    const helper = new ErrorAssistant(payload);
     try {
       await MeetupRegistration.updateAttendance(this._app, payload);
       await FoodSignup.recordResponse(this._app, payload);
@@ -134,7 +134,7 @@ class Views {
     try {
       await UpdateMeetup.execute(this._app, payload);
     } catch (e) {
-      const errAssistant = new ErrorAssistant(this._app, payload);
+      const errAssistant = new ErrorAssistant(payload);
       await errAssistant.handleError(
         e,
         "Something went wrong trying to update the Meetup"
@@ -145,10 +145,10 @@ class Views {
 
   async _reRenderHome(payload) {
     const { body } = payload;
-    const errorHelper = new ErrorAssistant(this._app, payload);
+    const errorHelper = new ErrorAssistant(payload);
     try {
       const payloadHelper = new PayloadHelper(payload);
-      const home = new Home(this._app);
+      const home = new Home(payload.client);
       await home.render(body.user.team_id, payloadHelper.getUserId());
     } catch (e) {
       await errorHelper.handleError(e, "Failed to re-render app Home");

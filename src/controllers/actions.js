@@ -113,7 +113,7 @@ class Actions {
 
     ack();
 
-    const errorHelper = new ErrorAssistant(this._app, payload);
+    const errorHelper = new ErrorAssistant(payload);
     try {
       const modal = new CreateMeetupModal(this._app);
       await modal.render({
@@ -166,7 +166,7 @@ class Actions {
 
     const payloadHelper = new PayloadHelper(payload);
     const { action, context, body } = payload;
-    const errorHelper = new ErrorAssistant(this._app, payload);
+    const errorHelper = new ErrorAssistant(payload);
     const modal = new ViewAttendanceModal(this._app);
     try {
       await modal.render({
@@ -188,7 +188,7 @@ class Actions {
 
     const payloadHelper = new PayloadHelper(payload);
     const { action, context, body } = payload;
-    const errorHelper = new ErrorAssistant(this._app, payload);
+    const errorHelper = new ErrorAssistant(payload);
     const modal = new ManageMeetupModal(this._app);
     try {
       await modal.render({
@@ -208,7 +208,7 @@ class Actions {
     const { ack, body } = payload;
     ack();
 
-    const errorHelper = new ErrorAssistant(this._app, payload);
+    const errorHelper = new ErrorAssistant(payload);
 
     try {
       await CancelMeetup.execute(this._app, payload);
@@ -220,10 +220,10 @@ class Actions {
 
   async _reRenderHome(payload) {
     const { body } = payload;
-    const errorHelper = new ErrorAssistant(this._app, payload);
+    const errorHelper = new ErrorAssistant(payload);
     try {
       const payloadHelper = new PayloadHelper(payload);
-      const home = new Home(this._app);
+      const home = new Home(payload.client);
       await home.render(body.user.team_id, payloadHelper.getUserId());
     } catch (e) {
       await errorHelper.handleError(e, "Failed to re-render app Home");

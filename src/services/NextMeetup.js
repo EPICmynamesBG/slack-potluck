@@ -8,7 +8,7 @@ class NextMeetup {
 
     static async execute(app, payload) {
         const { body } = payload;
-        const errorHelper = new ErrorAssistant(app, payload);
+        const errorHelper = new ErrorAssistant(payload);
 
         let nextMeetup;
         try {

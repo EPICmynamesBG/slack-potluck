@@ -39,6 +39,7 @@ DATABASE_CONNECTION_STRING="mysql://root:example@127.0.0.1/database_dev"
 API_ENDPOINT_INTERACTIVE=/api/interactive
 API_ENDPOINT_SELECT_OPTIONS=/api/select-options
 API_ENDPOINT_EVENTS=/slack/events
+ENCRYPTION_SECRET=
 ```
 
 

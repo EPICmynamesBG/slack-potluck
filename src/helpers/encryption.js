@@ -1,17 +1,18 @@
 const crypto = require('crypto');
 
-const key = process.env.ENCRYPTION_SECRET;
-if (!key) {
+const secret = process.env.ENCRYPTION_SECRET;
+if (!secret) {
     throw new Error('Missing ENCRYPTION_SECRET');
 }
 
 class Encryption {
     static algorithm = 'aes-256-cbc';
     static IV_LENGTH = 16;
+    static ENCRYPTION_KEY = crypto.scryptSync(secret, 'salt', 32);
 
     static encrypt(text) {
-        let iv = crypto.randomBytes(this.IV_LENGTH);
-        let cipher = crypto.createCipheriv(algorithm, Buffer.from(ENCRYPTION_KEY, 'hex'), iv);
+        let iv = crypto.randomBytes(Encryption.IV_LENGTH);
+        let cipher = crypto.createCipheriv(Encryption.algorithm, Buffer.from(Encryption.ENCRYPTION_KEY, 'hex'), iv);
         let encrypted = cipher.update(text);
         encrypted = Buffer.concat([encrypted, cipher.final()]);
         return iv.toString('hex') + ':' + encrypted.toString('hex');
@@ -21,7 +22,7 @@ class Encryption {
         let textParts = text.split(':');
         let iv = Buffer.from(textParts.shift(), 'hex');
         let encryptedText = Buffer.from(textParts.join(':'), 'hex');
-        let decipher = crypto.createDecipheriv(algorithm, Buffer.from(ENCRYPTION_KEY, 'hex'), iv);
+        let decipher = crypto.createDecipheriv(Encryption.algorithm, Buffer.from(Encryption.ENCRYPTION_KEY, 'hex'), iv);
         let decrypted = decipher.update(encryptedText);
         decrypted = Buffer.concat([decrypted, decipher.final()]);
         return decrypted.toString();    
@@ -33,7 +34,7 @@ class Encryption {
      * @returns {string}
      */
     static encryptObject(obj) {
-        return this.encrypt(JSON.stringify(obj));
+        return Encryption.encrypt(JSON.stringify(obj));
     }
 
     /**
@@ -42,7 +43,7 @@ class Encryption {
      * @returns {object}
      */
     static decryptObject(str) {
-        return JSON.parse(this.decrypt(str));
+        return JSON.parse(Encryption.decrypt(str));
     }
 }
 

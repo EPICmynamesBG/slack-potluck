@@ -6,8 +6,8 @@ const CreateMeetupActions = require("./CreateMeetupActions");
 const MeetupDetailsWithAttendance = require("./MeetupDetailsWithAttendance");
 
 class Home {
-  constructor(app) {
-    this._app = app;
+  constructor(client) {
+    this._client = client;
   }
 
   async render(slackTeamId, slackUserId) {
@@ -23,7 +23,7 @@ class Home {
         blocks: Home.render(meetups, slackUserId),
       },
     };
-    await this._app.client.views.publish(payload);
+    await this._client.views.publish(payload);
   }
 
   /**

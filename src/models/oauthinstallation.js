@@ -2,44 +2,10 @@
 const {
   Model
 } = require('sequelize');
-const { encryptObject, decryptObject } = require('../helpers/encryption');
+const { encryptObject } = require('../helpers/encryption');
+
 module.exports = (sequelize, DataTypes) => {
   class OAuthInstallation extends Model {
-    getDecryptedBot() {
-      return decryptObject(this.slackBotObject);
-    }
-
-    getBotToken() {
-      return this.getDecryptedBot().token;
-    }
-
-    getDecryptedUser() {
-      return decryptObject(this.slackUserObject);
-    }
-
-    getUserToken() {
-      return this.getDecryptedUser().token;
-    }
-
-    /**
-     * 
-   * @returns {import("@slack/bolt").Installation}
-     */
-    asInstallation() {
-      return {
-        team: {
-          id: this.slackTeamId
-        },
-        enterprise: this.enterprise ? {
-          id: this.enterprise
-        } : undefined,
-        user: this.getDecryptedUser(),
-        bot: this.getDecryptedBot(),
-        appId: process.env.SLACK_APP_ID,
-        tokenType: 'bot'
-      };
-    }
-
     /**
      * Helper method for defining associations.
      * This method is not a part of Sequelize lifecycle.
@@ -50,16 +16,16 @@ module.exports = (sequelize, DataTypes) => {
     }
 
     static _encryptFields(record) {
-      if (typeof(record.slackBotObject) !== 'string') {
+      if (typeof(record.slackBotObject) !== 'string' && record.slackBotObject) {
         record.slackBotObject = encryptObject(record.slackBotObject);
       }
-      if (typeof(record.slackUserObject) !== 'string') {
+      if (typeof(record.slackUserObject) !== 'string' && record.slackUserObject) {
         record.slackUserObject = encryptObject(record.slackUserObject);
       }
     }
 
     static _stringifyScopes(record) {
-      if (typeof(record.scopesGranted) !== 'string') {
+      if (typeof(record.scopesGranted) !== 'string' && record.scopesGranted) {
         record.scopesGranted = JSON.stringify(record.scopesGranted);
       }
     }
@@ -81,7 +47,7 @@ module.exports = (sequelize, DataTypes) => {
   }
   OAuthInstallation.init({
     slackBotObject: {
-      type: Sequelize.TEXT,
+      type: DataTypes.TEXT,
       field: 'slack_bot_object',
       comment: 'Encrypted JSON object which includes bot token + refresh token',
       allowNull: false
@@ -131,7 +97,8 @@ module.exports = (sequelize, DataTypes) => {
     hooks: {
       beforeCreate: OAuthInstallation.beforeCreate,
       beforeUpdate: OAuthInstallation.beforeUpdate,
-    }
+      beforeValidate: OAuthInstallation.beforeValidate
+    },
   });
   return OAuthInstallation;
 };

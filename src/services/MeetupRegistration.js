@@ -62,7 +62,7 @@ class MeetupRegistration {
 
   static async initAttending(app, payload) {
     const { action, body } = payload;
-    const helper = new ErrorAssistant(app, payload);
+    const helper = new ErrorAssistant(payload);
     const meetupId = action.value;
 
     const result = await this._createOrUpdateRegistration(helper, {
@@ -88,7 +88,7 @@ class MeetupRegistration {
     );
 
     const registration = await this._createOrUpdateRegistration(
-      new ErrorAssistant(app, payload),
+      new ErrorAssistant(payload),
       {
         meetupId,
         slackUserId: body.user.id,
@@ -105,7 +105,7 @@ class MeetupRegistration {
 
   static async notAttending(app, payload) {
     const { action, body } = payload;
-    const helper = new ErrorAssistant(app, payload);
+    const helper = new ErrorAssistant(payload);
     const meetupId = action.value;
 
     const registration = await this._createOrUpdateRegistration(helper, {
