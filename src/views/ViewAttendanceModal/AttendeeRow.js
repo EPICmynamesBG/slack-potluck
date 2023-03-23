@@ -3,8 +3,8 @@ const FoodSlot = require("../../models/constants/FoodSlot");
 const MeetupAttendanceSection = require("../MeetupAttendanceSection");
 
 class AttendeeRow {
-  constructor(app, registrationWithFoodSignup) {
-    this._app = app;
+  constructor(client, registrationWithFoodSignup) {
+    this.client = client;
     this.registrationWithFoodSignup = registrationWithFoodSignup;
     this._userInfo = undefined;
   }
@@ -31,7 +31,7 @@ class AttendeeRow {
     }
 
     try {
-      const { user } = await this._app.client.users.info({
+      const { user } = await this.client.users.info({
         user: this.registrationWithFoodSignup.createdBy,
       });
       this._userInfo = user;

@@ -3,12 +3,12 @@ const AnnounceChanges = require("../views/ManageMeetupModal/AnnounceChanges");
 const SyncAnnouncementPosting = require("./SyncAnnouncementPosting");
 
 class SyncJob {
-    constructor(app, meetupId, changes = {}) {
-        this.app = app;
+    constructor(client, meetupId, changes = {}) {
+        this.client = client;
         this.id = meetupId;
         this.changes = changes;
         this.timeout = setTimeout(() => {
-            UpdateAnnouncementPosting.execute(this.app, this.id, this.changes)
+            UpdateAnnouncementPosting.execute(this.client, this.id, this.changes)
                 .catch((e) => {
                     console.error('[UpdateAnnouncementPosting]', this.id, e);
                 })
@@ -30,15 +30,15 @@ class UpdateAnnouncementPosting {
     // { id: SyncJob }
     static jobs = {};
 
-    static async execute(app, meetupId, changes = {}) {
-        await SyncAnnouncementPosting.execute(app, meetupId);
+    static async execute(client, meetupId, changes = {}) {
+        await SyncAnnouncementPosting.execute(client, meetupId);
 
         const announcements = await db.MeetupAnnouncement.findAll({
             where: {
                 meetupId
             }
         });
-        const announceChanges = new AnnounceChanges(app, meetupId, changes);
+        const announceChanges = new AnnounceChanges(client, meetupId, changes);
         const promises = announcements.map(async (announcement) => {
             await announceChanges.render({
                 channel: announcement.postingChannelId,
@@ -56,14 +56,14 @@ class UpdateAnnouncementPosting {
         });
     }
 
-    static defer(app, meetupId, changes = {}) {
+    static defer(client, meetupId, changes = {}) {
         const job = this.jobs[meetupId];
         let withChanges = changes;
         if (job) {
             withChanges = this._mergeChanges(job.changes, changes);
             job.cancel();
         }
-        this.jobs[meetupId] = new SyncJob(app, meetupId, withChanges);
+        this.jobs[meetupId] = new SyncJob(client, meetupId, withChanges);
     }
 }
 

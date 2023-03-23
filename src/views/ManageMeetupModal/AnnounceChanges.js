@@ -2,8 +2,8 @@ const { dateFromUnix } = require("../../helpers/datetime");
 const DateTimeHelpers = require("../../helpers/datetime");
 
 class AnnounceChanges {
-    constructor(app, meetupId, changes) {
-        this.app = app;
+    constructor(client, meetupId, changes) {
+        this.client = client;
         this.meetupId = meetupId;
         this.changes = changes;
     }
@@ -18,7 +18,7 @@ class AnnounceChanges {
             return;
         }
 
-        await this.app.client.chat.postMessage({
+        await this.client.chat.postMessage({
             channel,
             thread_ts: originalMessageId,
             blocks: AnnounceChanges.render(this.changes)

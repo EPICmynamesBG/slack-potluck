@@ -60,7 +60,7 @@ class FoodSignup {
     }
   }
 
-  static async recordResponse(app, payload) {
+  static async recordResponse(payload) {
     const { body, view } = payload;
     const meta = JSON.parse(_.get(view, "private_metadata", "{}"));
     const { meetupId } = meta;

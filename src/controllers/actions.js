@@ -109,13 +109,13 @@ class Actions {
 
   // redundant to shortcuts
   async meetupCreate(payload) {
-    const { ack, body, context } = payload;
+    const { ack, body, client, context } = payload;
 
     ack();
 
     const errorHelper = new ErrorAssistant(payload);
     try {
-      const modal = new CreateMeetupModal(this._app);
+      const modal = new CreateMeetupModal(client);
       await modal.render({
         botToken: context.botToken,
         triggerId: body.trigger_id,
@@ -138,17 +138,17 @@ class Actions {
       action.action_id ===
       MeetupScheduledResponse.ACTIONS.SUBMIT_ANNOUNCE_ACTION
     ) {
-      await AnnounceMeetup.announce(this._app, payload);
+      await AnnounceMeetup.announce(payload);
     }
     // else nothing to be concerned with
   }
 
   async userSignupForMeetup(payload) {
-    const { ack } = payload;
+    const { ack, client } = payload;
     ack();
 
-    await MeetupRegistration.initAttending(this._app, payload);
-    await this._app.client.views.open(
+    await MeetupRegistration.initAttending(payload);
+    await client.views.open(
       await FoodSignup.renderSignupModal(payload)
     );
   }
@@ -157,7 +157,7 @@ class Actions {
     const { ack } = payload;
     ack();
 
-    await MeetupRegistration.notAttending(this._app, payload);
+    await MeetupRegistration.notAttending(payload);
   }
 
   async viewAttendanceTrigger(payload) {
@@ -165,9 +165,9 @@ class Actions {
     ack();
 
     const payloadHelper = new PayloadHelper(payload);
-    const { action, context, body } = payload;
+    const { action, context, body, client } = payload;
     const errorHelper = new ErrorAssistant(payload);
-    const modal = new ViewAttendanceModal(this._app);
+    const modal = new ViewAttendanceModal(client);
     try {
       await modal.render({
         channel: payloadHelper.getChannel(),
@@ -187,9 +187,9 @@ class Actions {
     ack();
 
     const payloadHelper = new PayloadHelper(payload);
-    const { action, context, body } = payload;
+    const { action, context, body, client } = payload;
     const errorHelper = new ErrorAssistant(payload);
-    const modal = new ManageMeetupModal(this._app);
+    const modal = new ManageMeetupModal(client,);
     try {
       await modal.render({
         channel: payloadHelper.getChannel(),
@@ -205,13 +205,13 @@ class Actions {
   }
 
   async cancelMeetup(payload) {
-    const { ack, body } = payload;
+    const { ack } = payload;
     ack();
 
     const errorHelper = new ErrorAssistant(payload);
 
     try {
-      await CancelMeetup.execute(this._app, payload);
+      await CancelMeetup.execute(payload);
     } catch (e) {
       await errorHelper.handleError(e);
     }
@@ -219,11 +219,11 @@ class Actions {
   }
 
   async _reRenderHome(payload) {
-    const { body } = payload;
+    const { body, client } = payload;
     const errorHelper = new ErrorAssistant(payload);
     try {
       const payloadHelper = new PayloadHelper(payload);
-      const home = new Home(payload.client);
+      const home = new Home(client);
       await home.render(body.user.team_id, payloadHelper.getUserId());
     } catch (e) {
       await errorHelper.handleError(e, "Failed to re-render app Home");

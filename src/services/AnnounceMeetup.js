@@ -13,9 +13,9 @@ class AnnounceMeetup {
     });
   }
 
-  static async joinChannel(channel) {
+  static async joinChannel(client, channel) {
     try {
-      await app.client.conversations.join({
+      await client.conversations.join({
         channel
       });
     } catch (e) {
@@ -24,7 +24,7 @@ class AnnounceMeetup {
   }
 
   static async announce(app, payload) {
-    const { action, body } = payload;
+    const { action, body, client } = payload;
     const payloadHelper = new PayloadHelper(payload);
     const state = payloadHelper.getState();
     const meetupId = Number.parseInt(action.value, 10);
@@ -44,9 +44,9 @@ class AnnounceMeetup {
     try {
       const meetup = await db.Meetup.findByPk(meetupId);
 
-      await this.joinChannel(channel);
+      await this.joinChannel(client, channel);
 
-      posted = await app.client.chat.postMessage({
+      posted = await client.chat.postMessage({
         channel,
         unfurl_links: false,
         blocks: MeetupAnnouncement.render(meetup),

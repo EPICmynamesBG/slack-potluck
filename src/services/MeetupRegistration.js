@@ -60,8 +60,8 @@ class MeetupRegistration {
     }
   }
 
-  static async initAttending(app, payload) {
-    const { action, body } = payload;
+  static async initAttending(payload) {
+    const { action, body, client } = payload;
     const helper = new ErrorAssistant(payload);
     const meetupId = action.value;
 
@@ -74,13 +74,13 @@ class MeetupRegistration {
       skipUpdatesForNonZeroRegistration: true,
     });
     if (result) {
-      await this.onMeetupRegistrationChange(app, meetupId);
+      await this.onMeetupRegistrationChange(client, meetupId);
     }
     return result;
   }
 
-  static async updateAttendance(app, payload) {
-    const { body, view } = payload;
+  static async updateAttendance(payload) {
+    const { body, client, view } = payload;
     const meta = JSON.parse(_.get(view, "private_metadata", "{}"));
     const { meetupId } = meta;
     const { adultCount, childCount } = RegistrationForm.getFormValues(
@@ -98,13 +98,13 @@ class MeetupRegistration {
       }
     );
     if (registration) {
-      await this.onMeetupRegistrationChange(app, meetupId);
+      await this.onMeetupRegistrationChange(client, meetupId);
     }
     return registration;
   }
 
-  static async notAttending(app, payload) {
-    const { action, body } = payload;
+  static async notAttending(payload) {
+    const { action, body, client } = payload;
     const helper = new ErrorAssistant(payload);
     const meetupId = action.value;
 
@@ -118,17 +118,17 @@ class MeetupRegistration {
     if (!registration) {
       return;
     }
-    await this.onMeetupRegistrationChange(app, meetupId);
+    await this.onMeetupRegistrationChange(client, meetupId);
 
-    await app.client.chat.postEphemeral({
+    await client.chat.postEphemeral({
       channel: body.container.channel_id,
       user: body.user.id,
       text: "We're sad you can't make it; if you change your mind, let us know!",
     });
   }
 
-  static async onMeetupRegistrationChange(app, meetupId) {
-    SyncAnnouncementPosting.defer(app, meetupId);
+  static async onMeetupRegistrationChange(client, meetupId) {
+    SyncAnnouncementPosting.defer(client, meetupId);
   }
 }
 

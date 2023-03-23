@@ -54,7 +54,8 @@ class UpdateMeetup {
     return meetup;
   }
 
-  static async execute(app, payload) {
+  static async execute(payload) {
+    const { client } = payload;
     const payloadHelper = new PayloadHelper(payload);
     const viewState = payloadHelper.getState();
     const formValues = ManageMeetupModal.getFormValues(viewState);
@@ -71,8 +72,8 @@ class UpdateMeetup {
     }
     await this.applyMeetupChanges(meetup, changes);
 
-    UpdateAnnouncementPosting.defer(app, meetup.id, changes);
-    await app.client.chat.postEphemeral({
+    UpdateAnnouncementPosting.defer(client, meetup.id, changes);
+    await client.chat.postEphemeral({
       channel,
       user: payloadHelper.getUserId(),
       text: "Meeting updated! Existing announcements will automatically update 5 minutes from your last edit.",

@@ -6,8 +6,8 @@ const ViewHelper = require("../../helpers/ViewHelper");
 const AttendeeRow = require('./AttendeeRow');
 
 class ViewAttendanceModal {
-  constructor(app) {
-    this._app = app;
+  constructor(client) {
+    this.client = client;
   }
 
   static VIEW_ID = "meetup.attendance.view.modal";
@@ -31,12 +31,12 @@ class ViewAttendanceModal {
 
     const attendeeRows = await Promise.all(
       registrations.map((registrationWithFoodSignup) => {
-        const row = new AttendeeRow(this._app, registrationWithFoodSignup);
+        const row = new AttendeeRow(this.client, registrationWithFoodSignup);
         return row.render(meetup.includeFoodSignup, meetup.createdBy);
       })
     );
 
-    await this._app.client.views.open({
+    await this.client.views.open({
       token: botToken,
       trigger_id: triggerId,
       // Pass the view_id

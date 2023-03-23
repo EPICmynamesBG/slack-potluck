@@ -3,11 +3,11 @@ const MeetupWithRegistrationCount = require("../models/views/MeetupWithRegistrat
 const MeetupAnnouncement = require("../views/MeetupAnnouncement");
 
 class SyncJob {
-    constructor(app, meetupId) {
-        this.app = app;
+    constructor(client, meetupId) {
+        this.client = client;
         this.id = meetupId;
         this.timeout = setTimeout(() => {
-            SyncAnnouncementPosting.execute(this.app, this.id)
+            SyncAnnouncementPosting.execute(this.client, this.id)
                 .catch((e) => {
                     console.error('[SyncAnnouncementPosting]', this.id, e);
                 })
@@ -28,7 +28,7 @@ class SyncAnnouncementPosting {
     // { id: SyncJob }
     static jobs = {};
 
-    static async execute(app, meetupId) {
+    static async execute(client, meetupId) {
         const meetup = await MeetupWithRegistrationCount.getMeetup(meetupId);
         const announcements = await db.MeetupAnnouncement.findAll({
             where: {
@@ -36,7 +36,7 @@ class SyncAnnouncementPosting {
             }
         });
         const promises = announcements.map(async (announcement) => {
-            await app.client.chat.update({
+            await client.chat.update({
                 channel: announcement.postingChannelId,
                 ts: announcement.postingMessageId,
                 unfurl_links: false,
@@ -51,7 +51,7 @@ class SyncAnnouncementPosting {
         if (job) {
             job.cancel();
         }
-        this.jobs[meetupId] = new SyncJob(app, meetupId);
+        this.jobs[meetupId] = new SyncJob(client, meetupId);
     }
 }
 

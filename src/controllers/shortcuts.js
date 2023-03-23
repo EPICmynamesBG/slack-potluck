@@ -19,13 +19,13 @@ class Shortcuts {
     }
 
     async meetupCreate(payload) {
-        const { ack, body, context } = payload;
+        const { ack, body, client, context } = payload;
 
         ack();
 
         const errorHelper = new ErrorAssistant(payload);
         try {
-            const modal = new CreateMeetupModal(this._app);
+            const modal = new CreateMeetupModal(client);
             await modal.render({
                 botToken: context.botToken,
                 triggerId: body.trigger_id
@@ -39,7 +39,7 @@ class Shortcuts {
     async viewUpcoming(payload) {
         const { ack } = payload;
         ack();
-        await NextMeetup.execute(this._app, payload);
+        await NextMeetup.execute(payload);
     }
 
     static init(app) {

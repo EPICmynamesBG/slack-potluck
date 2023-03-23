@@ -60,7 +60,7 @@ class Views {
   }
 
   async createMeetupSubmit(payload) {
-    const { ack, body, view } = payload;
+    const { ack, body, client, view } = payload;
     ack();
     const helper = new ErrorAssistant(payload);
 
@@ -79,7 +79,7 @@ class Views {
       return;
     }
     try {
-      await this._app.client.chat.postMessage({
+      await client.chat.postMessage({
         channel: body.user.id,
         unfurl_links: false,
         blocks: MeetupScheduledResponse.render(meetup),
@@ -94,33 +94,37 @@ class Views {
   }
 
   async registrationModalSubmit(payload) {
-    const { ack, body, view } = payload;
+    const { ack, body, client, view } = payload;
     ack();
 
     const helper = new ErrorAssistant(payload);
     try {
-      await MeetupRegistration.updateAttendance(this._app, payload);
-      await FoodSignup.recordResponse(this._app, payload);
+      await MeetupRegistration.updateAttendance(payload);
+      await FoodSignup.recordResponse(payload);
     } catch (e) {
       await helper.handleError(e);
     }
     const meta = JSON.parse(_.get(view, "private_metadata", "{}"));
     const { channel = body.user.id } = meta;
 
-    await this._app.client.chat.postEphemeral({
+    await client.chat.postEphemeral({
       channel: channel,
       user: body.user.id,
       text: "You're going, hooray! :simple_smile:",
     });
   }
 
+  /**
+   * Modal closed trigger
+   * @param {*} payload 
+   */
   async registrationSignupClosed(payload) {
-    const { ack, body, view } = payload;
+    const { ack, body, client, view } = payload;
     ack();
     const meta = JSON.parse(_.get(view, "private_metadata", "{}"));
     const { channel = body.user.id } = meta;
 
-    await this._app.client.chat.postEphemeral({
+    await client.chat.postEphemeral({
       channel: channel,
       user: body.user.id,
       text: "You're going, hooray! You can always hit Sign Up again to update details :simple_smile:",
@@ -132,7 +136,7 @@ class Views {
     ack();
 
     try {
-      await UpdateMeetup.execute(this._app, payload);
+      await UpdateMeetup.execute(payload);
     } catch (e) {
       const errAssistant = new ErrorAssistant(payload);
       await errAssistant.handleError(
@@ -144,11 +148,11 @@ class Views {
   }
 
   async _reRenderHome(payload) {
-    const { body } = payload;
+    const { body, client } = payload;
     const errorHelper = new ErrorAssistant(payload);
     try {
       const payloadHelper = new PayloadHelper(payload);
-      const home = new Home(payload.client);
+      const home = new Home(client);
       await home.render(body.user.team_id, payloadHelper.getUserId());
     } catch (e) {
       await errorHelper.handleError(e, "Failed to re-render app Home");

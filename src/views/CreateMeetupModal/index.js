@@ -7,13 +7,13 @@ class CreateMeetupModal {
     ...CreateMeetupForm.ACTIONS,
   };
 
-  constructor(app) {
-    this.app = app;
+  constructor(client) {
+    this.client = client;
   }
 
   async render({ botToken, triggerId }) {
     const modal = CreateMeetupModal.renderView({ botToken, triggerId });
-    await this.app.client.views.open(modal);
+    await this.client.views.open(modal);
   }
 
   static renderView({ botToken, triggerId }) {

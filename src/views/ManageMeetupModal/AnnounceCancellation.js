@@ -1,6 +1,6 @@
 class AnnounceCancellation {
-    constructor(app, meetup) {
-        this.app = app;
+    constructor(client, meetup) {
+        this.client = client;
         this.meetupId = meetup;
     }
 
@@ -8,7 +8,7 @@ class AnnounceCancellation {
         channel,
         originalMessageId
     }) {
-        await this.app.client.chat.postMessage({
+        await this.client.chat.postMessage({
             channel,
             thread_ts: originalMessageId,
             blocks: AnnounceCancellation.render()

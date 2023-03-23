@@ -3,18 +3,7 @@ const DateTimeHelpers = require("../helpers/datetime");
 class MeetupDetails {
   static ACTIONS = {
     GOOGLE_MAP_LINK_ACTION: 'meetup.location.url.click',
-    // MANAGE_MEETUP_ACTION: 'meetup.manage.modal.trigger'
   };
-  //   constructor(app) {
-  //     this._app = app;
-  //   }
-
-  //   async render(payload) {
-  //     const { body } = payload;
-  //     const { event } = body;
-
-  //     await this._app.client.views.publish(Home.render(event.user));
-  //   }
 
   static _renderMeetupAdditionalNotes(notes = null) {
     if (!notes) {

@@ -8,17 +8,6 @@ class MeetupAnnouncement {
     ...MeetupDetails.ACTIONS,
     ...QuickRegistrationActions.ACTIONS,
   };
-  //   constructor(app) {
-  //     this._app = app;
-  //   }
-
-  //   async render(payload) {
-  //     const { body } = payload;
-  //     const { event } = body;
-
-  //     db.Meetup.findOneByPK(meetupId)
-  //     return MeetupAnnouncement.render(meetup)
-  //   }
 
   /**
    *

@@ -6,8 +6,8 @@ const MeetupAnnouncement = require("../views/MeetupAnnouncement");
 
 class NextMeetup {
 
-    static async execute(app, payload) {
-        const { body } = payload;
+    static async execute(payload) {
+        const { body, client } = payload;
         const errorHelper = new ErrorAssistant(payload);
 
         let nextMeetup;
@@ -29,13 +29,13 @@ class NextMeetup {
             return;
         }
         if (!nextMeetup) {
-            await app.client.chat.postMessage({
+            await client.chat.postMessage({
                 channel: body.user.id,
                 text: 'No meetups are currently scheduled'
             });
             return;
         }
-        await app.client.chat.postMessage({
+        await client.chat.postMessage({
             channel: body.user.id,
             unfurl_links: false,
             blocks: MeetupAnnouncement.render(nextMeetup),

@@ -4,8 +4,8 @@ const PayloadHelper = require('../helpers/PayloadHelper');
 const db = require('../models');
 
 class CancelMeetup {
-  static async execute(app, payload) {
-    const { action } = payload;
+  static async execute(payload) {
+    const { action, client } = payload;
     const payloadHelper = new PayloadHelper(payload);
     const meetupId = action.value;
     const meetup = await db.Meetup.findByPk(meetupId);
@@ -17,12 +17,12 @@ class CancelMeetup {
         meetupId,
       },
     });
-    await DeleteAnnouncementPosting.execute(app, meetup, announcements);
+    await DeleteAnnouncementPosting.execute(client, meetup, announcements);
     await meetup.destroy();
 
     const { channel = payloadHelper.getChannel() } =
     payloadHelper.getPrivateMetadata();
-    await app.client.chat.postEphemeral({
+    await client.chat.postEphemeral({
       channel,
       user: payloadHelper.getUserId(),
       text: "Meetup cancelled!",

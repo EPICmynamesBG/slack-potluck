@@ -8,8 +8,8 @@ class ManageMeetupModal {
       ...CreateMeetupForm.ACTIONS
     };
 
-    constructor(app) {
-        this._app = app;
+    constructor(client) {
+        this.client = client;
     }
 
     async render({
@@ -25,7 +25,7 @@ class ManageMeetupModal {
             throw new Error('Meetup not found');
         }
 
-        await this._app.client.views.open({
+        await this.client.views.open({
             token: botToken,
             trigger_id: triggerId,
             // Pass the view_id
