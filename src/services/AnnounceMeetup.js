@@ -23,7 +23,7 @@ class AnnounceMeetup {
     }
   }
 
-  static async announce(app, payload) {
+  static async announce(payload) {
     const { action, body, client } = payload;
     const payloadHelper = new PayloadHelper(payload);
     const state = payloadHelper.getState();

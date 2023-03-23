@@ -46,7 +46,7 @@ class SyncAnnouncementPosting {
         await Promise.all(promises);
     }
 
-    static defer(app, meetupId) {
+    static defer(client, meetupId) {
         const job = this.jobs[meetupId];
         if (job) {
             job.cancel();
