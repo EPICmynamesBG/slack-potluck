@@ -1,22 +1,23 @@
 # Slack-Potluck
+A way to coordinate gatherings
 
 ## Version 1
 
 ### Features
-[x] Schedule group meetups
-[x] Sign up for food slots
-[x] View Attendees/Signups
-[x] Google Map Directions
-[x] Announce meetups
-[x] Manage (edit, delete) Meetups
-[x] OAuth2 multi-instance installation support
+- [x] Schedule group meetups
+- [x] Sign up for food slots
+- [x] View Attendees/Signups
+- [x] Google Map Directions
+- [x] Announce meetups
+- [x] Manage (edit, delete) Meetups
+- [x] OAuth2 multi-instance installation support
 
 ## Future Versions
 ### Possible Features/Improvements
-[ ] Render date-times in user's active TZ
-[ ] Private Meetups
-[ ] Calendar integration
-[ ] Revise management UI to use Overflow menu element
+- [ ] Render date-times in user's active TZ
+- [ ] Private Meetups
+- [ ] "Add to Calendar" integration
+- [ ] Revise management UI to use Overflow menu element
 
 ## Development
 
