@@ -12,7 +12,9 @@ services:
     ports:
       - 3306:3306
     environment:
-      MYSQL_ROOT_PASSWORD: example
+      - MYSQL_ROOT_PASSWORD=example
+      - MYSQL_USER=app
+      - MYSQL_PASSWORD=localhost
     volumes:
       - mysql-data:/var/lib/mysql
 
@@ -21,6 +23,46 @@ services:
     restart: always
     ports:
       - 8080:8080
+
+  app:
+    image: 'slack-potluck'
+    restart: always
+    depends_on:
+      - db
+    build:
+      dockerfile: Dockerfile
+    ports:
+      - 3000:3000
+    env_file:
+      - .env
+      - .env.docker
+
+
+  db_migrate_job:
+    profiles:
+      - migrate
+    image: 'slack-potluck'
+    depends_on:
+      - db
+    build:
+      dockerfile: Dockerfile
+    command: 'npm run db:init'
+    env_file:
+      - .env
+      - .env.docker
+
+  db_migrate_undo:
+    profiles:
+      - rollback
+    image: 'slack-potluck'
+    depends_on:
+      - db
+    build:
+      dockerfile: Dockerfile
+    command: 'npm run db:migrate:undo'
+    env_file:
+      - .env
+      - .env.docker
 
 volumes:
   mysql-data:
