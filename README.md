@@ -1,6 +1,10 @@
 # Slack-Potluck
 A way to coordinate gatherings
 
+**Notice: This application is intended for private distribution only. Use at your own risk**
+
+<a href="https://slack.com/oauth/v2/authorize?client_id=3832577931127.4950891124451&scope=app_mentions:read,channels:join,chat:write,commands,users:read&user_scope="><img alt="Add to Slack" height="40" width="139" src="https://platform.slack-edge.com/img/add_to_slack.png" srcSet="https://platform.slack-edge.com/img/add_to_slack.png 1x, https://platform.slack-edge.com/img/add_to_slack@2x.png 2x" /></a>
+
 ## Version 1
 
 ### Features
