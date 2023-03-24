@@ -25,6 +25,9 @@ const app = new App({
     "commands",
     "users:read",
   ],
+  installerOptions: {
+    directInstall: true
+  },
   endpoints: [
     process.env.API_ENDPOINT_EVENTS,
     process.env.API_ENDPOINT_SELECT_OPTIONS,
