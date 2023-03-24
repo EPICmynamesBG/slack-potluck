@@ -1,3 +1,7 @@
+const { getInstance } = require('./logger');
+
+const logger = getInstance('ChannelJoiner');
+
 module.exports = {
   tryJoinChannel: async function tryJoinChannel(client, channel) {
     try {
@@ -5,7 +9,7 @@ module.exports = {
         channel,
       });
     } catch (e) {
-      console.warn(`Failed to join channel ${channel}`);
+      logger.debug(`Failed to join channel ${channel}`);
     }
   },
 };

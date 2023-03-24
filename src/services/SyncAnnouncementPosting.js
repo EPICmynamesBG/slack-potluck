@@ -1,6 +1,9 @@
 const db = require("../models");
 const MeetupWithRegistrationCount = require("../models/views/MeetupWithRegistrationCount");
 const MeetupAnnouncement = require("../views/MeetupAnnouncement");
+const { getInstance } = require('../helpers/logger');
+
+const logger = getInstance('SyncAnnouncementPosting');
 
 class SyncJob {
     constructor(client, meetupId) {
@@ -9,7 +12,7 @@ class SyncJob {
         this.timeout = setTimeout(() => {
             SyncAnnouncementPosting.execute(this.client, this.id)
                 .catch((e) => {
-                    console.error('[SyncAnnouncementPosting]', this.id, e);
+                    logger.error(this.id, e);
                 })
                 .finally(() => {
                     delete SyncAnnouncementPosting.jobs[this.id];
@@ -36,12 +39,16 @@ class SyncAnnouncementPosting {
             }
         });
         const promises = announcements.map(async (announcement) => {
-            await client.chat.update({
-                channel: announcement.postingChannelId,
-                ts: announcement.postingMessageId,
-                unfurl_links: false,
-                blocks: MeetupAnnouncement.render(meetup, true),
-            });
+            try {
+                await client.chat.update({
+                    channel: announcement.postingChannelId,
+                    ts: announcement.postingMessageId,
+                    unfurl_links: false,
+                    blocks: MeetupAnnouncement.render(meetup, true),
+                });
+            } catch (e) {
+                logger.error(`Failed to update announcement ${announcement.id}`, e);
+            }
         });
         await Promise.all(promises);
     }

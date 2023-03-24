@@ -5,6 +5,9 @@ const ManageMeetupModal = require("../views/ManageMeetupModal");
 const MeetupUpdatedEphemeral = require("../views/ManageMeetupModal/MeetupUpdatedEphemeral");
 const UpdateAnnouncementPosting = require("./UpdateAnnouncementPosting");
 const { tryJoinChannel } = require('../helpers/ChannelJoiner');
+const { getInstance } = require('../helpers/logger');
+
+const logger = getInstance('UpdateMeetup');
 
 class UpdateMeetup {
   static _fieldIsChanged(originalValue, proposedValue = undefined) {
@@ -68,7 +71,7 @@ class UpdateMeetup {
     }
     const changes = this.meetupChanges(meetup, formValues);
     if (Object.keys(changes).length === 0) {
-      console.debug("No changes made to meetup");
+      logger.debug("No changes made to meetup");
       return;
     }
     await this.applyMeetupChanges(meetup, changes);

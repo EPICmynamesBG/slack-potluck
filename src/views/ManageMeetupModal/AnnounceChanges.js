@@ -1,6 +1,9 @@
 const { dateFromUnix } = require("../../helpers/datetime");
 const DateTimeHelpers = require("../../helpers/datetime");
 const { tryJoinChannel } = require('../../helpers/ChannelJoiner');
+const { getInstance } = require('../../helpers/logger');
+
+const logger = getInstance('AnnounceChanges');
 
 class AnnounceChanges {
     constructor(client, meetupId, changes) {
@@ -15,7 +18,7 @@ class AnnounceChanges {
     }) {
         const blocks = AnnounceChanges.render(this.changes);
         if (blocks.length === 0) {
-            console.debug('[AnnounceChanges] No noteworthy changes to announce');
+            logger.debug('No noteworthy changes to announce', { channel, originalMessageId });
             return;
         }
 

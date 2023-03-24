@@ -5,6 +5,9 @@ const MeetupAnnouncement = require("../views/MeetupAnnouncement");
 const MeetupScheduledResponse = require("../views/MeetupScheduledResponse");
 const PayloadHelper = require("../helpers/PayloadHelper");
 const { tryJoinChannel } = require('../helpers/ChannelJoiner');
+const { getInstance } = require('../helpers/logger');
+
+const logger = getInstance('AnnounceMeetup');
 
 class AnnounceMeetup {
   static async ignore({ respond }) {
@@ -20,7 +23,7 @@ class AnnounceMeetup {
         channel
       });
     } catch (e) {
-      console.warn(`[AnnounceMeetup] Failed to join channel ${channel}`);
+      logger.warn(`Failed to join channel ${channel}`, e);
     }
   }
 
@@ -71,7 +74,7 @@ class AnnounceMeetup {
         createdBy: body.user.id
       });
     } catch (e) {
-      console.error(e);
+      logger.error(e);
     }
   }
 }

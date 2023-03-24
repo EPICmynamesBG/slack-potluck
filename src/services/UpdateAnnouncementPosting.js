@@ -1,6 +1,9 @@
 const db = require("../models");
 const AnnounceChanges = require("../views/ManageMeetupModal/AnnounceChanges");
 const SyncAnnouncementPosting = require("./SyncAnnouncementPosting");
+const { getInstance } = require('../helpers/logger');
+
+const logger = getInstance('UpdateAnnouncementPosting');
 
 class SyncJob {
     constructor(client, meetupId, changes = {}) {
@@ -10,7 +13,7 @@ class SyncJob {
         this.timeout = setTimeout(() => {
             UpdateAnnouncementPosting.execute(this.client, this.id, this.changes)
                 .catch((e) => {
-                    console.error('[UpdateAnnouncementPosting]', this.id, e);
+                    logger.error(this.id, e);
                 })
                 .finally(() => {
                     delete UpdateAnnouncementPosting.jobs[this.id];
@@ -24,8 +27,7 @@ class SyncJob {
 }
 
 class UpdateAnnouncementPosting {
-    static DEFER_TIME = 5000;
-    // static DEFER_TIME = 1000 * 60 * 5; // 5 minutes
+    static DEFER_TIME = process.env.DEBUG ? 5000 : 1000 * 60 * 5; // 5 minutes
 
     // { id: SyncJob }
     static jobs = {};
@@ -40,10 +42,14 @@ class UpdateAnnouncementPosting {
         });
         const announceChanges = new AnnounceChanges(client, meetupId, changes);
         const promises = announcements.map(async (announcement) => {
-            await announceChanges.render({
-                channel: announcement.postingChannelId,
-                originalMessageId: announcement.postingMessageId,
-            });
+            try {
+                await announceChanges.render({
+                    channel: announcement.postingChannelId,
+                    originalMessageId: announcement.postingMessageId,
+                });
+            } catch (e) {
+                logger.error(`Failed to thread on announcement ${announcement.id}`, e);
+            }
         });
         await Promise.all(promises);
     }

@@ -1,8 +1,9 @@
-const db = require("../models");
 const AnnounceCancellation = require("../views/ManageMeetupModal/AnnounceCancellation");
-const AnnounceChanges = require("../views/ManageMeetupModal/AnnounceChanges");
 const MeetupCancellation = require("../views/MeetupCancellation");
-const SyncAnnouncementPosting = require("./SyncAnnouncementPosting");
+const { getInstance } = require('../helpers/logger');
+
+const logger = getInstance('DeleteAnnouncementPosting');
+
 
 class SyncJob {
     constructor(client, meetup, announcements = []) {
@@ -12,7 +13,7 @@ class SyncJob {
         this.timeout = setTimeout(() => {
             DeleteAnnouncementPosting.execute(this.client, this.meetup, this.changes)
                 .catch((e) => {
-                    console.error('[DeleteAnnouncementPosting]', this.meetup.id, e);
+                    logger.error(this.meetup.id, e);
                 })
                 .finally(() => {
                     delete DeleteAnnouncementPosting.jobs[this.meetup.id];
@@ -34,17 +35,25 @@ class DeleteAnnouncementPosting {
     static async execute(client, meetup, announcements = []) {
         const announce = new AnnounceCancellation(client, meetup.id);
         const promises = announcements.map(async (announcement) => {
-            await client.chat.update({
-                channel: announcement.postingChannelId,
-                ts: announcement.postingMessageId,
-                unfurl_links: false,
-                blocks: MeetupCancellation.render(meetup),
-            });
+            try {
+                 await client.chat.update({
+                    channel: announcement.postingChannelId,
+                    ts: announcement.postingMessageId,
+                    unfurl_links: false,
+                    blocks: MeetupCancellation.render(meetup),
+                });
+            } catch (e) {
+                logger.error(`Failed to announce deletion in thread for announcement ${announcement.id}`, e);
+            }
 
-            await announce.render({
-                channel: announcement.postingChannelId,
-                originalMessageId: announcement.postingMessageId,
-            });
+            try {
+                await announce.render({
+                    channel: announcement.postingChannelId,
+                    originalMessageId: announcement.postingMessageId,
+                });
+            } catch (e) {
+                logger.error(`Failed to updated announcement ${announcement.id}`, e);
+            }
         });
         await Promise.all(promises);
     }

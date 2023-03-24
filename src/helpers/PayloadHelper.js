@@ -46,7 +46,7 @@ class PayloadHelper {
       return;
     }
     const { text } = blob;
-    await tryJoinChannel(this.payload.client, payloadHelper.getChannel());
+    await tryJoinChannel(this.payload.client, this.getChannel());
     await this.payload.client.chat.postEphemeral({
       channel: this.getChannel(),
       user: this.getUserId(),

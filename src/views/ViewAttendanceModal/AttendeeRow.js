@@ -1,6 +1,9 @@
-const _ = require('lodash');
+const _ = require("lodash");
 const FoodSlot = require("../../models/constants/FoodSlot");
 const MeetupAttendanceSection = require("../MeetupAttendanceSection");
+const { getInstance } = require("../../helpers/logger");
+
+const logger = getInstance("AttendeeRow");
 
 class AttendeeRow {
   constructor(client, registrationWithFoodSignup) {
@@ -10,12 +13,12 @@ class AttendeeRow {
   }
 
   static FoodSlotIconMap = {
-    [FoodSlot.MAIN_DISH]: ':shallow_pan_of_food:',
-    [FoodSlot.SIDE_DISH]: ':corn:',
-    [FoodSlot.BEVERAGES]: ':sake:',
-    [FoodSlot.BEVERAGES]: ':cupcake:',
-    [FoodSlot.UNDECIDED]: ':question:',
-  }
+    [FoodSlot.MAIN_DISH]: ":shallow_pan_of_food:",
+    [FoodSlot.SIDE_DISH]: ":corn:",
+    [FoodSlot.BEVERAGES]: ":sake:",
+    [FoodSlot.DESSERT]: ":cupcake:",
+    [FoodSlot.UNDECIDED]: ":question:",
+  };
 
   static ResponseIndicatesAttending(meetupRegistration) {
     return (
@@ -36,13 +39,21 @@ class AttendeeRow {
       });
       this._userInfo = user;
     } catch (e) {
-      console.error(e);
+      logger.error(
+        `Failed to fetch user info for meetup registration ${this.registrationWithFoodSignup.id}`,
+        e
+      );
     }
     return this._userInfo;
   }
 
-  static _renderUserInfo(slackUserId, userInfo = undefined, organizerSlackId = undefined) {
-    const isOrganizerIndicator = slackUserId === organizerSlackId ? ' :clipboard:' : '';
+  static _renderUserInfo(
+    slackUserId,
+    userInfo = undefined,
+    organizerSlackId = undefined
+  ) {
+    const isOrganizerIndicator =
+      slackUserId === organizerSlackId ? " :clipboard:" : "";
     if (userInfo) {
       return [
         {
@@ -69,18 +80,20 @@ class AttendeeRow {
   }
 
   static _renderFoodSignup(foodRegistration = undefined) {
-    const slot = foodRegistration ? foodRegistration.foodSlot : FoodSlot.UNDECIDED;
-    const description = _.get(foodRegistration, 'description');
+    const slot = foodRegistration
+      ? foodRegistration.foodSlot
+      : FoodSlot.UNDECIDED;
+    const description = _.get(foodRegistration, "description");
     const icon = this.FoodSlotIconMap[slot];
     let message = `${icon} ${slot}`;
     if (description) {
-        message += ` _${description}_`;
+      message += ` _${description}_`;
     }
     return [
-        {
-            type: 'mrkdwn',
-            text: message
-        }
+      {
+        type: "mrkdwn",
+        text: message,
+      },
     ];
   }
 
@@ -99,19 +112,21 @@ class AttendeeRow {
       ...MeetupAttendanceSection._attendanceFields(
         this.registrationWithFoodSignup.adultRegistrationCount,
         this.registrationWithFoodSignup.childRegistrationCount
-      )
+      ),
     ];
     if (includeFoodSignups) {
-        userElements.push(
-            ...AttendeeRow._renderFoodSignup(this.registrationWithFoodSignup.foodRegistration)
+      userElements.push(
+        ...AttendeeRow._renderFoodSignup(
+          this.registrationWithFoodSignup.foodRegistration
         )
+      );
     }
 
     return [
       {
         type: "context",
         elements: userElements,
-        block_id: slackUserId
+        block_id: slackUserId,
       },
     ];
   }

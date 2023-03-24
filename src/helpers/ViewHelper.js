@@ -1,5 +1,8 @@
 
 const _ = require('lodash');
+const { getInstance } = require('./logger');
+
+const logger = getInstance('ViewHelper');
 
 class ViewHelper {
     static separateWithDivider(blockElements = [], includeEndingDivider = false) {
@@ -23,7 +26,7 @@ class ViewHelper {
 
     static renderInputBlock(block, initialValue = undefined) {
         if (block.element.type === 'checkboxes') {
-            console.debug('Redirecting renderInputBlock to render checkbox');
+            logger.debug('Redirecting renderInputBlock to render checkbox');
             return this.renderSingleCheckboxInputBlock(block, initialValue);
         }
         const render = { ...block };
