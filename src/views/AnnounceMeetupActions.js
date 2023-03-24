@@ -35,7 +35,7 @@ class AnnounceMeetupActions {
   }
 
   static _renderChannelSelectBlock() {
-    if (process.env.DEBUG) {
+    if (process.env.NODE_ENV === 'development') {
       return {
         action_id: this.ACTIONS.CHANNEL_SELECT_ACTION,
         type: "conversations_select",
