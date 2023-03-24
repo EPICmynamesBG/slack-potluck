@@ -22,7 +22,7 @@ class AnnounceChanges {
             return;
         }
 
-        await tryJoinChannel(client, payloadHelper.getChannel());
+        await tryJoinChannel(this.client, channel);
         await this.client.chat.postMessage({
             channel,
             thread_ts: originalMessageId,
@@ -37,6 +37,12 @@ class AnnounceChanges {
         'locationAlias': null,
         'additionalNotes': 'Additional Notes'
     };
+
+    static _boldMultilineText(text) {
+        return text.split('\n')
+            .map((s) => `*${s}*`)
+            .join('\n');
+    }
 
     static _renderChangeBlock(field, oldValue, newValue) {
         const headline = this.FieldChangeMessagingMap[field];
@@ -57,7 +63,7 @@ class AnnounceChanges {
                 }
                 break;
             case 'locationAddress':
-                message = `${headline}: Updated from ${oldValue} to *${newValue}*`;
+                message = `${headline}: Updated from ${oldValue} to ${AnnounceChanges._boldMultilineText(newValue)}`;
                 break;
             default:
                 message = headline;

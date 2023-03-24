@@ -12,7 +12,7 @@ const logger = getInstance('AnnounceMeetup');
 class AnnounceMeetup {
   static async ignore({ respond }) {
     await respond({
-      text: "Got it! You can announce later using the blah blah blah command",
+      text: "Got it! You can always announce later from the Potluck Home tab.",
       replace_original: true,
     });
   }

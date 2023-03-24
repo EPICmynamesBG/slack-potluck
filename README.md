@@ -1,7 +1,5 @@
 # Slack-Potluck
 
-
-
 ## Version 1
 
 ### Features
@@ -11,12 +9,14 @@
 [x] Google Map Directions
 [x] Announce meetups
 [x] Manage (edit, delete) Meetups
+[x] OAuth2 multi-instance installation support
 
 ## Future Versions
 ### Possible Features/Improvements
 [ ] Render date-times in user's active TZ
 [ ] Private Meetups
 [ ] Calendar integration
+[ ] Revise management UI to use Overflow menu element
 
 ## Development
 
@@ -29,6 +29,7 @@
 ```
 NODE_ENV=development
 DEBUG=1
+LOG_LEVEL=debug
 SLACK_APP_ID=
 SLACK_CLIENT_ID=
 SLACK_CLIENT_SECRET=
