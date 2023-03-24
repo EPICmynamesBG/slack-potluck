@@ -2,6 +2,9 @@ const _ = require("lodash");
 const { FileInstallationStore } = require("@slack/bolt");
 const db = require("../models");
 const OAuthInstallationDTO = require("../DTO/OAuthInstallationDTO");
+const { getInstance } = require('../helpers/logger');
+
+const logger = getInstance('OAuthInstallationStore');
 
 let singleton;
 
@@ -19,8 +22,9 @@ class OAuthInstallationStore extends FileInstallationStore {
    * @param {import("@slack/bolt").Installation} installation
    * @param {*} logger
    */
-  async storeInstallation(installation, logger) {
+  async storeInstallation(installation) {
     if (installation.tokenType !== "bot") {
+      logger.error('Only bot tokenType is supported', installation);
       throw new Error("Only bot tokenType is supported");
     }
 
@@ -38,7 +42,7 @@ class OAuthInstallationStore extends FileInstallationStore {
         existing.updatedAt = new Date();
         await existing.save();
         logger.info(
-          `[OAuthInstallationStore] Team ${installation.team.id} installation updated`
+          `Team ${installation.team.id} installation updated`, installation
         );
         return;
       }
@@ -51,10 +55,10 @@ class OAuthInstallationStore extends FileInstallationStore {
         createdBy: installation.user.id,
       });
       logger.info(
-        `[OAuthInstallationStore] Team ${installation.team.id} installation created`
+        `Team ${installation.team.id} installation created`, installation
       );
     } catch (e) {
-      logger.error('[OAuthInstallationStore]', e);
+      logger.error('OAuth Installation failed', e, installation);
       throw new Error('OAuth Installation failed. Please contact developer.');
     }
   }
@@ -65,7 +69,7 @@ class OAuthInstallationStore extends FileInstallationStore {
    * @param {*} logger
    * @returns {db.OAuthInstallation}
    */
-  async _multiLookup(query, logger) {
+  async _multiLookup(query) {
     const primary = {
       where: {
         slackTeamId: query.teamId,
@@ -83,13 +87,13 @@ class OAuthInstallationStore extends FileInstallationStore {
       record = await db.OAuthInstallation.findOne(firstAttempt);
       if (record) {
         logger.debug(
-          `[OAuthInstallationStore] Lookup with user id matched ${record.id}`
+          `Lookup with user id matched ${record.id}`, query
         );
         return record;
       }
     }
     logger.debug(
-      `[OAuthInstallationStore] Lookup with by team ${query.teamId}`
+      `Lookup with by team ${query.teamId}`, query
     );
     record = await db.OAuthInstallation.findOne(primary);
     return record;
@@ -101,12 +105,13 @@ class OAuthInstallationStore extends FileInstallationStore {
    * @param {*} logger
    * @returns {db.OAuthInstallation}
    */
-  async _findInstallation(query, logger) {
-    logger.debug(`[OAuthInstallationStore] Lookup with by team ${query.teamId}`);
+  async _findInstallation(query) {
+    logger.debug(`Lookup with by team ${query.teamId}`, query);
     const existing = await this._multiLookup(query, logger);
     if (!existing) {
+      logger.error(`team:${query.teamId} not found`, query);
       throw new Error(
-        `[OAuthInstallationStore] team:${query.teamId} not found`
+        `team:${query.teamId} not found`
       );
     }
     return existing;
@@ -118,11 +123,12 @@ class OAuthInstallationStore extends FileInstallationStore {
    * @param {*} logger
    * @returns {import("@slack/bolt").Installation}
    */
-  async fetchInstallation(query, logger) {
+  async fetchInstallation(query) {
     const existing = await this._findInstallation(query, logger);
 
     logger.debug(
-      `[OAuthInstallationStore] Fetched OAuthInstallation ${existing.id}`
+      `Fetched OAuthInstallation ${existing.id}`,
+      query
     );
 
     return (new OAuthInstallationDTO(existing)).asInstallation();
@@ -133,17 +139,18 @@ class OAuthInstallationStore extends FileInstallationStore {
    * @param {import("@slack/bolt").InstallationQuery} query
    * @param {*} logger
    */
-  async deleteInstallation(query, logger) {
+  async deleteInstallation(query) {
     logger.debug(
-      `[OAuthInstallationStore] Delete requested for team ${query.teamId}`
+      `Delete requested for team ${query.teamId}`, query
     );
     const existing = await this._findInstallation(query, logger);
     logger.info(
-      `[OAuthInstallationStore] Deleting installation ${existing.id} for team ${query.teamId}`
+      `Deleting installation ${existing.id} for team ${query.teamId}`, query
     );
     await existing.destroy();
     // TODO: Purge all DB tables by slackTeamId when all of a team's installations are
     if (await OAuthInstallationStore.shouldPurgeTeamData(query.teamId)) {
+      logger.info('Should purge data', query);
       await OAuthInstallationStore.purgeTeamData(query.teamId, logger);
     }
   }
@@ -157,10 +164,10 @@ class OAuthInstallationStore extends FileInstallationStore {
     return count == 0;
   }
 
-  static async purgeTeamData(slackTeamId, logger) {
+  static async purgeTeamData(slackTeamId) {
     // due to Cascade, all related should be deleted.
     logger.warn(
-      `[OAuthInstallationStore] Purge all data for slack team ${slackTeamId}`
+      `Purge all data for slack team ${slackTeamId}`
     );
     // await db.Meetup.destroy({
     //   where: {
