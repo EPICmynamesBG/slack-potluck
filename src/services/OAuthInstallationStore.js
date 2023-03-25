@@ -82,7 +82,7 @@ class OAuthInstallationStore extends FileInstallationStore {
     };
     let record;
     if (query.userId) {
-      const firstAttempt = { ...primary };
+      const firstAttempt = _.cloneDeep(primary);
       firstAttempt.where.createdBy = query.userId;
       record = await db.OAuthInstallation.findOne(firstAttempt);
       if (record) {
@@ -93,7 +93,7 @@ class OAuthInstallationStore extends FileInstallationStore {
       }
     }
     logger.debug(
-      `Lookup with by team ${query.teamId}`, query
+      `Lookup by team ${query.teamId}`, query
     );
     record = await db.OAuthInstallation.findOne(primary);
     return record;
