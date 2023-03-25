@@ -36,6 +36,8 @@ services:
     env_file:
       - .env
       - .env.docker
+    volumes:
+      - app-log:/home/node/app/logs
 
 
   db_migrate_job:
@@ -50,6 +52,9 @@ services:
     env_file:
       - .env
       - .env.docker
+    volumes:
+      - app-log:/home/node/app/logs
+
 
   db_migrate_undo:
     profiles:
@@ -63,6 +68,9 @@ services:
     env_file:
       - .env
       - .env.docker
+    volumes:
+      - app-log:/home/node/app/logs
 
 volumes:
   mysql-data:
+  app-log:
