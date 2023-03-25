@@ -115,7 +115,7 @@ class Views {
     await client.chat.postEphemeral({
       channel: channel,
       user: body.user.id,
-      text: "You're going, hooray! :simple_smile:",
+      text: "You're going, hooray!",
     });
   }
 
@@ -134,7 +134,7 @@ class Views {
     await client.chat.postEphemeral({
       channel: channel,
       user: body.user.id,
-      text: "You're going, hooray! You can always hit Sign Up again to update details :simple_smile:",
+      text: "You're going, hooray! You can always hit \"I'm Going!\" again to update details.",
     });
   }
 
