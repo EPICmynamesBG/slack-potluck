@@ -9,7 +9,7 @@ class DateTimeHelpers {
 
     static humanReadable(date, toTz = Intl.DateTimeFormat().resolvedOptions().timeZone) {
         const fallback = `${date.toLocaleString()} UTC`;
-        return `<!date^${this.unixFromDate(date)}^{date_short} {time}|${fallback}>`;
+        return `<!date^${DateTimeHelpers.unixFromDate(date)}^{date_short} {time}|${fallback}>`;
     }
 
     static dateOnly(date, toTz = Intl.DateTimeFormat().resolvedOptions().timeZone) {
