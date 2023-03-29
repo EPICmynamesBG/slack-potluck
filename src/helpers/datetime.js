@@ -1,3 +1,5 @@
+const moment = require('moment-timezone');
+
 class DateTimeHelpers {
     static dateFromUnix(unix) {
         return new Date(unix * 1000);
@@ -8,14 +10,12 @@ class DateTimeHelpers {
     }
 
     static humanReadable(date, toTz = Intl.DateTimeFormat().resolvedOptions().timeZone) {
-        const fallback = `${date.toLocaleString()} UTC`;
+        const fallback = moment.utc(date).tz('EDT').format('MMM D h:mm A'); // TODO: variable TZ
         return `<!date^${DateTimeHelpers.unixFromDate(date)}^{date_short} {time}|${fallback}>`;
     }
 
     static dateOnly(date, toTz = Intl.DateTimeFormat().resolvedOptions().timeZone) {
-        const fallback = `${date.getMonth()}/${date.getDate()}/${date.getFullYear()}`;
-        return fallback;
-        // return `<!date^${this.unixFromDate(date)}^{date_short}|${fallback}>`;
+        return moment.utc(date).tz('EDT').format('M/D/YYYY'); // TODO: variable TZ
     }
 }
 

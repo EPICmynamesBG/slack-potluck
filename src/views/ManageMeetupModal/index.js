@@ -43,7 +43,7 @@ class ManageMeetupModal {
               }),
               title: {
                 type: "plain_text",
-                text: `Manage Meetup`,
+                text: `${dateOnly(meetup.timestamp)} Meetup`,
               },
               submit:  {
                 type: "plain_text",
