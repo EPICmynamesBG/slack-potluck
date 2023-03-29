@@ -10,12 +10,12 @@ class DateTimeHelpers {
     }
 
     static humanReadable(date, toTz = Intl.DateTimeFormat().resolvedOptions().timeZone) {
-        const fallback = moment.utc(date).tz('EDT').format('MMM D h:mm A'); // TODO: variable TZ
+        const fallback = moment.utc(date).tz('America/New_York').format('MMM D h:mm A'); // TODO: variable TZ
         return `<!date^${DateTimeHelpers.unixFromDate(date)}^{date_short} {time}|${fallback}>`;
     }
 
     static dateOnly(date, toTz = Intl.DateTimeFormat().resolvedOptions().timeZone) {
-        return moment.utc(date).tz('EDT').format('M/D/YYYY'); // TODO: variable TZ
+        return moment.utc(date).tz('America/New_York').format('M/D/YYYY'); // TODO: variable TZ
     }
 }
 
