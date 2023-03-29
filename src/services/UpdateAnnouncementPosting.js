@@ -1,3 +1,4 @@
+const _ = require('lodash');
 const db = require("../models");
 const AnnounceChanges = require("../views/ManageMeetupModal/AnnounceChanges");
 const SyncAnnouncementPosting = require("./SyncAnnouncementPosting");
