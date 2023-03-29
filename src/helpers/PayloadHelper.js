@@ -46,10 +46,10 @@ class PayloadHelper {
   getUserContext() {
     this.logger.debug('getUserContext [payload]', this.payload);
     let context = _.get(this.payload, 'context');
-    if (!this._validateUserContext(object)) {
+    if (!this._validateUserContext(context)) {
       context = _.get(this.payload, 'body');
     }
-    if (!this._validateUserContext(object)) {
+    if (!this._validateUserContext(context)) {
       context = {
         user_id: this.getUserId(),
         team_id: this.getTeamId(),
