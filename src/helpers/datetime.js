@@ -8,11 +8,14 @@ class DateTimeHelpers {
     }
 
     static humanReadable(date, toTz = Intl.DateTimeFormat().resolvedOptions().timeZone) {
-        return date.toLocaleString();
+        const fallback = `${date.toLocaleString()} UTC`;
+        return `<!date^${this.unixFromDate(date)}^{date_short} {time}|${fallback}>`;
     }
 
     static dateOnly(date, toTz = Intl.DateTimeFormat().resolvedOptions().timeZone) {
-        return `${date.getMonth()}/${date.getDate()}/${date.getFullYear()}`;
+        const fallback = `${date.getMonth()}/${date.getDate()}/${date.getFullYear()}`;
+        return fallback;
+        // return `<!date^${this.unixFromDate(date)}^{date_short}|${fallback}>`;
     }
 }
 

@@ -15,7 +15,7 @@ class MeetupManagementActions {
         text: 'Cancel Meetup'
       },
       text: {
-        type: 'plain_text',
+        type: 'mrkdwn',
         text: `Are you sure want to cancel the ${humanReadable(meetup.timestamp)} Meetup? This will update all existing announcements.`
       },
       confirm: {
