@@ -1,5 +1,8 @@
 const _ = require("lodash");
 const { tryJoinChannel } = require('./ChannelJoiner');
+const { getInstance } = require('./logger');
+
+const logger = getInstance('PayloadHelper');
 
 class PayloadHelper {
   constructor(payload) {
@@ -7,7 +10,7 @@ class PayloadHelper {
   }
 
   get logger() {
-    return _.get(this.payload, "logger", console);
+    return logger;
   }
 
   getChannel() {
@@ -34,6 +37,26 @@ class PayloadHelper {
 
   getUserId() {
     return _.get(this.payload, 'body.user.id') || _.get(this.payload, 'body.user_id') || _.get(this.payload, 'context.userId');
+  }
+
+  _validateUserContext(object) {
+    return _.has(object, 'user_id') && _.has(object, 'team_id');
+  }
+
+  getUserContext() {
+    this.logger.debug('getUserContext [payload]', this.payload);
+    let context = _.get(this.payload, 'context');
+    if (!this._validateUserContext(object)) {
+      context = _.get(this.payload, 'body');
+    }
+    if (!this._validateUserContext(object)) {
+      context = {
+        user_id: this.getUserId(),
+        team_id: this.getTeamId(),
+      };
+    }
+    this.logger.debug('getUserContext [result]', output);
+    return context;
   }
 
   getTeamId() {

@@ -10,17 +10,17 @@ class Home {
     this._client = client;
   }
 
-  async render(slackTeamId, slackUserId) {
+  async render(slackUserContext) {
     const meetups = await MeetupWithRegistrationCount.getUpcomingForTeam(
-      slackTeamId
+      slackUserContext.team_id
     );
 
     const payload = {
-      user_id: slackUserId,
-      team_id: slackTeamId,
+      user_id: slackUserContext.user_id,
+      team_id: slackUserContext.team_id,
       view: {
         type: "home",
-        blocks: Home.render(meetups, slackUserId),
+        blocks: Home.render(meetups, slackUserContext),
       },
     };
     await this._client.views.publish(payload);
@@ -29,12 +29,13 @@ class Home {
   /**
    *
    * @param {MeetupWithRegistrationCount[]} meetups
+   * @param {object} [slackUserContext = {}]
    * @returns
    */
-  static render(meetups, renderingForSlackUserId = undefined) {
+  static render(meetups, slackUserContext = {}) {
     const meetupBlocks = ViewHelper.separateWithDivider(
       meetups.map((meetup) =>
-        MeetupDetailsWithAttendance.render(meetup, renderingForSlackUserId)
+        MeetupDetailsWithAttendance.render(meetup, slackUserContext)
       ),
       true
     );

@@ -1,4 +1,7 @@
 const DateTimeHelpers = require("../helpers/datetime");
+const { getInstance } = require('../helpers/logger');
+
+const logger = getInstance('MeetupDetails');
 
 class MeetupDetails {
   static ACTIONS = {
@@ -23,10 +26,11 @@ class MeetupDetails {
   /**
    *
    * @param {object} meetup
-   * @param {string} [forSlackUserId]
+   * @param {object} [slackUserContext = {}]
    * @returns {object[]} blocks of meeting details
    */
-  static render(meetup, forSlackUserId = undefined) {
+  static render(meetup, slackUserContext = {}) {
+    logger.debug('slackUserContext', slackUserContext);
     const formattedTime = DateTimeHelpers.humanReadable(meetup.timestamp);
 
     const addressUrl = new URL("https://www.google.com/maps/dir/?api=1");

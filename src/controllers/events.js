@@ -1,5 +1,6 @@
 const Home = require('../views/Home');
 const OAuthInstallationStore = require('../services/OAuthInstallationStore');
+const PayloadHelper = require('../helpers/PayloadHelper');
 
 let singleton;
 
@@ -19,9 +20,10 @@ class Events {
         const { event } = body;
         const slackTeamId = body.team_id;
         const slackUserId = event.user;
+        const payloadHelper = new PayloadHelper(payload);
     
         const home = new Home(payload.client);
-        await home.render(slackTeamId, slackUserId);
+        await home.render(payloadHelper.getUserContext());
     }
 
     async appUninstalled(payload) {
