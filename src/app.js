@@ -39,7 +39,17 @@ const app = new App({
   installationStore: OAuthInstallationStore.get(),
   stateSecret: process.env.SLACK_STATE_SECRET,
   logger,
-  logLevel: process.env.LOG_LEVEL || "info"
+  logLevel: process.env.LOG_LEVEL || "info",
+  customRoutes: [
+    {
+      path: '/health-check',
+      method: ['GET'],
+      handler: (req, res) => {
+        res.writeHead(200);
+        res.end('OK');
+      },
+    },
+  ]
 });
 
 // All the room in the world for your code
