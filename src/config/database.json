@@ -14,6 +14,10 @@
     "dialect": "mysql"
   },
   "production": {
-    "use_env_variable": "DATABASE_CONNECTION_STRING"
+    "use_env_variable": "DATABASE_CONNECTION_STRING",
+    "dialect": "mysql",
+    "dialectOptions": {
+      "ssl": "Amazon RDS"
+    }
   }
 }
