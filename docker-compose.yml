@@ -28,8 +28,8 @@ services:
     container_name: app
     image: 'slack-potluck'
     restart: always
-    depends_on:
-      - db
+    # depends_on:
+    #   - db
     build:
       dockerfile: Dockerfile
     ports:
