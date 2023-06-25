@@ -79,6 +79,29 @@ class AttendeeRow {
     ];
   }
 
+  static _renderGroupedUsers(includedInGroupRegistration = []) {
+    if (includedInGroupRegistration.length == 0) {
+      return [];
+    }
+    var msg = includedInGroupRegistration.map(x => `@${x.groupedSlackUserId}`)
+      .join(',');
+    return [
+      {
+        type: 'mrkdwn',
+        text: `Includes: ${msg}`
+      }
+    ];
+  }
+
+  static _renderRegistrationNotes(notes = undefined) {
+    return [
+      {
+        type: 'mrkdwn',
+        text: `Note: ${notes}`
+      }
+    ];
+  }
+
   static _renderFoodSignup(foodRegistration = undefined) {
     const slot = foodRegistration
       ? foodRegistration.foodSlot
@@ -119,6 +142,16 @@ class AttendeeRow {
         ...AttendeeRow._renderFoodSignup(
           this.registrationWithFoodSignup.foodRegistration
         )
+      );
+    }
+    if (this.registrationWithFoodSignup.meetupGroupUsers) {
+      userElements.push(
+        ...AttendeeRow._renderGroupedUsers(this.registrationWithFoodSignup.meetupGroupUsers)
+      );
+    }
+    if (this.registrationWithFoodSignup.notes) {
+      userElements.push(
+        ...AttendeeRow._renderRegistrationNotes(this.registrationWithFoodSignup.notes)
       );
     }
 
