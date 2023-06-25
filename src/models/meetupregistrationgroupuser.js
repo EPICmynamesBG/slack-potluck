@@ -1,4 +1,5 @@
 "use strict";
+const _ = require('lodash');
 const SlackUserAudit = require("./constants/SlackUserAudit");
 module.exports = (sequelize, DataTypes) => {
   class MeetupRegistrationGroupUser extends SlackUserAudit {
@@ -21,6 +22,25 @@ module.exports = (sequelize, DataTypes) => {
         hooks: true,
         allowNull: true
       });
+    }
+
+    static async FindInclusionRegistration({ meetupId, slackTeamId, forUser }) {
+      var matches = await sequelize.query(
+          `
+          SELECT meetup_registration_group_users.*
+          FROM meetup_registration_group_users
+          JOIN meetup_registrations ON (meetup_registration_group_users.meetup_registration_id = meetup_registrations.id)
+          WHERE meetup_registrations.slack_team_id = ?
+            AND meetup_registrations.meetup_id = ?
+            AND meetup_registration_group_users.grouped_slack_user_id = ?
+          LIMIT 1
+          `, {
+              replacements: [slackTeamId, meetupId, forUser],
+              type: QueryTypes.SELECT,
+              model: MeetupRegistrationGroupUser
+          }
+      );
+      return _.first(matches);
     }
   }
   MeetupRegistrationGroupUser.init(
@@ -88,5 +108,5 @@ module.exports = (sequelize, DataTypes) => {
       ],
     }
   );
-  return MeetupRegistration;
+  return MeetupRegistrationGroupUser;
 };

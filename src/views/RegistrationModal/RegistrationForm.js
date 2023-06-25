@@ -29,36 +29,6 @@ class RegistrationForm {
     };
   }
 
-  // static renderModalActions(meetup) {
-  //   return [
-  //     {
-  //       type: "actions",
-  //       block_id: this.BLOCK_ID,
-  //       elements: [
-  //         {
-  //           type: "button",
-  //           text: {
-  //             type: "plain_text",
-  //             text: "Sign Up!",
-  //           },
-  //           style: "primary",
-  //           value: meetup.id.toString(),
-  //           action_id: this.ACTIONS.REGISTER_DETAILS,
-  //         },
-  //         {
-  //           type: "button",
-  //           text: {
-  //             type: "plain_text",
-  //             text: "Maybe Later",
-  //           },
-  //           value: meetup.id.toString(),
-  //           action_id: this.ACTIONS.SKIP_SIGNUP,
-  //         },
-  //       ],
-  //     },
-  //   ];
-  // }
-
   static render(meetupRegistration = undefined) {
     return [
         {
