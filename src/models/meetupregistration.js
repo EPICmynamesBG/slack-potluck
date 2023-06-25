@@ -7,7 +7,7 @@ module.exports = (sequelize, DataTypes) => {
      * This method is not a part of DataTypes lifecycle.
      * The `models/index` file will call this method automatically.
      */
-    static associate({ Meetup, MeetupRegistrationFood }) {
+    static associate({ Meetup, MeetupRegistrationFood, MeetupRegistrationGroupUser }) {
       this.belongsTo(Meetup, {
         foreignKey: "meetup_id",
         as: "meetup",
@@ -18,6 +18,20 @@ module.exports = (sequelize, DataTypes) => {
         as: "foodRegistration",
         onDelete: "CASCADE",
         hooks: true
+      });
+      this.hasMany(MeetupRegistrationGroupUser, {
+        foreignKey: "meetup_registration_id",
+        // uniqueKey: "uniq_meetupregid_team_creator",
+        as: "meetupGroupUsers",
+        onDelete: "CASCADE",
+        hooks: true
+      });
+      this.hasOne(MeetupRegistrationGroupUser, {
+        foreignKey: "grouped_user_meetup_registration_id",
+        as: "includedInGroupRegistration",
+        onDelete: "SET NULL",
+        hooks: true,
+        allowNull: true
       });
     }
   }
@@ -43,6 +57,15 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
         defaultValue: 0,
         field: "child_registration_count",
+      },
+      isAttending: {
+        type: DataTypes.VIRTUAL,
+        get() {
+          return this.adultRegistrationCount > 0;
+        },
+        set() {
+          throw new Error('isAttending cannot be directly set');
+        }
       },
       slackTeamId: {
         type: DataTypes.STRING,
