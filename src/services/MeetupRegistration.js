@@ -6,6 +6,28 @@ const SyncAnnouncementPosting = require("./SyncAnnouncementPosting");
 const { tryJoinChannel } = require('../helpers/ChannelJoiner');
 
 class MeetupRegistration {
+  /**
+   * 
+   * @param {MeetupRegistration} registration 
+   */
+  static async _tryLinkGroupedRegistration(registration) {
+    try {
+      var groupedRegistration = await db.MeetupRegistrationGroupUser.FindInclusionRegistration({
+        meetupId: registration.meetupId,
+        slackTeamId: registration.slackTeamId,
+        forUser: registration.createdBy
+      });
+      if (groupedRegistration) {
+        groupedRegistration.groupedUserRegistrationId = registration.id;
+        groupedRegistration.updatedAt = new Date();
+        await groupedRegistration.save();
+      }
+    } catch (e) {
+      await errorHelper.handleError(e, "Attempt to link a grouped registration failed");
+      return;
+    }
+  }
+
   static async _createOrUpdateRegistration(
     errorHelper,
     {
@@ -53,6 +75,7 @@ class MeetupRegistration {
           adultRegistrationCount,
           childRegistrationCount,
         });
+        await _tryLinkGroupedRegistration(registration);
       }
       return registration;
     } catch (e) {
@@ -84,7 +107,7 @@ class MeetupRegistration {
     const { body, client, view } = payload;
     const meta = JSON.parse(_.get(view, "private_metadata", "{}"));
     const { meetupId } = meta;
-    const { adultCount, childCount } = RegistrationForm.getFormValues(
+    const { adultCount, childCount = 0 } = RegistrationForm.getFormValues(
       view.state
     );
 
