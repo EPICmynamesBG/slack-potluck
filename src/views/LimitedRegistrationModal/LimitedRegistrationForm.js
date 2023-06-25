@@ -16,7 +16,7 @@ class LimitedRegistrationForm extends RegistrationForm {
         type: "section",
         text: {
             type: "mrkdwn",
-            text: `@<${includedWithinOtherUserRegistration.createdBy}> has included you in their signup! Because of this, your signup options are limited.`
+            text: `_@<${includedWithinOtherUserRegistration.createdBy}> has included you in their signup! Because of this, your signup options are limited._`
         }
     };
   }
