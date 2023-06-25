@@ -102,7 +102,8 @@ class MeetupRegistration {
         childRegistrationCount: childCount,
       }
     );
-    await RegistrationGroupedUsers.manageIncludedUsersFromState(registration, view.state);
+    await RegistrationGroupedUsers.manageIncludedUsersFromState(
+      new ErrorAssistant(payload), registration, view.state);
     if (registration) {
       await this.onMeetupRegistrationChange(client, meetupId);
     }
