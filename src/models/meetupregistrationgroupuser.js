@@ -1,48 +1,38 @@
 "use strict";
 const SlackUserAudit = require("./constants/SlackUserAudit");
 module.exports = (sequelize, DataTypes) => {
-  class MeetupRegistration extends SlackUserAudit {
+  class MeetupRegistrationGroupUser extends SlackUserAudit {
     /**
      * Helper method for defining associations.
      * This method is not a part of DataTypes lifecycle.
      * The `models/index` file will call this method automatically.
      */
-    static associate({ Meetup, MeetupRegistrationFood }) {
-      this.belongsTo(Meetup, {
-        foreignKey: "meetup_id",
-        as: "meetup",
-      });
-      this.hasOne(MeetupRegistrationFood, {
+    static associate({ MeetupRegistration }) {
+      this.belongsTo(MeetupRegistration, {
         foreignKey: "meetup_registration_id",
-        // uniqueKey: "uniq_meetupregid_team_creator",
-        as: "foodRegistration",
+        as: "meetup_registration",
         onDelete: "CASCADE",
         hooks: true
       });
+      this.belongsTo(MeetupRegistration, {
+        foreignKey: "grouped_user_meetup_registration_id",
+        as: "grouped_meetup_registration",
+        onDelete: "SET NULL",
+        hooks: true,
+        allowNull: true
+      });
     }
   }
-  MeetupRegistration.init(
+  MeetupRegistrationGroupUser.init(
     {
-      meetupId: {
+      meetupRegistrationId: {
         type: DataTypes.INTEGER,
         references: {
-          model: "Meetup",
+          model: "MeetupRegistration",
           key: "id",
         },
-        field: "meetup_id",
+        field: "meetup_registration_id",
         onDelete: 'CASCADE'
-      },
-      adultRegistrationCount: {
-        type: DataTypes.SMALLINT,
-        allowNull: false,
-        defaultValue: 0,
-        field: "adult_registration_count",
-      },
-      childRegistrationCount: {
-        type: DataTypes.SMALLINT,
-        allowNull: false,
-        defaultValue: 0,
-        field: "child_registration_count",
       },
       slackTeamId: {
         type: DataTypes.STRING,
@@ -50,6 +40,7 @@ module.exports = (sequelize, DataTypes) => {
         field: "slack_team_id",
       },
       createdBy: {
+        // The creator of the registration
         type: DataTypes.STRING,
         allowNull: false,
         field: "created_by",
@@ -66,23 +57,33 @@ module.exports = (sequelize, DataTypes) => {
         field: "updated_at",
         defaultValue: () => new Date(),
       },
-      notes: {
-        allowNull: true,
+      groupedSlackUserId: {
+        // description: "The Slack user being included in the registration"
+        allowNull: false,
         type: DataTypes.STRING,
-        field: "notes",
-        defaultValue: null
+        field: "grouped_slack_user_id"
+      },
+      groupedUserRegistrationId: {
+        type: DataTypes.INTEGER,
+        references: {
+          model: "MeetupRegistration",
+          key: "id",
+        },
+        field: "grouped_user_meetup_registration_id",
+        onDelete: 'SET NULL',
+        allowNull: true
       }
     },
     {
       sequelize,
-      modelName: "MeetupRegistration",
-      tableName: "meetup_registrations",
+      modelName: "MeetupRegistrationGroupUser",
+      tableName: "meetup_registration_group_users",
       indexes: [
         {
-          name: "uniq_meetup_team_creator",
+          name: "uniq_meetup_group_user",
           type: "UNIQUE",
           unique: true,
-          fields: ["meetup_id", "slack_team_id", "created_by"],
+          fields: ["meetup_registration_id", "grouped_slack_user_id"],
         },
       ],
     }
