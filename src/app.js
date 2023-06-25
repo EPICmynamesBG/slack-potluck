@@ -11,6 +11,7 @@ const Actions = require("./controllers/actions");
 const Events = require("./controllers/events");
 const OAuthInstallationStore = require("./services/OAuthInstallationStore");
 const { getInstance } = require('./helpers/logger');
+const maintenance = require("./middleware/maintenance");
 
 const logger = getInstance('root');
 
@@ -37,6 +38,7 @@ const app = new App({
   developerMode: true,
   socketMode: false,
   installationStore: OAuthInstallationStore.get(),
+  authorize: OAuthInstallationStore.authorize.bind(OAuthInstallationStore),
   stateSecret: process.env.SLACK_STATE_SECRET,
   logger,
   logLevel: process.env.LOG_LEVEL || "info"
@@ -49,6 +51,9 @@ Commands.init(app);
 Events.init(app);
 Shortcuts.init(app);
 Views.init(app);
+
+// global middlware
+app.use(maintenance);
 
 (async () => {
   // Start your app
