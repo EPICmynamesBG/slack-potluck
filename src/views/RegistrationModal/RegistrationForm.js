@@ -7,6 +7,7 @@ class RegistrationForm {
     SKIP_SIGNUP: "registration.attending.details.skip",
     ADULT_SIGNUP: "registration.attending.adult_count",
     CHILD_SIGNUP: "registration.attending.child_count",
+    SIGNUP_NOTES: "registration.attending.notes"
   };
 
 
@@ -23,9 +24,16 @@ class RegistrationForm {
       this.ACTIONS.CHILD_SIGNUP,
       "value",
     ]);
+    const notes = _.get(viewState, [
+      "values",
+      `section.${this.ACTIONS.SIGNUP_NOTES}`,
+      this.ACTIONS.SIGNUP_NOTES,
+      "value",
+    ]);
     return {
       adultCount,
       childCount,
+      notes
     };
   }
 
@@ -66,6 +74,25 @@ class RegistrationForm {
               type: "plain_text",
               text: "Children",
             },
+          },
+          {
+            type: 'input',
+            block_id: `section.${this.ACTIONS.SIGNUP_NOTES}`,
+            optional: true,
+            element: {
+              type: "plain_text_input",
+              multiline: true,
+              action_id: this.ACTIONS.SIGNUP_NOTES,
+              placeholder: {
+                type: "plain_text",
+                text: "ie: allergies"
+              }
+            },
+            label: {
+              type: "plain_text",
+              text: "Notes",
+              emoji: true
+            }
           }
     ]
   }
