@@ -2,7 +2,8 @@ const _ = require('lodash');
 const db = require("../../models");
 const RegistrationForm = require("./RegistrationForm");
 const FoodSignupForm = require('./FoodSignupForm');
-
+const SignupIncludeUsersForm = require('./SignupIncludeUsersForm');
+const LimitedRegistrationModal = require('../LimitedRegistrationModal');
 class RegistrationModal {
   static VIEW_ID = "meetup.registration.modal";
   static ACTIONS = {
@@ -17,10 +18,15 @@ class RegistrationModal {
           slackTeamId,
           meetupId,
         },
-        include: "foodRegistration",
+        include: ["foodRegistration", "meetupGroupUsers"]
       });
     const existingFoodSignup = _.get(existingRegistration, 'foodRegistration');
     const meetup = await db.Meetup.findByPk(meetupId);
+    const includedInGroupRegistration = await db.MeetupRegistrationGroupUsers.FindInclusionRegistration({
+      meetupId,
+      slackTeamId,
+      forUser: slackUserId
+    });
 
     return {
       token: botToken,
@@ -50,18 +56,37 @@ class RegistrationModal {
           type: "plain_text",
           text: "Ask me Later",
         },
-        blocks: RegistrationModal.renderBlocks(meetup, existingRegistration, existingFoodSignup),
+        blocks: includedInGroupRegistration ?
+          LimitedRegistrationModal.renderBlocks(
+            meetup,
+            includedInGroupRegistration,
+            existingRegistration,
+            existingFoodSignup
+          ) : 
+          RegistrationModal.renderBlocks(
+            meetup,
+            existingRegistration,
+            existingFoodSignup
+          ),
       },
     };
   }
 
+  /**
+   * 
+   * @param {Meetup} meetup 
+   * @param {MeetupRegistration | undefined} existingRegistration 
+   * @param {MeetupRegistrationFood | undefined} existingFoodSignup 
+   * @returns 
+   */
   static renderBlocks(meetup, existingRegistration, existingFoodSignup) {
     const blocks = [
-      ...RegistrationForm.render(existingRegistration),
+      ...RegistrationForm.render(existingRegistration, includedWithinOtherUserRegistration),
     ];
     if (meetup.includeFoodSignup) {
       blocks.push(...FoodSignupForm.render(existingFoodSignup));
     }
+    blocks.push(...SignupIncludeUsersForm.render(existingRegistration.meetupGroupUsers));
     return blocks;
   }
 }
