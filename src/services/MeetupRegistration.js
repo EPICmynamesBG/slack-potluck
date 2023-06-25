@@ -3,30 +3,10 @@ const db = require("../models");
 const ErrorAssistant = require("../helpers/ErrorAssistant");
 const RegistrationForm = require("../views/RegistrationModal/RegistrationForm");
 const SyncAnnouncementPosting = require("./SyncAnnouncementPosting");
+const RegistrationGroupedUsers = require("./RegistrationGroupedUsers");
 const { tryJoinChannel } = require('../helpers/ChannelJoiner');
 
 class MeetupRegistration {
-  /**
-   * 
-   * @param {MeetupRegistration} registration 
-   */
-  static async _tryLinkGroupedRegistration(registration) {
-    try {
-      var groupedRegistration = await db.MeetupRegistrationGroupUser.FindInclusionRegistration({
-        meetupId: registration.meetupId,
-        slackTeamId: registration.slackTeamId,
-        forUser: registration.createdBy
-      });
-      if (groupedRegistration) {
-        groupedRegistration.groupedUserRegistrationId = registration.id;
-        groupedRegistration.updatedAt = new Date();
-        await groupedRegistration.save();
-      }
-    } catch (e) {
-      await errorHelper.handleError(e, "Attempt to link a grouped registration failed");
-      return;
-    }
-  }
 
   static async _createOrUpdateRegistration(
     errorHelper,
@@ -75,7 +55,7 @@ class MeetupRegistration {
           adultRegistrationCount,
           childRegistrationCount,
         });
-        await _tryLinkGroupedRegistration(registration);
+        await RegistrationGroupedUsers.tryLinkGroupedRegistration(registration);
       }
       return registration;
     } catch (e) {
@@ -83,6 +63,7 @@ class MeetupRegistration {
       return;
     }
   }
+
 
   static async initAttending(payload) {
     const { action, body, client } = payload;
@@ -121,6 +102,7 @@ class MeetupRegistration {
         childRegistrationCount: childCount,
       }
     );
+    await RegistrationGroupedUsers.manageIncludedUsersFromState(registration, view.state);
     if (registration) {
       await this.onMeetupRegistrationChange(client, meetupId);
     }
