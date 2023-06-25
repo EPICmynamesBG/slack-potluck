@@ -66,10 +66,22 @@ class RegistrationModal {
           RegistrationModal.renderBlocks(
             meetup,
             existingRegistration,
-            existingFoodSignup
+            existingFoodSignup,
+            includedInGroupRegistration
           ),
       },
     };
+  }
+
+  static _renderBlocks(meetup, existingRegistration, existingFoodSignup) {
+    const blocks = [
+      ...RegistrationForm.render(existingRegistration),
+    ];
+    if (meetup.includeFoodSignup) {
+      blocks.push(...FoodSignupForm.render(existingFoodSignup));
+    }
+    blocks.push(...SignupIncludeUsersForm.render(existingRegistration.meetupGroupUsers));
+    return blocks;
   }
 
   /**
@@ -79,15 +91,19 @@ class RegistrationModal {
    * @param {MeetupRegistrationFood | undefined} existingFoodSignup 
    * @returns 
    */
-  static renderBlocks(meetup, existingRegistration, existingFoodSignup) {
-    const blocks = [
-      ...RegistrationForm.render(existingRegistration, includedWithinOtherUserRegistration),
-    ];
-    if (meetup.includeFoodSignup) {
-      blocks.push(...FoodSignupForm.render(existingFoodSignup));
-    }
-    blocks.push(...SignupIncludeUsersForm.render(existingRegistration.meetupGroupUsers));
-    return blocks;
+  static renderBlocks(meetup, existingRegistration, existingFoodSignup, includedInGroupRegistration) {
+    var blocks = !!includedInGroupRegistration ?
+      LimitedRegistrationModal.renderBlocks(
+        meetup,
+        includedInGroupRegistration,
+        existingRegistration,
+        existingFoodSignup
+      ) :
+      this._renderBlocks(meetup, existingRegistration, existingFoodSignup);
+    
+    // Move notes to last, always
+    var notesArr = _.remove(blocks, block => block.block_id === `section.${RegistrationForm.ACTIONS.SIGNUP_NOTES}`);
+    return [...blocks, ...notesArr];
   }
 }
 
