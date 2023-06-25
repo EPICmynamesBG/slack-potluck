@@ -17,6 +17,7 @@ class MeetupRegistration {
       adultRegistrationCount,
       childRegistrationCount,
       skipUpdatesForNonZeroRegistration = false,
+      notes = undefined
     }
   ) {
     try {
@@ -46,6 +47,9 @@ class MeetupRegistration {
         registration.adultRegistrationCount = adultRegistrationCount;
         registration.childRegistrationCount = childRegistrationCount;
         registration.updatedAt = new Date();
+        if (notes) {
+          registration.notes = notes;
+        }
         await registration.save();
       } else {
         registration = await db.MeetupRegistration.create({
@@ -54,6 +58,7 @@ class MeetupRegistration {
           slackTeamId,
           adultRegistrationCount,
           childRegistrationCount,
+          notes
         });
         await RegistrationGroupedUsers.tryLinkGroupedRegistration(registration);
       }
@@ -88,7 +93,7 @@ class MeetupRegistration {
     const { body, client, view } = payload;
     const meta = JSON.parse(_.get(view, "private_metadata", "{}"));
     const { meetupId } = meta;
-    const { adultCount, childCount = 0 } = RegistrationForm.getFormValues(
+    const { adultCount, childCount = 0, notes = undefined } = RegistrationForm.getFormValues(
       view.state
     );
 
@@ -100,6 +105,7 @@ class MeetupRegistration {
         slackTeamId: body.user.team_id,
         adultRegistrationCount: adultCount,
         childRegistrationCount: childCount,
+        notes
       }
     );
     await RegistrationGroupedUsers.manageIncludedUsersFromState(
