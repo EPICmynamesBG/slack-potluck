@@ -38,7 +38,7 @@ const app = new App({
   developerMode: true,
   socketMode: false,
   installationStore: OAuthInstallationStore.get(),
-  authorize: OAuthInstallationStore.authorize.bind(OAuthInstallationStore),
+  // authorize: OAuthInstallationStore.authorize.bind(OAuthInstallationStore),
   stateSecret: process.env.SLACK_STATE_SECRET,
   logger,
   logLevel: process.env.LOG_LEVEL || "info"
