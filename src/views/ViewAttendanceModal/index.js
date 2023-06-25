@@ -26,7 +26,11 @@ class ViewAttendanceModal {
       where: {
         meetupId
       },
-      include: ['foodRegistration']
+      include: ['foodRegistration', 'meetupGroupUsers', 'includedInGroupRegistration'],
+      order: [
+        ['isAttending', 'ASC'],
+        ['createdAt', 'ASC']
+      ]
     });
 
     const attendeeRows = await Promise.all(
