@@ -14,8 +14,8 @@ class MeetupWithRegistrationCount extends db.Meetup {
         meetups.updated_at AS updatedAt,
         meetups.additional_notes AS additionalNotes,
         meetups.include_food_signup AS includeFoodSignup,
-        SUM(meetup_registrations.adult_registration_count) AS adultsRegistered,
-        SUM(meetup_registrations.child_registration_count) AS childrenRegistered
+        SUM(mod_meetup_registrations.adult_registration_count) AS adultsRegistered,
+        SUM(mod_meetup_registrations.child_registration_count) AS childrenRegistered
     `;
 
     // Compex left join to meetup_registrations that offsets the original registration count
@@ -34,10 +34,10 @@ class MeetupWithRegistrationCount extends db.Meetup {
            FROM meetup_registration_group_users g
            JOIN meetup_registrations og ON (og.id = g.meetup_registration_id)
            JOIN meetup_registrations grouped ON (grouped.id = g.grouped_user_meetup_registration_id)
-           WHERE og.meetup_id = ?
+           WHERE og.meetup_id = :meetup
            GROUP BY og.id
         ) meetup_registration_offset ON (meetup_registrations.id = meetup_registration_offset.id)
-        WHERE meetup_registrations.meetup_id = ?
+        WHERE meetup_registrations.meetup_id = :meetup
         GROUP BY meetup_registrations.id, meetup_registrations.meetup_id
       ) mod_meetup_registrations ON (meetups.id = mod_meetup_registrations.meetup_id)
           `;
@@ -47,9 +47,9 @@ class MeetupWithRegistrationCount extends db.Meetup {
             throw new Error('At least one meetupId required');
         }
         if (meetupIds.length == 1) {
-            return __QueryLogic;
+            return this.__QueryLogic;
         }
-        return __QueryLogic.replace(/meetup_id = \?/g, 'meetup_id IN ?');
+        return this.__QueryLogic.replace(/meetup_id = \:meetup/g, 'meetup_id IN (:meetup)');
     }
 
     static getMeetup(meetupId) {
@@ -58,12 +58,12 @@ class MeetupWithRegistrationCount extends db.Meetup {
             ${this._SelectFields}
             FROM meetups
             ${this._QueryLogic(meetupId)}
-            WHERE meetups.id = ?
+            WHERE meetups.id = :meetup
             GROUP BY meetups.id
             ORDER BY meetups.timestamp ASC
             LIMIT 1
             `, {
-                replacements: [meetupId],
+                replacements: { meetup: meetupId },
                 type: QueryTypes.SELECT,
                 plain: true,
                 model: MeetupWithRegistrationCount
@@ -76,30 +76,36 @@ class MeetupWithRegistrationCount extends db.Meetup {
             `
             SELECT meetups.id
             FROM meetups
-            WHERE meetups.slack_team_id = ?
+            WHERE meetups.slack_team_id = :slackTeam
               AND meetups.timestamp > now()
             GROUP BY meetups.id
             ORDER BY meetups.timestamp ASC
             LIMIT 5
             `, {
-                replacements: [slackTeamId],
+                replacements: { slackTeam: slackTeamId },
                 type: QueryTypes.SELECT,
                 model: db.Meetup
             }
         );
-        var meetupIds = upcomingMeetups.map(x => x.Id);
+        if (upcomingMeetups.length === 0) {
+            return [];
+        }
+        var meetupIds = upcomingMeetups.map(x => x.id);
         return await db.sequelize.query(
             `
             ${this._SelectFields}
             FROM meetups
             ${this._QueryLogic(...meetupIds)}
-            WHERE meetups.slack_team_id = ?
-              AND meetups.id IN ?
+            WHERE meetups.slack_team_id = :slackTeam
+              AND meetups.id IN (:meetup)
             GROUP BY meetups.id
             ORDER BY meetups.timestamp ASC
             LIMIT 5
             `, {
-                replacements: [meetupIds, meetupIds, slackTeamId, meetupIds],
+                replacements: {
+                    slackTeam: slackTeamId,
+                    meetup: meetupIds
+                },
                 type: QueryTypes.SELECT,
                 model: MeetupWithRegistrationCount
             }

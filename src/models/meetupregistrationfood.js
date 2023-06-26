@@ -2,7 +2,7 @@
 const SlackUserAudit = require("./constants/SlackUserAudit");
 const FoodSlot = require('./constants/FoodSlot');
 
-module.exports = (sequelize, DataTypes) => {
+module.exports = (sequelize, { DataTypes }) => {
   class MeetupRegistrationFood extends SlackUserAudit {
     /**
      * Helper method for defining associations.

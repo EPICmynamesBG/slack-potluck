@@ -9,7 +9,7 @@ class SignupIncludeUsersForm {
   static _renderMultiUserSelectOptions(existingIncludedUsers = []) {
     var ids = existingIncludedUsers.map(x => x.groupedSlackUserId);
     return {
-      action_id: this.ACTIONS.FOOD_TYPE_SELECT,
+      action_id: this.ACTIONS.SIGNUP_INCLUDE_USERS_INPUT,
       type: "multi_users_select",
       initial_users: ids
     };
@@ -20,8 +20,7 @@ class SignupIncludeUsersForm {
       "values",
       `section.${this.ACTIONS.SIGNUP_INCLUDE_USERS_INPUT}`,
       this.ACTIONS.SIGNUP_INCLUDE_USERS_INPUT,
-      "selected_users",
-      "value",
+      "selected_users"
     ]);
     return {
       includedUsers
@@ -37,7 +36,7 @@ class SignupIncludeUsersForm {
     return [
         {
             type: "input",
-            block_id: `section.${this.ACTIONS.FOOD_TYPE_SELECT}`,
+            block_id: `section.${this.ACTIONS.SIGNUP_INCLUDE_USERS_INPUT}`,
             optional: true,
             label: {
               type: "plain_text",

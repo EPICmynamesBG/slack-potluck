@@ -8,6 +8,12 @@ const { tryJoinChannel } = require('../helpers/ChannelJoiner');
 
 class MeetupRegistration {
 
+  /**
+   * 
+   * @param {*} errorHelper 
+   * @param {*} param1 
+   * @returns [registration, registrationCountsChange: bool]
+   */
   static async _createOrUpdateRegistration(
     errorHelper,
     {
@@ -24,8 +30,9 @@ class MeetupRegistration {
       await db.Meetup.findByPk(Number.parseInt(meetupId, 10));
     } catch (e) {
       await errorHelper.handleError(e, "Meetup not found");
-      return;
+      return [undefined, false];
     }
+    let countsHaveChanged = false;
     try {
       let registration = await db.MeetupRegistration.findOne({
         where: {
@@ -42,8 +49,10 @@ class MeetupRegistration {
           skipUpdatesForNonZeroRegistration &&
           existingRegistrationCount > 0
         ) {
-          return registration;
+          return [registration, countsHaveChanged];
         }
+        countsHaveChanged = registration.adultRegistrationCount != adultRegistrationCount ||
+                            registration.childRegistrationCount != childRegistrationCount;
         registration.adultRegistrationCount = adultRegistrationCount;
         registration.childRegistrationCount = childRegistrationCount;
         registration.updatedAt = new Date();
@@ -60,12 +69,13 @@ class MeetupRegistration {
           childRegistrationCount,
           notes
         });
-        await RegistrationGroupedUsers.tryLinkGroupedRegistration(registration);
+        countsHaveChanged = true;
+        await RegistrationGroupedUsers.tryLinkGroupedRegistration(registration, errorHelper);
       }
-      return registration;
+      return [registration, countsHaveChanged];
     } catch (e) {
       await errorHelper.handleError(e, "Failed to store response");
-      return;
+      return [undefined, countsHaveChanged];
     }
   }
 
@@ -75,7 +85,7 @@ class MeetupRegistration {
     const helper = new ErrorAssistant(payload);
     const meetupId = action.value;
 
-    const result = await this._createOrUpdateRegistration(helper, {
+    const [result, countsHaveChanged] = await this._createOrUpdateRegistration(helper, {
       meetupId,
       slackUserId: body.user.id,
       slackTeamId: body.user.team_id,
@@ -83,7 +93,7 @@ class MeetupRegistration {
       childRegistrationCount: 0,
       skipUpdatesForNonZeroRegistration: true,
     });
-    if (result) {
+    if (countsHaveChanged) {
       await this.onMeetupRegistrationChange(client, meetupId);
     }
     return result;
@@ -97,7 +107,7 @@ class MeetupRegistration {
       view.state
     );
 
-    const registration = await this._createOrUpdateRegistration(
+    const [registration, countsHaveChanged] = await this._createOrUpdateRegistration(
       new ErrorAssistant(payload),
       {
         meetupId,
@@ -110,7 +120,7 @@ class MeetupRegistration {
     );
     await RegistrationGroupedUsers.manageIncludedUsersFromState(
       new ErrorAssistant(payload), registration, view.state);
-    if (registration) {
+    if (countsHaveChanged) {
       await this.onMeetupRegistrationChange(client, meetupId);
     }
     return registration;
@@ -121,7 +131,7 @@ class MeetupRegistration {
     const helper = new ErrorAssistant(payload);
     const meetupId = action.value;
 
-    const registration = await this._createOrUpdateRegistration(helper, {
+    const [registration, countsHaveChanged] = await this._createOrUpdateRegistration(helper, {
       meetupId,
       slackUserId: body.user.id,
       slackTeamId: body.user.team_id,
@@ -131,7 +141,9 @@ class MeetupRegistration {
     if (!registration) {
       return;
     }
-    await this.onMeetupRegistrationChange(client, meetupId);
+    if (countsHaveChanged) {
+      await this.onMeetupRegistrationChange(client, meetupId);
+    }
 
     await tryJoinChannel(client, body.container.channel_id);
     await client.chat.postEphemeral({

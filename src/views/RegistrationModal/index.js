@@ -22,11 +22,13 @@ class RegistrationModal {
       });
     const existingFoodSignup = _.get(existingRegistration, 'foodRegistration');
     const meetup = await db.Meetup.findByPk(meetupId);
-    const includedInGroupRegistration = await db.MeetupRegistrationGroupUsers.FindInclusionRegistration({
-      meetupId,
-      slackTeamId,
-      forUser: slackUserId
-    });
+    const includedInGroupRegistration = existingRegistration ? await db.MeetupRegistrationGroupUser.findOne({
+      where: {
+        slackTeamId,
+        groupedSlackUserId: slackUserId,
+        groupedUserRegistrationId: existingRegistration.id  
+      }
+    }) : undefined;
 
     return {
       token: botToken,
@@ -56,14 +58,7 @@ class RegistrationModal {
           type: "plain_text",
           text: "Ask me Later",
         },
-        blocks: includedInGroupRegistration ?
-          LimitedRegistrationModal.renderBlocks(
-            meetup,
-            includedInGroupRegistration,
-            existingRegistration,
-            existingFoodSignup
-          ) : 
-          RegistrationModal.renderBlocks(
+        blocks: RegistrationModal.renderBlocks(
             meetup,
             existingRegistration,
             existingFoodSignup,

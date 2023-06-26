@@ -1,6 +1,6 @@
 "use strict";
 const SlackUserAudit = require("./constants/SlackUserAudit");
-module.exports = (sequelize, DataTypes) => {
+module.exports = (sequelize, { DataTypes }) => {
   class MeetupAnnouncement extends SlackUserAudit {
     /**
      * Helper method for defining associations.
