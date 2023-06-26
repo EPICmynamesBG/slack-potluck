@@ -1,7 +1,7 @@
 "use strict";
 const _ = require('lodash');
 const SlackUserAudit = require("./constants/SlackUserAudit");
-module.exports = (sequelize, DataTypes) => {
+module.exports = (sequelize, { DataTypes, QueryTypes }) => {
   class MeetupRegistrationGroupUser extends SlackUserAudit {
     /**
      * Helper method for defining associations.
@@ -24,24 +24,24 @@ module.exports = (sequelize, DataTypes) => {
       });
     }
 
-    static async FindInclusionRegistration({ meetupId, slackTeamId, forUser }) {
-      var matches = await sequelize.query(
-          `
-          SELECT meetup_registration_group_users.*
-          FROM meetup_registration_group_users
-          JOIN meetup_registrations ON (meetup_registration_group_users.meetup_registration_id = meetup_registrations.id)
-          WHERE meetup_registrations.slack_team_id = ?
-            AND meetup_registrations.meetup_id = ?
-            AND meetup_registration_group_users.grouped_slack_user_id = ?
-          LIMIT 1
-          `, {
-              replacements: [slackTeamId, meetupId, forUser],
-              type: QueryTypes.SELECT,
-              model: MeetupRegistrationGroupUser
-          }
-      );
-      return _.first(matches);
-    }
+  //   static async FindInclusionRegistration({ meetupId, slackTeamId, forUser }) {
+  //     var matches = await sequelize.query(
+  //         `
+  //         SELECT meetup_registration_group_users.*
+  //         FROM meetup_registration_group_users
+  //         JOIN meetup_registrations ON (meetup_registration_group_users.meetup_registration_id = meetup_registrations.id)
+  //         WHERE meetup_registrations.slack_team_id = ?
+  //           AND meetup_registrations.meetup_id = ?
+  //           AND meetup_registration_group_users.grouped_slack_user_id = ?
+  //         LIMIT 1
+  //         `, {
+  //             replacements: [slackTeamId, meetupId, forUser],
+  //             type: QueryTypes.SELECT,
+  //             model: MeetupRegistrationGroupUser
+  //         }
+  //     );
+  //     return _.first(matches);
+  //   }
   }
   MeetupRegistrationGroupUser.init(
     {
@@ -105,7 +105,7 @@ module.exports = (sequelize, DataTypes) => {
           unique: true,
           fields: ["meetup_registration_id", "grouped_slack_user_id"],
         },
-      ],
+      ]
     }
   );
   return MeetupRegistrationGroupUser;

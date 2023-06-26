@@ -28,7 +28,12 @@ class ViewAttendanceModal {
       },
       include: ['foodRegistration', 'meetupGroupUsers', 'includedInGroupRegistration'],
       order: [
-        ['isAttending', 'ASC'],
+        [db.Sequelize.literal(`
+        CASE
+          WHEN adult_registration_count > 0 THEN 1
+          ELSE 0
+        END
+        `), 'ASC'],
         ['createdAt', 'ASC']
       ]
     });

@@ -1,11 +1,14 @@
+const getter = require("../helpers/getter");
 
-module.exports = async function maintenance({ payload, client, context, next }) {
+module.exports = async function maintenance(all) {
+    const { body, payload, client, context, next } = all;
     if (process.env.MAINTENANCE !== "true") {
         await next()
         return;
     }
     
-    const slackUserId = payload.user;
+    const slackUserId = getter(payload, 'user', 'user_id', 'user.id') ||
+        getter(body, 'user_id', 'user.id');
     var maintenanceUsers = process.env.MAINTENANCE_USERS.split(',');
     if (!maintenanceUsers.includes(slackUserId)) {
         await client.chat.postEphemeral({

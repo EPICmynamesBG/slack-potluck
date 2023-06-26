@@ -1,5 +1,6 @@
 const _ = require("lodash");
 const { tryJoinChannel } = require('./ChannelJoiner');
+const getter = require('../helpers/getter');
 
 class PayloadHelper {
   constructor(payload) {
@@ -10,8 +11,17 @@ class PayloadHelper {
     return _.get(this.payload, "logger", console);
   }
 
+  static get DM() {
+    return "directmessage";
+  }
+
   getChannel() {
-    let channel = _.get(this.payload, ["body", "channel", "id"]) || _.get(this.payload, 'body.channel_id');
+    const channelName = getter(this.payload, ["body", "channel", "name"], 'body.channel_name');
+    if (channelName === PayloadHelper.DM) {
+      this.logger.debug("DM; forcing channel to userId");
+      return this.getUserId();
+    }
+    let channel = getter(this.payload, ["body", "channel", "id"], 'body.channel_id');
     if (!channel) {
       this.logger.debug("body.channel.id not found; fallback to userId");
       channel = this.getUserId();

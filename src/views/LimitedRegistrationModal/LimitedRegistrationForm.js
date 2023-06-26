@@ -16,7 +16,7 @@ class LimitedRegistrationForm extends RegistrationForm {
         type: "section",
         text: {
             type: "mrkdwn",
-            text: `_@<${includedWithinOtherUserRegistration.createdBy}> has included you in their signup! Because of this, your signup options are limited._`
+            text: `_<@${includedWithinOtherUserRegistration.createdBy}> has included you in their signup! Because of this, your signup options are limited._`
         }
     };
   }
@@ -30,7 +30,7 @@ class LimitedRegistrationForm extends RegistrationForm {
    */
   static render(includedInGroupRegistration, meetupRegistration = undefined) {
     return [
-        _renderIncludedInOtherSignupHeader(includedInGroupRegistration),
+        this._renderIncludedInOtherSignupHeader(includedInGroupRegistration),
         {
             type: "input",
             block_id: `section.${this.ACTIONS.ADULT_SIGNUP}`,
@@ -42,7 +42,7 @@ class LimitedRegistrationForm extends RegistrationForm {
                 ? meetupRegistration.adultRegistrationCount.toString()
                 : "1",
               min_value: "0",
-              max_value: maxAdultValue,
+              max_value: "1",
             },
             label: {
               type: "plain_text",
@@ -53,4 +53,4 @@ class LimitedRegistrationForm extends RegistrationForm {
   }
 }
 
-module.exports = RegistrationForm;
+module.exports = LimitedRegistrationForm;

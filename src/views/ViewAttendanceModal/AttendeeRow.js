@@ -83,7 +83,7 @@ class AttendeeRow {
     if (includedInGroupRegistration.length == 0) {
       return [];
     }
-    var msg = includedInGroupRegistration.map(x => `@${x.groupedSlackUserId}`)
+    var msg = includedInGroupRegistration.map(x => `<@${x.groupedSlackUserId}>`)
       .join(',');
     return [
       {
