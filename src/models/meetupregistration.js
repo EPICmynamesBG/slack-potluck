@@ -1,6 +1,6 @@
 "use strict";
 const SlackUserAudit = require("./constants/SlackUserAudit");
-module.exports = (sequelize, DataTypes) => {
+module.exports = (sequelize, { DataTypes }) => {
   class MeetupRegistration extends SlackUserAudit {
     /**
      * Helper method for defining associations.
@@ -58,15 +58,6 @@ module.exports = (sequelize, DataTypes) => {
         defaultValue: 0,
         field: "child_registration_count",
       },
-      isAttending: {
-        type: DataTypes.VIRTUAL,
-        get() {
-          return this.adultRegistrationCount > 0;
-        },
-        set() {
-          throw new Error('isAttending cannot be directly set');
-        }
-      },
       slackTeamId: {
         type: DataTypes.STRING,
         allowNull: false,
@@ -91,7 +82,7 @@ module.exports = (sequelize, DataTypes) => {
       },
       notes: {
         allowNull: true,
-        type: DataTypes.STRING,
+        type: DataTypes.TEXT,
         field: "notes",
         defaultValue: null
       }

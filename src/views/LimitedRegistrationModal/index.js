@@ -1,9 +1,5 @@
-// const _ = require('lodash');
-// const db = require("../../models");
-// const RegistrationForm = require("./RegistrationForm");
 const LimitedRegistrationForm = require('./LimitedRegistrationForm');
 const FoodSignupForm = require('../RegistrationModal/FoodSignupForm');
-// const SignupIncludeUsersForm = require('../RegistrationModal/SignupIncludeUsersForm');
 
 /**
  * a fragment class that is rendered explicilty from RegistrationModal

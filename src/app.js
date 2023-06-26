@@ -41,7 +41,8 @@ const app = new App({
   // authorize: OAuthInstallationStore.authorize.bind(OAuthInstallationStore),
   stateSecret: process.env.SLACK_STATE_SECRET,
   logger,
-  logLevel: process.env.LOG_LEVEL || "info"
+  logLevel: process.env.LOG_LEVEL || "info",
+  extendedErrorHandler: !!process.env.DEBUG
 });
 
 // All the room in the world for your code
