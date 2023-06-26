@@ -54,7 +54,7 @@ const appOptions = {
     {
       path: '/version',
       method: ['GET'],
-      handler: (res, res) => {
+      handler: (req, res) => {
         const pkg = require('../package.json');
         res.writeHead(200);
         res.write(pkg.version);
