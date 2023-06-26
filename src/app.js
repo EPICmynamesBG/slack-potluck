@@ -51,6 +51,16 @@ const appOptions = {
         res.end('OK');
       },
     },
+    {
+      path: '/version',
+      method: ['GET'],
+      handler: (res, res) => {
+        const pkg = require('../package.json');
+        res.writeHead(200);
+        res.write(pkg.version);
+        res.end();
+      }
+    }
   ],
   extendedErrorHandler: !!process.env.DEBUG,
 };
