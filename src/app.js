@@ -11,7 +11,6 @@ const Actions = require("./controllers/actions");
 const Events = require("./controllers/events");
 const OAuthInstallationStore = require("./services/OAuthInstallationStore");
 const { getInstance } = require('./helpers/logger');
-const maintenance = require("./middleware/maintenance");
 const Maintenance = require("./middleware/maintenance");
 
 const logger = getInstance('root');
@@ -43,6 +42,26 @@ const appOptions = {
   // authorize: OAuthInstallationStore.authorize.bind(OAuthInstallationStore),
   logger,
   logLevel: process.env.LOG_LEVEL || "info",
+  customRoutes: [
+    {
+      path: '/health-check',
+      method: ['GET'],
+      handler: (req, res) => {
+        res.writeHead(200);
+        res.end('OK');
+      },
+    },
+    {
+      path: '/version',
+      method: ['GET'],
+      handler: (res, res) => {
+        const pkg = require('../package.json');
+        res.writeHead(200);
+        res.write(pkg.version);
+        res.end();
+      }
+    }
+  ],
   extendedErrorHandler: !!process.env.DEBUG,
 };
 
