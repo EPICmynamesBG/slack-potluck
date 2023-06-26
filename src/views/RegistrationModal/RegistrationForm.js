@@ -7,6 +7,7 @@ class RegistrationForm {
     SKIP_SIGNUP: "registration.attending.details.skip",
     ADULT_SIGNUP: "registration.attending.adult_count",
     CHILD_SIGNUP: "registration.attending.child_count",
+    SIGNUP_NOTES: "registration.attending.notes"
   };
 
 
@@ -23,41 +24,18 @@ class RegistrationForm {
       this.ACTIONS.CHILD_SIGNUP,
       "value",
     ]);
+    const notes = _.get(viewState, [
+      "values",
+      `section.${this.ACTIONS.SIGNUP_NOTES}`,
+      this.ACTIONS.SIGNUP_NOTES,
+      "value",
+    ]);
     return {
       adultCount,
       childCount,
+      notes
     };
   }
-
-  // static renderModalActions(meetup) {
-  //   return [
-  //     {
-  //       type: "actions",
-  //       block_id: this.BLOCK_ID,
-  //       elements: [
-  //         {
-  //           type: "button",
-  //           text: {
-  //             type: "plain_text",
-  //             text: "Sign Up!",
-  //           },
-  //           style: "primary",
-  //           value: meetup.id.toString(),
-  //           action_id: this.ACTIONS.REGISTER_DETAILS,
-  //         },
-  //         {
-  //           type: "button",
-  //           text: {
-  //             type: "plain_text",
-  //             text: "Maybe Later",
-  //           },
-  //           value: meetup.id.toString(),
-  //           action_id: this.ACTIONS.SKIP_SIGNUP,
-  //         },
-  //       ],
-  //     },
-  //   ];
-  // }
 
   static render(meetupRegistration = undefined) {
     return [
@@ -96,6 +74,28 @@ class RegistrationForm {
               type: "plain_text",
               text: "Children",
             },
+          },
+          {
+            type: 'input',
+            block_id: `section.${this.ACTIONS.SIGNUP_NOTES}`,
+            optional: true,
+            element: {
+              type: "plain_text_input",
+              multiline: true,
+              action_id: this.ACTIONS.SIGNUP_NOTES,
+              placeholder: {
+                type: "plain_text",
+                text: "ie: allergies"
+              },
+              initial_value: meetupRegistration
+                ? meetupRegistration.notes
+                : undefined
+            },
+            label: {
+              type: "plain_text",
+              text: "Notes",
+              emoji: true
+            }
           }
     ]
   }

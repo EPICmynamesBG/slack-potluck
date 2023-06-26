@@ -24,6 +24,7 @@ A way to coordinate gatherings
 - [ ] Revise management UI to use Overflow menu element
 - [ ] Separate general "Notes" option on the signup sheet (different from food item note)
 - [ ] Multi-Select or list "Includes" feature for signup sheet to indicate that "My signup also includes Person A, B, C, where Person A may be another Slack user, but persons B, C may not be"
+- [ ] set reminder option for meetup creator
 
 ## Development
 
@@ -49,6 +50,8 @@ API_ENDPOINT_SELECT_OPTIONS=/slack/select-options
 API_ENDPOINT_COMMAND=/slack/commands
 API_ENDPOINT_EVENTS=/slack/events
 ENCRYPTION_SECRET=
+MAINTENANCE=false
+MAINTENANCE_USERS=
 ```
 
 

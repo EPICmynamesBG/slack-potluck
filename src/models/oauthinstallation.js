@@ -4,7 +4,7 @@ const {
 } = require('sequelize');
 const { encryptObject } = require('../helpers/encryption');
 
-module.exports = (sequelize, DataTypes) => {
+module.exports = (sequelize, { DataTypes }) => {
   class OAuthInstallation extends Model {
     /**
      * Helper method for defining associations.

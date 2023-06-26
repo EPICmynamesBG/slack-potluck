@@ -1,6 +1,6 @@
 'use strict';
 const SlackUserAudit = require('./constants/SlackUserAudit');
-module.exports = (sequelize, DataTypes) => {
+module.exports = (sequelize, { DataTypes }) => {
   class Meetup extends SlackUserAudit {
     isOrganizer(slackUserId) {
       return this.createdBy === slackUserId;
