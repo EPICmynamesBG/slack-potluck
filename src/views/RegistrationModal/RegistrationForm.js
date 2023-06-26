@@ -86,7 +86,10 @@ class RegistrationForm {
               placeholder: {
                 type: "plain_text",
                 text: "ie: allergies"
-              }
+              },
+              initial_value: meetupRegistration
+                ? meetupRegistration.notes
+                : undefined
             },
             label: {
               type: "plain_text",
