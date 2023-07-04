@@ -25,6 +25,7 @@ A way to coordinate gatherings
 - [ ] "Add to Calendar" integration
 - [ ] Revise management UI to use Overflow menu element
 - [ ] set reminder option for meetup creator
+- [ ] update announcements that have past
 
 ## Development
 
