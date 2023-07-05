@@ -29,7 +29,7 @@ class ErrorAssistant {
       return;
     }
 
-    await tryJoinChannel(client, payloadHelper.getUserId());
+    await tryJoinChannel(client, this.helper.getUserId());
 
     await client.chat.postMessage({
       channel: this.helper.getUserId(),

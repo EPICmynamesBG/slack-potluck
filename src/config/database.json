@@ -4,23 +4,54 @@
     "password": "example",
     "database": "database_dev",
     "host": "127.0.0.1",
-    "dialect": "mysql"
+    "dialect": "mysql",
+    "dialectOptions": {
+      "options": {
+        "requestTimeout": 10000
+      }
+    }
   },
   "docker": {
-    "use_env_variable": "DATABASE_CONNECTION_STRING"
+    "use_env_variable": "DATABASE_CONNECTION_STRING",
+    "dialect": "mysql",
+    "dialectOptions": {
+      "options": {
+        "requestTimeout": 10000
+      }
+    }
   },
   "test": {
     "username": "root",
-    "password": "example",
+    "password": "test",
     "database": "database_test",
     "host": "127.0.0.1",
-    "dialect": "mysql"
+    "dialect": "mysql",
+    "dialectOptions": {
+      "options": {
+        "requestTimeout": 10000
+      }
+    }
+  },
+  "test_docker": {
+    "username": "root",
+    "password": "test",
+    "database": "database_test",
+    "host": "db",
+    "dialect": "mysql",
+    "dialectOptions": {
+      "options": {
+        "requestTimeout": 10000
+      }
+    }
   },
   "production": {
     "use_env_variable": "DATABASE_CONNECTION_STRING",
     "dialect": "mysql",
     "dialectOptions": {
-      "ssl": "Amazon RDS"
+      "ssl": "Amazon RDS",
+      "options": {
+        "requestTimeout": 10000
+      }
     }
   }
 }

@@ -5,6 +5,7 @@ const FoodSignupForm = require('./FoodSignupForm');
 const SignupIncludeUsersForm = require('./SignupIncludeUsersForm');
 const LimitedRegistrationModal = require('../LimitedRegistrationModal');
 const { getInstance: getLogger } = require('../../helpers/logger');
+const EntityNotFound = require('../../errors/EntityNotFound');
 
 const logger = getLogger('RegistrationModal');
 
@@ -26,6 +27,9 @@ class RegistrationModal {
       });
     const existingFoodSignup = _.get(existingRegistration, 'foodRegistration');
     const meetup = await db.Meetup.findByPk(meetupId);
+    if (!meetup) {
+      throw new EntityNotFound("Meetup", meetupId);
+    }
     const includedInGroupRegistration = existingRegistration ? await db.MeetupRegistrationGroupUser.findOne({
       where: {
         slackTeamId,
