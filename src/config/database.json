@@ -46,12 +46,6 @@
   },
   "production": {
     "use_env_variable": "DATABASE_CONNECTION_STRING",
-    "dialect": "mysql",
-    "dialectOptions": {
-      "ssl": "Amazon RDS",
-      "options": {
-        "requestTimeout": 10000
-      }
-    }
+    "dialect": "mysql"
   }
 }
