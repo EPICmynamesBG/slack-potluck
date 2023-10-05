@@ -22,7 +22,7 @@ class ViewAttendanceModal {
     meetupId,
     channel
   }) {
-    return await this.client.view.open({
+    return await this.client.views.open({
       token: botToken,
       trigger_id: triggerId,
       // Pass the view_id
