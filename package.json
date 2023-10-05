@@ -1,6 +1,6 @@
 {
   "name": "slack-potluck",
-  "version": "0.5.3-alpha",
+  "version": "0.5.4-alpha",
   "description": "Slack Potluck app",
   "main": "src/app.js",
   "scripts": {
