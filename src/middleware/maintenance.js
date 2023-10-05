@@ -1,10 +1,11 @@
+const ErrorAssistant = require("../helpers/ErrorAssistant");
 const getter = require("../helpers/getter");
 
 class Maintenance {
     static Message = "Potluck is currently under maintenance. Please check back later";
 
     static async middleware(all) {
-        const { body, payload, client, context, next, say } = all;
+        const { body, payload, client, context, next } = all;
         if (process.env.MAINTENANCE !== "true") {
             await next()
             return;
@@ -24,13 +25,13 @@ class Maintenance {
     }
 
     static async errorHandler(all) {
-        const { body, payload, client, context, logger, next, say } = all;
+        const { body, payload, client, context, logger, next } = all;
         try {
             await next();
         } catch (e) {
             logger.error(e);
             if (process.env.MAINTENANCE !== "true") {
-                say(this.Message)
+                await (new ErrorAssistant(all)).handleError(e, this.Message);
                 return;
             }
             throw e;
