@@ -4,6 +4,11 @@ const RegistrationForm = require("./RegistrationForm");
 const FoodSignupForm = require('./FoodSignupForm');
 const SignupIncludeUsersForm = require('./SignupIncludeUsersForm');
 const LimitedRegistrationModal = require('../LimitedRegistrationModal');
+const { getInstance: getLogger } = require('../../helpers/logger');
+const EntityNotFound = require('../../errors/EntityNotFound');
+
+const logger = getLogger('RegistrationModal');
+
 class RegistrationModal {
   static VIEW_ID = "meetup.registration.modal";
   static ACTIONS = {
@@ -22,6 +27,9 @@ class RegistrationModal {
       });
     const existingFoodSignup = _.get(existingRegistration, 'foodRegistration');
     const meetup = await db.Meetup.findByPk(meetupId);
+    if (!meetup) {
+      throw new EntityNotFound("Meetup", meetupId);
+    }
     const includedInGroupRegistration = existingRegistration ? await db.MeetupRegistrationGroupUser.findOne({
       where: {
         slackTeamId,
@@ -46,6 +54,7 @@ class RegistrationModal {
           meetupId,
           channel,
         }),
+        text: "Something unexpected has occurred. Please try again.",
         title: {
           type: "plain_text",
           text: "Event signup",
@@ -98,6 +107,7 @@ class RegistrationModal {
     
     // Move notes to last, always
     var notesArr = _.remove(blocks, block => block.block_id === `section.${RegistrationForm.ACTIONS.SIGNUP_NOTES}`);
+    logger.debug('renderBlocks', JSON.stringify([...blocks, ...notesArr]));
     return [...blocks, ...notesArr];
   }
 }

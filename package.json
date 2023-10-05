@@ -1,6 +1,6 @@
 {
   "name": "slack-potluck",
-  "version": "0.5.2",
+  "version": "0.5.4-alpha",
   "description": "Slack Potluck app",
   "main": "src/app.js",
   "scripts": {
@@ -9,7 +9,7 @@
     "db:create": "npx sequelize-cli db:create",
     "db:migrate": "npx sequelize-cli db:migrate",
     "db:migrate:undo": "npx sequelize-cli db:migrate:undo",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "NODE_ENV=test ./node_modules/mocha/bin/_mocha --config .mocharc.js test/"
   },
   "keywords": [
     "slack"
@@ -31,6 +31,9 @@
     "npm": "9.6.1"
   },
   "devDependencies": {
-    "sequelize-cli": "^6.6.0"
+    "mocha": "^10.2.0",
+    "sequelize-cli": "^6.6.0",
+    "sinon": "^15.2.0",
+    "terminate": "^2.6.1"
   }
 }

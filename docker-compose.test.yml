@@ -1,0 +1,60 @@
+# Use root/example as user/password credentials
+version: '3.1'
+
+services:
+
+  db:
+    image: mysql
+    # NOTE: use of "mysql_native_password" is not recommended: https://dev.mysql.com/doc/refman/8.0/en/upgrading-from-previous-series.html#upgrade-caching-sha2-password
+    # (this is just an example, not intended to be a production configuration)
+    command: --default-authentication-plugin=mysql_native_password
+    restart: always
+    ports:
+      - 3306:3306
+    environment:
+      - MYSQL_ROOT_PASSWORD=test
+      - MYSQL_USER=app
+      - MYSQL_PASSWORD=localhost
+      - MYSQL_DATABASE=database_test
+
+    volumes:
+      - mysql-test-data:/var/lib/mysql
+
+  db_migrate_job:
+    profiles:
+      - migrate
+    image: 'slack-potluck'
+    depends_on:
+      - db
+    build:
+      dockerfile: Dockerfile
+    command: 'npm run db:init'
+    environment:
+      - NODE_ENV=test_docker
+    env_file:
+      - .env
+      - .env.test
+    volumes:
+      - app-test-log:/home/node/app/logs
+
+
+  db_migrate_undo:
+    profiles:
+      - rollback
+    image: 'slack-potluck'
+    depends_on:
+      - db
+    build:
+      dockerfile: Dockerfile
+    command: 'npm run db:migrate:undo'
+    environment:
+      - NODE_ENV=test_docker
+    env_file:
+      - .env
+      - .env.docker
+    volumes:
+      - app-test-log:/home/node/app/logs
+
+volumes:
+  mysql-test-data:
+  app-test-log:

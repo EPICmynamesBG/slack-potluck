@@ -70,7 +70,7 @@ module.exports = {
 
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.removeIndex('meetup_registration_group_users', 'uniq_meetup_group_user');
+    // await queryInterface.removeIndex('meetup_registration_group_users', 'uniq_meetup_group_user');
     await queryInterface.dropTable('meetup_registration_group_users');
   }
 };
