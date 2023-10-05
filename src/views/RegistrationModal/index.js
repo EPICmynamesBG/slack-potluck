@@ -2,7 +2,8 @@ const _ = require('lodash');
 const db = require("../../models");
 const RegistrationForm = require("./RegistrationForm");
 const FoodSignupForm = require('./FoodSignupForm');
-
+const SignupIncludeUsersForm = require('./SignupIncludeUsersForm');
+const LimitedRegistrationModal = require('../LimitedRegistrationModal');
 class RegistrationModal {
   static VIEW_ID = "meetup.registration.modal";
   static ACTIONS = {
@@ -17,10 +18,17 @@ class RegistrationModal {
           slackTeamId,
           meetupId,
         },
-        include: "foodRegistration",
+        include: ["foodRegistration", "meetupGroupUsers"]
       });
     const existingFoodSignup = _.get(existingRegistration, 'foodRegistration');
     const meetup = await db.Meetup.findByPk(meetupId);
+    const includedInGroupRegistration = existingRegistration ? await db.MeetupRegistrationGroupUser.findOne({
+      where: {
+        slackTeamId,
+        groupedSlackUserId: slackUserId,
+        groupedUserRegistrationId: existingRegistration.id  
+      }
+    }) : undefined;
 
     return {
       token: botToken,
@@ -50,19 +58,47 @@ class RegistrationModal {
           type: "plain_text",
           text: "Ask me Later",
         },
-        blocks: RegistrationModal.renderBlocks(meetup, existingRegistration, existingFoodSignup),
+        blocks: RegistrationModal.renderBlocks(
+            meetup,
+            existingRegistration,
+            existingFoodSignup,
+            includedInGroupRegistration
+          ),
       },
     };
   }
 
-  static renderBlocks(meetup, existingRegistration, existingFoodSignup) {
+  static _renderBlocks(meetup, existingRegistration, existingFoodSignup) {
     const blocks = [
       ...RegistrationForm.render(existingRegistration),
     ];
     if (meetup.includeFoodSignup) {
       blocks.push(...FoodSignupForm.render(existingFoodSignup));
     }
+    blocks.push(...SignupIncludeUsersForm.render(existingRegistration.meetupGroupUsers));
     return blocks;
+  }
+
+  /**
+   * 
+   * @param {Meetup} meetup 
+   * @param {MeetupRegistration | undefined} existingRegistration 
+   * @param {MeetupRegistrationFood | undefined} existingFoodSignup 
+   * @returns 
+   */
+  static renderBlocks(meetup, existingRegistration, existingFoodSignup, includedInGroupRegistration) {
+    var blocks = !!includedInGroupRegistration ?
+      LimitedRegistrationModal.renderBlocks(
+        meetup,
+        includedInGroupRegistration,
+        existingRegistration,
+        existingFoodSignup
+      ) :
+      this._renderBlocks(meetup, existingRegistration, existingFoodSignup);
+    
+    // Move notes to last, always
+    var notesArr = _.remove(blocks, block => block.block_id === `section.${RegistrationForm.ACTIONS.SIGNUP_NOTES}`);
+    return [...blocks, ...notesArr];
   }
 }
 

@@ -189,6 +189,16 @@ class OAuthInstallationStore extends FileInstallationStore {
     }
     return singleton;
   }
+
+
+  static async authorize({ teamId, enterpriseId, userId }) {
+    var store = this.get();
+    var existing = await store._findInstallation({
+      teamId,
+      userId
+    });
+    return (new OAuthInstallationDTO(existing)).asInstallation();
+  }
 }
 
 module.exports = OAuthInstallationStore;

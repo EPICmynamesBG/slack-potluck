@@ -89,7 +89,7 @@ class MeetupDetails {
         elements: [
           {
             type: "mrkdwn",
-            text: "Please bring :shallow_pan_of_food: :yum:",
+            text: "Please bring food! :yum:",
           },
         ],
       });

@@ -8,12 +8,13 @@ class DateTimeHelpers {
     static unixFromDate(date, toTz = moment.tz.guess()) {
         return Math.floor(date.getTime() / 1000);
     }
-
-    static humanReadable(date, toTz = moment.tz.guess()) {
-        return moment.utc(date).tz(toTz).format('M/D/YYYY hh:mm A z');
+    
+    static humanReadable(date, toTz = 'America/New_York') {
+        const fallback = moment.utc(date).tz(toTz).format('MMM D h:mm A');
+        return `<!date^${DateTimeHelpers.unixFromDate(date)}^{date_short} {time}|${fallback}>`;
     }
 
-    static dateOnly(date, toTz = moment.tz.guess()) {
+    static dateOnly(date, toTz = 'America/New_York') {
         return moment.utc(date).tz(toTz).format('M/D/YYYY');
     }
 }

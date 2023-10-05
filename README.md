@@ -15,6 +15,8 @@ A way to coordinate gatherings
 - [x] Announce meetups
 - [x] Manage (edit, delete) Meetups
 - [x] OAuth2 multi-instance installation support
+- [x] Separate general "Notes" option on the signup sheet (different from food item note)
+- [x] Multi-Select or list "Includes" feature for signup sheet to indicate that "My signup also includes Person A, B, C, where Person A may be another Slack user, but persons B, C may not be"
 
 ## Future Versions
 ### Possible Features/Improvements
@@ -22,6 +24,7 @@ A way to coordinate gatherings
 - [ ] Private Meetups
 - [ ] "Add to Calendar" integration
 - [ ] Revise management UI to use Overflow menu element
+- [ ] set reminder option for meetup creator
 
 ## Development
 
@@ -47,6 +50,8 @@ API_ENDPOINT_SELECT_OPTIONS=/slack/select-options
 API_ENDPOINT_COMMAND=/slack/commands
 API_ENDPOINT_EVENTS=/slack/events
 ENCRYPTION_SECRET=
+MAINTENANCE=false
+MAINTENANCE_USERS=
 ```
 
 
