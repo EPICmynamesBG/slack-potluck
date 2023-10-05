@@ -83,7 +83,7 @@ const app = new App({
       response.writeHead(200);
       response.end();
     },
-    unhandledRequestTimeoutMillis: 2000, // the default is 3001
+    unhandledRequestTimeoutMillis: 3000, // the default is 3001
   })
 });
 

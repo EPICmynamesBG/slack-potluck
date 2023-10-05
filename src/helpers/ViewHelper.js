@@ -5,6 +5,71 @@ const { getInstance } = require('./logger');
 const logger = getInstance('ViewHelper');
 
 class ViewHelper {
+    constructor(client, viewId, payload) {
+        this.client = client;
+        this._originalViewId = viewId;
+        this.activeViewId = viewId;
+        this.payload = payload;
+        this._originalTitle = undefined;
+    }
+
+    _getDefaultView(title = undefined, metadata = {}) {
+        return {
+            type: "modal",
+            // View identifier
+            callback_id: this._originalViewId,
+            notify_on_close: true,
+            clear_on_close: true,
+            private_metadata: JSON.stringify(metadata),
+            title: {
+              type: "plain_text",
+              text: title || this._originalTitle,
+            },
+            close: {
+              type: "plain_text",
+              text: "Close",
+            },
+            blocks: [
+              {
+                "type": "section",
+                "text": {
+                  "type": "plain_text",
+                  "text": ":man-biking: Now loading..."
+                }
+              }
+            ],
+          };
+    }
+
+    async initLoading(title, metadata = {}) {
+        this._originalTitle = title;
+        var res = await this.client.views.open({
+            token: this.payload.botToken,
+            trigger_id: this.payload.triggerId,
+            // Pass the view_id
+            view_id: this._originalViewId,
+            // View payload with updated blocks
+            view: this._getDefaultView(title, metadata),
+          });
+        this.activeViewId = res.view.id;
+        return res;
+    }
+
+    async update(view = {}, metadata = {}) {
+        var res = await this.client.views.update({
+            token: this.payload.botToken,
+            // Pass the view_id
+            view_id: this.activeViewId,
+            // View payload with updated blocks
+            view: {
+              ...this._getDefaultView(undefined, metadata),
+              ...view
+            },
+        });
+        this.activeViewId = res.view.id;
+        return res;
+    }
+
     static separateWithDivider(blockElements = [], includeEndingDivider = false) {
         const dividedBlocks = blockElements.reduce((arr, block) => {
             arr.push(block);

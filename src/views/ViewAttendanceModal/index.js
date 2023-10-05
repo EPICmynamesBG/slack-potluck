@@ -7,20 +7,30 @@ const AttendeeRow = require('./AttendeeRow');
 
 class ViewAttendanceModal {
   constructor(client) {
+    if (!client) {
+      throw new Error("Missing required client");
+    }
     this.client = client;
   }
 
   static VIEW_ID = "meetup.attendance.view.modal";
   static ACTIONS = {};
 
-  async render({
-    botToken,
-    triggerId,
-    meetupId,
-    channel,
-    slackUserId,
-    slackTeamId,
-  }) {
+  async render(payload) {
+    const {
+      meetupId,
+      channel,
+    } = payload;
+
+    var viewHelper = new ViewHelper(
+      this.client,
+      ViewAttendanceModal.VIEW_ID,
+      payload
+    );
+    await viewHelper.initLoading('Meetup', {
+      meetupId,
+      channel,
+    });
     const meetup = await MeetupWithRegistrationCount.getMeetup(meetupId);
     const registrations = await db.MeetupRegistration.findAll({
       where: {
@@ -45,36 +55,19 @@ class ViewAttendanceModal {
       })
     );
 
-    await this.client.views.open({
-      token: botToken,
-      trigger_id: triggerId,
-      // Pass the view_id
-      view_id: ViewAttendanceModal.VIEW_ID,
-      // View payload with updated blocks
-      view: {
-        type: "modal",
-        // View identifier
-        callback_id: ViewAttendanceModal.VIEW_ID,
-        notify_on_close: true,
-        clear_on_close: true,
-        private_metadata: JSON.stringify({
-          meetupId,
-          channel,
-        }),
-        title: {
-          type: "plain_text",
-          text: `${dateOnly(meetup.timestamp)} Meetup`,
-        },
-        close: {
-          type: "plain_text",
-          text: "Close",
-        },
-        blocks: ViewAttendanceModal.render(
-          meetup.adultsRegistered,
-          meetup.childrenRegistered,
-          attendeeRows
-        ),
+    await viewHelper.update({
+      title: {
+        type: "plain_text",
+        text: `${dateOnly(meetup.timestamp)} Meetup`,
       },
+      blocks: ViewAttendanceModal.render(
+        meetup.adultsRegistered,
+        meetup.childrenRegistered,
+        attendeeRows
+      )
+    }, {
+      meetupId,
+      channel,
     });
   }
 
