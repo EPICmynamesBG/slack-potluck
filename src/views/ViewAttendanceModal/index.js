@@ -7,6 +7,9 @@ const AttendeeRow = require('./AttendeeRow');
 
 class ViewAttendanceModal {
   constructor(client) {
+    if (!client) {
+      throw new Error("Missing required client");
+    }
     this.client = client;
   }
 
