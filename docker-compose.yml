@@ -72,20 +72,6 @@ services:
     volumes:
       - app-log:/home/node/app/logs
 
-  proxy:
-    container_name: 'proxy'
-    image: 'jc21/nginx-proxy-manager:latest'
-    restart: unless-stopped
-    ports:
-      - '80:80'
-      - '81:81'
-      - '443:443'
-    volumes:
-      - proxy-data:/data
-      - proxy-letsencrypt:/etc/letsencrypt
-
 volumes:
   mysql-data:
   app-log:
-  proxy-data:
-  proxy-letsencrypt:
