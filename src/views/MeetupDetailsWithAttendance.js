@@ -13,11 +13,11 @@ class MeetupDetailsWithAttendance {
     /**
      * @param {MeetupWithRegistrationCount} meetupWithRegistrationCount 
      */
-    static render(meetupWithRegistrationCount, renderForSlackUserId = undefined) {
+    static render(meetupWithRegistrationCount, slackUserContext = {}) {
         return [
-            ...MeetupDetails.render(meetupWithRegistrationCount, renderForSlackUserId),
+            ...MeetupDetails.render(meetupWithRegistrationCount, slackUserContext),
             ...MeetupAttendanceSection.render(meetupWithRegistrationCount),
-            ...MeetupManagementActions.render(meetupWithRegistrationCount, renderForSlackUserId)
+            ...MeetupManagementActions.render(meetupWithRegistrationCount, slackUserContext)
         ];
     }
 }

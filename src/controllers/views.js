@@ -160,7 +160,7 @@ class Views {
     try {
       const payloadHelper = new PayloadHelper(payload);
       const home = new Home(client);
-      await home.render(body.user.team_id, payloadHelper.getUserId());
+      await home.render(payloadHelper.getUserContext());
     } catch (e) {
       await errorHelper.handleError(e, "Failed to re-render app Home");
     }

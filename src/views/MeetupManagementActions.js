@@ -8,15 +8,15 @@ class MeetupManagementActions {
     MANAGE_MEETUP_ACTION: "meetup.manage.modal.trigger",
   };
 
-  static _deleteConfirmation(meetup) {
+  static _deleteConfirmation(meetup, slackUserContext = {}) {
     return {
       title: {
         type: 'plain_text',
         text: 'Cancel Meetup'
       },
       text: {
-        type: 'mrkdwn',
-        text: `Are you sure want to cancel the ${humanReadable(meetup.timestamp)} Meetup? This will update all existing announcements.`
+        type: 'plain_text',
+        text: `Are you sure want to cancel the ${humanReadable(meetup.timestamp, slackUserContext.timezone)} Meetup? This will update all existing announcements.`
       },
       confirm: {
         type: 'plain_text',
@@ -30,8 +30,8 @@ class MeetupManagementActions {
     };
   }
 
-  static render(meetup, forSlackUserId = undefined) {
-    if (!meetup.isOrganizer(forSlackUserId)) {
+  static render(meetup, slackUserContext = {}) {
+    if (!meetup.isOrganizer(slackUserContext.user_id)) {
       return [];
     }
     const additionalElements = [
@@ -52,7 +52,7 @@ class MeetupManagementActions {
         },
         style: "danger",
         value: meetup.id.toString(),
-        confirm: this._deleteConfirmation(meetup),
+        confirm: this._deleteConfirmation(meetup, slackUserContext),
         action_id: this.ACTIONS.CANCEL_MEETUP,
       }
     ];

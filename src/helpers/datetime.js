@@ -5,17 +5,17 @@ class DateTimeHelpers {
         return new Date(unix * 1000);
     }
 
-    static unixFromDate(date, toTz = Intl.DateTimeFormat().resolvedOptions().timeZone) {
+    static unixFromDate(date, toTz = moment.tz.guess()) {
         return Math.floor(date.getTime() / 1000);
     }
-
-    static humanReadable(date, toTz = Intl.DateTimeFormat().resolvedOptions().timeZone) {
-        const fallback = moment.utc(date).tz('America/New_York').format('MMM D h:mm A'); // TODO: variable TZ
+    
+    static humanReadable(date, toTz = 'America/New_York') {
+        const fallback = moment.utc(date).tz(toTz).format('MMM D h:mm A');
         return `<!date^${DateTimeHelpers.unixFromDate(date)}^{date_short} {time}|${fallback}>`;
     }
 
-    static dateOnly(date, toTz = Intl.DateTimeFormat().resolvedOptions().timeZone) {
-        return moment.utc(date).tz('America/New_York').format('M/D/YYYY'); // TODO: variable TZ
+    static dateOnly(date, toTz = 'America/New_York') {
+        return moment.utc(date).tz(toTz).format('M/D/YYYY');
     }
 }
 
