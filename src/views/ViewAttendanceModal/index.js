@@ -59,22 +59,20 @@ class ViewAttendanceModal {
     });
   }
 
-  async render({
-    botToken,
-    triggerId,
-    meetupId,
-    channel,
-    slackUserId,
-    slackTeamId,
-  }) {
-    var res = await this._renderLoadingState({
-      botToken,
-      triggerId,
+  async render(payload) {
+    var viewHelper = new ViewHelper(
+      this.client,
+      ViewAttendanceModal.VIEW_ID,
+      payload
+    );
+    await viewHelper.initLoading('Meetup', {
       meetupId,
       channel,
-      slackUserId,
-      slackTeamId,
     });
+    const {
+      meetupId,
+      channel,
+    } = payload;
     const meetup = await MeetupWithRegistrationCount.getMeetup(meetupId);
     const registrations = await db.MeetupRegistration.findAll({
       where: {
@@ -99,56 +97,19 @@ class ViewAttendanceModal {
       })
     );
 
-    await this._renderFinalState({
-      botToken,
-      triggerId,
+    await viewHelper.update({
+      title: {
+        type: "plain_text",
+        text: `${dateOnly(meetup.timestamp)} Meetup`,
+      },
+      blocks: ViewAttendanceModal.render(
+        meetup.adultsRegistered,
+        meetup.childrenRegistered,
+        attendeeRows
+      )
+    }, {
       meetupId,
       channel,
-      meetup,
-      attendeeRows,
-      viewId: res.view.id
-    });
-  }
-
-  async _renderFinalState({
-    botToken,
-    triggerId,
-    meetupId,
-    channel,
-    meetup,
-    attendeeRows,
-    viewId
-  }) {
-    await this.client.views.update({
-      token: botToken,
-      // trigger_id: triggerId,
-      // Pass the view_id
-      view_id: viewId,
-      // View payload with updated blocks
-      view: {
-        type: "modal",
-        // View identifier
-        callback_id: ViewAttendanceModal.VIEW_ID,
-        notify_on_close: true,
-        clear_on_close: true,
-        private_metadata: JSON.stringify({
-          meetupId,
-          channel,
-        }),
-        title: {
-          type: "plain_text",
-          text: `${dateOnly(meetup.timestamp)} Meetup`,
-        },
-        close: {
-          type: "plain_text",
-          text: "Close",
-        },
-        blocks: ViewAttendanceModal.render(
-          meetup.adultsRegistered,
-          meetup.childrenRegistered,
-          attendeeRows
-        ),
-      },
     });
   }
 
