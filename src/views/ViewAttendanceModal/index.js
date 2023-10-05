@@ -13,6 +13,49 @@ class ViewAttendanceModal {
   static VIEW_ID = "meetup.attendance.view.modal";
   static ACTIONS = {};
 
+  async _renderLoadingState({
+    botToken,
+    triggerId,
+    meetupId,
+    channel
+  }) {
+    return await this.client.view.open({
+      token: botToken,
+      trigger_id: triggerId,
+      // Pass the view_id
+      view_id: ViewAttendanceModal.VIEW_ID,
+      // View payload with updated blocks
+      view: {
+        type: "modal",
+        // View identifier
+        callback_id: ViewAttendanceModal.VIEW_ID,
+        notify_on_close: true,
+        clear_on_close: true,
+        private_metadata: JSON.stringify({
+          meetupId,
+          channel,
+        }),
+        title: {
+          type: "plain_text",
+          text: `Meetup`,
+        },
+        close: {
+          type: "plain_text",
+          text: "Close",
+        },
+        blocks: [
+          {
+            "type": "section",
+            "text": {
+              "type": "plain_text",
+              "text": ":man-biking: Now loading..."
+            }
+          }
+        ],
+      },
+    });
+  }
+
   async render({
     botToken,
     triggerId,
@@ -21,6 +64,14 @@ class ViewAttendanceModal {
     slackUserId,
     slackTeamId,
   }) {
+    var res = await this._renderLoadingState({
+      botToken,
+      triggerId,
+      meetupId,
+      channel,
+      slackUserId,
+      slackTeamId,
+    });
     const meetup = await MeetupWithRegistrationCount.getMeetup(meetupId);
     const registrations = await db.MeetupRegistration.findAll({
       where: {
@@ -45,11 +96,31 @@ class ViewAttendanceModal {
       })
     );
 
-    await this.client.views.open({
+    await this._renderFinalState({
+      botToken,
+      triggerId,
+      meetupId,
+      channel,
+      meetup,
+      attendeeRows,
+      viewId: res.view.id
+    });
+  }
+
+  async _renderFinalState({
+    botToken,
+    triggerId,
+    meetupId,
+    channel,
+    meetup,
+    attendeeRows,
+    viewId
+  }) {
+    await this.client.views.update({
       token: botToken,
-      trigger_id: triggerId,
+      // trigger_id: triggerId,
       // Pass the view_id
-      view_id: ViewAttendanceModal.VIEW_ID,
+      view_id: viewId,
       // View payload with updated blocks
       view: {
         type: "modal",
