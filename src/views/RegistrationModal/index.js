@@ -45,7 +45,7 @@ class RegistrationModal {
         channel,
       });
     } catch (e) {
-      await viewHelper.close();
+      await viewHelper.errorClose();
       throw e;
     }
   }
@@ -121,6 +121,7 @@ class RegistrationModal {
     
     // Move notes to last, always
     var notesArr = _.remove(blocks, block => block.block_id === `section.${RegistrationForm.ACTIONS.SIGNUP_NOTES}`);
+    console.log([...blocks, ...notesArr]);
     return [...blocks, ...notesArr];
   }
 }

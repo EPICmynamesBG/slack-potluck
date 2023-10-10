@@ -70,9 +70,8 @@ class ViewHelper {
         return res;
     }
 
-    async close() {
+    async errorClose() {
         await this.update({
-            submit: null,
             close: {
                 type: "plain_text",
                 text: "Close",
