@@ -22,11 +22,7 @@ class RegistrationModal {
   };
 
   async render(payload) {
-    const { action } = payload;
-    const payloadHelper = new PayloadHelper(payload);
-    const channel = payloadHelper.getChannel();
-    const meetupId = action.value;
-    
+    const { channel, meetupId, slackTeamId, slackUserId } = payload;    
   
     var viewHelper = new ViewHelper(
       this.client,
@@ -40,8 +36,8 @@ class RegistrationModal {
 
     var renderView = await this._render({
       meetupId,
-      slackTeamId: payloadHelper.getTeamId(),
-      slackUserId: payloadHelper.getUserId()
+      slackTeamId,
+      slackUserId
     });
     try  {
       return await viewHelper.update(renderView, {

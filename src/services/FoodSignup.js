@@ -3,12 +3,23 @@ const db = require("../models");
 const ErrorAssistant = require("../helpers/ErrorAssistant");
 const RegistrationModal = require('../views/RegistrationModal');
 const FoodSignupForm = require('../views/RegistrationModal/FoodSignupForm');
+const PayloadHelper = require("../helpers/PayloadHelper");
+const ViewHelper = require("../helpers/ViewHelper");
 
 class FoodSignup {
-  static async renderSignupModal(payload) {    
-    const { client } = payload;
+  static async renderSignupModal(payload) {
+    const payloadHelper = new PayloadHelper(payload);
+    
+    const { action, client, context, body } = payload;
     const renderer = new RegistrationModal(client);
-    return await renderer.render(payload);
+    return await renderer.render({
+      channel: payloadHelper.getChannel(),
+      botToken: context.botToken,
+      triggerId: body.trigger_id,
+      meetupId: action.value,
+      slackUserId: body.user.id,
+      slackTeamId: body.user.team_id
+    });
   }
 
   static async _createOrUpdateRegistration(
