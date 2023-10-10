@@ -4,14 +4,53 @@ const RegistrationForm = require("./RegistrationForm");
 const FoodSignupForm = require('./FoodSignupForm');
 const SignupIncludeUsersForm = require('./SignupIncludeUsersForm');
 const LimitedRegistrationModal = require('../LimitedRegistrationModal');
+
 class RegistrationModal {
+  constructor(client) {
+    if (!client) {
+      throw new Error("Missing required client");
+    }
+    this.client = client;
+  }
+
   static VIEW_ID = "meetup.registration.modal";
   static ACTIONS = {
     ...RegistrationForm.ACTIONS,
     ...FoodSignupForm.ACTIONS
   };
 
-  async render({ botToken, triggerId, meetupId, channel, slackUserId, slackTeamId }) {
+  async render(payload) {
+    const {
+      meetupId,
+      channel,
+    } = payload;
+  
+    var viewHelper = new ViewHelper(
+      this.client,
+      RegistrationModal.VIEW_ID,
+      payload
+    );
+    await viewHelper.initLoading('Signup', {
+      meetupId,
+      channel,
+    });
+
+
+    var renderView = await this._render({
+
+    });
+    try  {
+      return await viewHelper.update(renderView, {
+        meetupId,
+        channel,
+      });
+    } catch (e) {
+      await viewHelper.close();
+      throw e;
+    }
+  }
+
+  async _render({ meetupId, slackUserId, slackTeamId }) {
     const existingRegistration = await db.MeetupRegistration.findOne({
         where: {
           createdBy: slackUserId,
@@ -31,40 +70,24 @@ class RegistrationModal {
     }) : undefined;
 
     return {
-      token: botToken,
-      trigger_id: triggerId,
-      // Pass the view_id
-      view_id: RegistrationModal.VIEW_ID,
-      // View payload with updated blocks
-      view: {
-        type: "modal",
-        // View identifier
-        callback_id: RegistrationModal.VIEW_ID,
-        notify_on_close: true,
-        clear_on_close: true,
-        private_metadata: JSON.stringify({
-          meetupId,
-          channel,
-        }),
-        title: {
-          type: "plain_text",
-          text: "Event signup",
-        },
-        submit: {
-          type: "plain_text",
-          text: "Signup",
-        },
-        close: {
-          type: "plain_text",
-          text: "Ask me Later",
-        },
-        blocks: RegistrationModal.renderBlocks(
-            meetup,
-            existingRegistration,
-            existingFoodSignup,
-            includedInGroupRegistration
-          ),
+      title: {
+        type: "plain_text",
+        text: "Event signup",
       },
+      submit: {
+        type: "plain_text",
+        text: "Signup",
+      },
+      close: {
+        type: "plain_text",
+        text: "Ask me Later",
+      },
+      blocks: RegistrationModal.renderBlocks(
+          meetup,
+          existingRegistration,
+          existingFoodSignup,
+          includedInGroupRegistration
+      )
     };
   }
 
