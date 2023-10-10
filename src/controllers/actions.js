@@ -148,9 +148,7 @@ class Actions {
     ack();
 
     await MeetupRegistration.initAttending(payload);
-    await client.views.open(
-      await FoodSignup.renderSignupModal(payload)
-    );
+    await FoodSignup.renderSignupModal(payload);
   }
 
   async userUnableToAttendMeetup(payload) {

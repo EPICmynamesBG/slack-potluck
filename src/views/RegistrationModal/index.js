@@ -4,6 +4,8 @@ const RegistrationForm = require("./RegistrationForm");
 const FoodSignupForm = require('./FoodSignupForm');
 const SignupIncludeUsersForm = require('./SignupIncludeUsersForm');
 const LimitedRegistrationModal = require('../LimitedRegistrationModal');
+const PayloadHelper = require("../../helpers/PayloadHelper");
+const ViewHelper = require("../../helpers/ViewHelper");
 
 class RegistrationModal {
   constructor(client) {
@@ -20,10 +22,11 @@ class RegistrationModal {
   };
 
   async render(payload) {
-    const {
-      meetupId,
-      channel,
-    } = payload;
+    const { action } = payload;
+    const payloadHelper = new PayloadHelper(payload);
+    const channel = payloadHelper.getChannel();
+    const meetupId = action.value;
+    
   
     var viewHelper = new ViewHelper(
       this.client,
@@ -35,9 +38,10 @@ class RegistrationModal {
       channel,
     });
 
-
     var renderView = await this._render({
-
+      meetupId,
+      slackTeamId: payloadHelper.getTeamId(),
+      slackUserId: payloadHelper.getUserId()
     });
     try  {
       return await viewHelper.update(renderView, {
