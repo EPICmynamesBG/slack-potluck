@@ -37,6 +37,35 @@ class RegistrationForm {
     };
   }
 
+  static _renderSignupNotes(meetupRegistration = undefined) {
+    var output = {
+      type: 'input',
+      block_id: `section.${this.ACTIONS.SIGNUP_NOTES}`,
+      optional: true,
+      element: {
+        type: "plain_text_input",
+        multiline: true,
+        action_id: this.ACTIONS.SIGNUP_NOTES,
+        placeholder: {
+          type: "plain_text",
+          text: "ie: allergies"
+        },
+        initial_value: meetupRegistration
+          ? meetupRegistration.notes
+          : undefined
+      },
+      label: {
+        type: "plain_text",
+        text: "Notes",
+        emoji: true
+      }
+    };
+    if (!output.element.initial_value) {
+      delete output.element.initial_value;
+    }
+    return output;
+  }
+
   static render(meetupRegistration = undefined) {
     return [
         {
@@ -75,28 +104,7 @@ class RegistrationForm {
               text: "Children",
             },
           },
-          {
-            type: 'input',
-            block_id: `section.${this.ACTIONS.SIGNUP_NOTES}`,
-            optional: true,
-            element: {
-              type: "plain_text_input",
-              multiline: true,
-              action_id: this.ACTIONS.SIGNUP_NOTES,
-              placeholder: {
-                type: "plain_text",
-                text: "ie: allergies"
-              },
-              initial_value: meetupRegistration
-                ? meetupRegistration.notes
-                : undefined
-            },
-            label: {
-              type: "plain_text",
-              text: "Notes",
-              emoji: true
-            }
-          }
+          this._renderSignupNotes(meetupRegistration)
     ]
   }
 }

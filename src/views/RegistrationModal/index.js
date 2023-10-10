@@ -121,7 +121,6 @@ class RegistrationModal {
     
     // Move notes to last, always
     var notesArr = _.remove(blocks, block => block.block_id === `section.${RegistrationForm.ACTIONS.SIGNUP_NOTES}`);
-    console.log([...blocks, ...notesArr]);
     return [...blocks, ...notesArr];
   }
 }
