@@ -5,6 +5,7 @@ services:
 
   db:
     image: mysql
+    container_name: db
     # NOTE: use of "mysql_native_password" is not recommended: https://dev.mysql.com/doc/refman/8.0/en/upgrading-from-previous-series.html#upgrade-caching-sha2-password
     # (this is just an example, not intended to be a production configuration)
     command: --default-authentication-plugin=mysql_native_password
@@ -25,6 +26,7 @@ services:
       - 8080:8080
 
   app:
+    container_name: app
     image: 'slack-potluck'
     restart: always
     depends_on:
@@ -39,12 +41,44 @@ services:
     volumes:
       - app-log:/home/node/app/logs
 
+  zipkindb:
+    image: openzipkin/zipkin-mysql
+    container_name: zipkindb
+    ports:
+      - "3307:3306"
+    volumes:
+      - zipkindb:/mysql/data
+    restart: unless-stopped
+
   zipkin:
     container_name: zipkin
-    image: openzipkin/zipkin-slim
-    restart: always
+    image: openzipkin/zipkin
+    restart: unless-stopped
     ports:
       - 9411:9411
+    environment:
+      - STORAGE_TYPE=mysql
+      - MYSQL_HOST=zipkindb
+      - MYSQL_USER=zipkin
+      - MYSQL_PASS=zipkin
+    depends_on:
+      - zipkindb
+    
+  zipkin-dependencies:
+    image: openzipkin/zipkin-dependencies
+    container_name: zipkin-dependencies
+    entrypoint: crond -f
+    environment:
+      - STORAGE_TYPE=mysql
+      - MYSQL_HOST=zipkindb
+      # Add the baked-in username and password for the zipkin-mysql image
+      - MYSQL_USER=zipkin
+      - MYSQL_PASS=zipkin
+      # Uncomment to adjust memory used by the dependencies job
+      - JAVA_OPTS=-verbose:gc -Xms512m -Xmx512m
+    depends_on:
+      - zipkindb
+    restart: unless-stopped
 
   db_migrate_job:
     profiles:
@@ -80,3 +114,4 @@ services:
 volumes:
   mysql-data:
   app-log:
+  zipkindb:
