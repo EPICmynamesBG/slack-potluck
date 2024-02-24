@@ -39,6 +39,12 @@ services:
     volumes:
       - app-log:/home/node/app/logs
 
+  zipkin:
+    container_name: zipkin
+    image: openzipkin/zipkin-slim
+    restart: always
+    ports:
+      - 9411:9411
 
   db_migrate_job:
     profiles:

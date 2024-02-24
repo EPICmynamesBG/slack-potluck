@@ -17,11 +17,18 @@
   "author": "EPICmynamesBG@users.noreply.github.com",
   "license": "ISC",
   "dependencies": {
+    "@opentelemetry/exporter-zipkin": "^1.21.0",
+    "@opentelemetry/instrumentation-express": "^0.35.0",
+    "@opentelemetry/instrumentation-http": "^0.48.0",
+    "@opentelemetry/resources": "^1.21.0",
+    "@opentelemetry/sdk-node": "^0.48.0",
+    "@opentelemetry/semantic-conventions": "^1.21.0",
     "@slack/bolt": "^3.12.2",
     "dotenv": "^16.0.3",
     "lodash": "^4.17.21",
     "moment-timezone": "^0.5.42",
     "mysql2": "^3.2.0",
+    "opentelemetry-instrumentation-sequelize": "^0.40.0",
     "sequelize": "^6.29.3",
     "sqlite3": "^5.1.6",
     "winston": "^3.8.2"

@@ -1,9 +1,12 @@
-// Require the Bolt package (github.com/slackapi/bolt)
-const { App, HTTPReceiver } = require("@slack/bolt");
 const dotenv = require("dotenv");
 // load .env
 dotenv.config();
 
+const tracing = require('./helpers/tracing');
+tracing.start();
+
+// Require the Bolt package (github.com/slackapi/bolt)
+const { App, HTTPReceiver } = require("@slack/bolt");
 const Views = require("./controllers/views");
 const Commands = require('./controllers/commands');
 const Shortcuts = require("./controllers/shortcuts");
@@ -99,8 +102,23 @@ Views.init(app);
 app.use(Maintenance.middleware);
 app.use(Maintenance.errorHandler);
 
+
+const gracefulShutdown = () => {
+    console.log("Closing server and ending process...");
+
+    app.stop()
+      .then(() => tracing.shutdown())
+      .then(() => process.exit())
+      .catch((e) => {
+        logger.error('Graceful shutdown failure', e);
+        process.exit(1);
+      });
+}; 
+
+process.on("SIGINT", gracefulShutdown);
+process.on("SIGTERM", gracefulShutdown);
+
 (async () => {
-  // Start your app
   await app.start(process.env.PORT || 3000);
 
   logger.info(`⚡️ App is running on port ${process.env.PORT || 3000}!`);
