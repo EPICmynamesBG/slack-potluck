@@ -39,7 +39,7 @@ class FoodSignup {
         include: ["foodRegistration", "meetup"],
       });
       if (_.get(registration, "meetup.includeFoodSignup") == false) {
-        logger.debug("Skipping Food Signup for meetup");
+        this.logger.debug("Skipping Food Signup for meetup");
         return;
       }
     } catch (e) {
