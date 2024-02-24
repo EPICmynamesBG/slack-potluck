@@ -70,6 +70,25 @@ class ViewHelper {
         return res;
     }
 
+    async errorClose() {
+        await this.update({
+            close: {
+                type: "plain_text",
+                text: "Close",
+            },
+            blocks: [
+                {
+                    type: 'section',
+                    block_id: 'app.modal.error',
+                    text: {
+                        type: 'plain_text',
+                        text: 'An unexpected error has occurred. Please close and retry.'
+                    }
+                }
+            ]
+        });
+    }
+
     static separateWithDivider(blockElements = [], includeEndingDivider = false) {
         const dividedBlocks = blockElements.reduce((arr, block) => {
             arr.push(block);
