@@ -4,9 +4,11 @@ const ErrorAssistant = require("../helpers/ErrorAssistant");
 const RegistrationModal = require('../views/RegistrationModal');
 const FoodSignupForm = require('../views/RegistrationModal/FoodSignupForm');
 const PayloadHelper = require("../helpers/PayloadHelper");
-const ViewHelper = require("../helpers/ViewHelper");
+const { getInstance } = require('../helpers/logger');
 
 class FoodSignup {
+  static logger = getInstance('FoodSignup');
+
   static async renderSignupModal(payload) {
     const payloadHelper = new PayloadHelper(payload);
     
@@ -34,8 +36,12 @@ class FoodSignup {
           createdBy: slackUserId,
           slackTeamId,
         },
-        include: "foodRegistration",
+        include: ["foodRegistration", "meetup"],
       });
+      if (_.get(registration, "meetup.includeFoodSignup") == false) {
+        logger.debug("Skipping Food Signup for meetup");
+        return;
+      }
     } catch (e) {
       await errorHelper.handleError(e, "Meetup registration not found");
       return;
