@@ -1,18 +1,16 @@
-const openTelemetry = require("@opentelemetry/sdk-node");
-
 class Tracer {
     static _name = "slack-potluck";
 
     /**
-     * @returns {openTelemetry.api.Tracer}
+     * @returns {require("@opentelemetry/sdk-node").api.Tracer}
      */
     static get() {
-        return openTelemetry.api.trace.getTracer(this._name);
+        return require("@opentelemetry/sdk-node").api.trace.getTracer(this._name);
     }
 
     /**
      * 
-     * @param {openTelemetry.api.Span} span 
+     * @param {require("@opentelemetry/sdk-node").api.Span} span 
      * @param {Error} error 
      */
     static handleError(span, error) {
@@ -26,7 +24,7 @@ class Tracer {
 
     /**
      * @callback withSpanCallback
-     * @param {openTelemetry.api.Span} span
+     * @param {require("@opentelemetry/sdk-node").api.Span} span
      * @returns {*}
      */
     
