@@ -5,10 +5,6 @@ const { ZipkinExporter } = require("@opentelemetry/exporter-zipkin");
 const { Resource } = require('@opentelemetry/resources');
 const { SemanticResourceAttributes } = require('@opentelemetry/semantic-conventions');
 const { SequelizeInstrumentation } = require('opentelemetry-instrumentation-sequelize');
-const {
-    getNodeAutoInstrumentations,
-  } = require('@opentelemetry/auto-instrumentations-node');
-  
 
 const sdk = new openTelemetry.NodeSDK({
     resource: new Resource({
@@ -18,7 +14,7 @@ const sdk = new openTelemetry.NodeSDK({
     traceExporter: new ZipkinExporter({
         url: `${process.env.ZIPKIN_URL}/api/v2/spans`
     }),
-    instrumentations: [HttpInstrumentation, ExpressInstrumentation, SequelizeInstrumentation, getNodeAutoInstrumentations()]
+    instrumentations: [HttpInstrumentation, ExpressInstrumentation, SequelizeInstrumentation]
 });
 
 module.exports = sdk;
