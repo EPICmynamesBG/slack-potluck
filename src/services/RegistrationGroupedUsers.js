@@ -3,8 +3,11 @@ const db = require("../models");
 const SignupIncludeUsersForm = require("../views/RegistrationModal/SignupIncludeUsersForm");
 const FindMeetupRegGroupUser = require("../models/views/FindMeetupRegGroupUser");
 const Tracer = require("../helpers/tracer");
+const { getInstance } = require('../helpers/logger');
 
 class RegistrationGroupedUsers {
+  static logger = getInstance('RegistrationGroupedUsers');
+
 /**
    * 
    * @param {MeetupRegistration} registration 
@@ -114,6 +117,7 @@ class RegistrationGroupedUsers {
           // await tx.commit();
       } catch (e) {
           span.recordException(e);
+          this.logger.error(e);
           // await tx.rollback();
           throw e;
       }
