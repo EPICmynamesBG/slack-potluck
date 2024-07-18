@@ -27,7 +27,7 @@ class MeetupRegistration {
       notes = undefined
     }
   ) {
-    return await Tracer.withSpanAsync("_createOrUpdateRegistration", async (span) => {
+    return await Tracer.withSpanAsync("MeetupRegistration._createOrUpdateRegistration", async (span) => {
       try {
         await db.Meetup.findByPk(Number.parseInt(meetupId, 10));
       } catch (e) {
@@ -107,7 +107,7 @@ class MeetupRegistration {
   }
 
   static async updateAttendance(payload) {
-    await Tracer.withSpanAsync("updateAttendance", async (span) => {
+    await Tracer.withSpanAsync("MeetupRegistration.updateAttendance", async (span) => {
       const { body, client, view } = payload;
       const meta = JSON.parse(_.get(view, "private_metadata", "{}"));
       const { meetupId } = meta;
@@ -136,7 +136,7 @@ class MeetupRegistration {
   }
 
   static async notAttending(payload) {
-    await Tracer.withSpanAsync("notAttending", async (span) => {
+    await Tracer.withSpanAsync("MeetupRegistration.notAttending", async (span) => {
       const { action, body, client } = payload;
       const helper = new ErrorAssistant(payload);
       const meetupId = action.value;

@@ -41,7 +41,7 @@ class FoodSignup {
     errorHelper,
     { meetupId, slackUserId, slackTeamId, foodType, description }
   ) {
-    await Tracer.withSpanAsync("_createOrUpdateRegistration", async (span) => {
+    await Tracer.withSpanAsync("FoodSignup._createOrUpdateRegistration", async (span) => {
       span.setAttribute("app.user.slackUserId", slackUserId);
       span.setAttribute("app.user.slackTeamId", slackTeamId);
       let registration;
@@ -96,7 +96,7 @@ class FoodSignup {
   }
 
   static async recordResponse(payload) {
-    await Tracer.withSpanAsync("recordResponse", async (_span) => {
+    await Tracer.withSpanAsync("FoodSignup.recordResponse", async (_span) => {
       const { body, view } = payload;
       const meta = JSON.parse(_.get(view, "private_metadata", "{}"));
       const { meetupId } = meta;
