@@ -4,6 +4,7 @@ const SignupIncludeUsersForm = require("../views/RegistrationModal/SignupInclude
 const FindMeetupRegGroupUser = require("../models/views/FindMeetupRegGroupUser");
 const Tracer = require("../helpers/tracer");
 const { getInstance } = require('../helpers/logger');
+const ErrorAssistant = require("../helpers/ErrorAssistant");
 
 class RegistrationGroupedUsers {
   static logger = getInstance('RegistrationGroupedUsers');
@@ -31,12 +32,19 @@ class RegistrationGroupedUsers {
     }
   }
 
+  /**
+   * 
+   * @param {ErrorAssistant} errorHelper 
+   * @param {*} ownerRegistration 
+   * @param {*} viewState 
+   * @returns 
+   */
   static async manageIncludedUsersFromState(errorHelper, ownerRegistration, viewState) {
     try {
         var { includedUsers } = SignupIncludeUsersForm.getFormValues(viewState);
         return await this.manageIncludedUsers(ownerRegistration, includedUsers);    
     } catch (e) {
-        await errorHelper.handleError(e);
+        await errorHelper.handleError(e, "The included users feature is currently broken and disabled");
         return;
     }
   }
@@ -110,6 +118,10 @@ class RegistrationGroupedUsers {
       var existingUserIds = groupUsers.map(x => x.groupedSlackUserId.toString());
       var toCreate = filteredUserIds.filter(x => !existingUserIds.includes(x));
       var toDelete = existingUserIds.filter(x => !filteredUserIds.includes(x));
+
+      if (toCreate >= 1 || toDelete >= 1) {
+        throw new Error("Broken feature disabled");
+      }
 
       /**
        * @type {MeetupRegistrationGroupUser[]}
