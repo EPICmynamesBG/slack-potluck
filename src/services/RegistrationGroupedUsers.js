@@ -2,6 +2,7 @@
 const db = require("../models");
 const SignupIncludeUsersForm = require("../views/RegistrationModal/SignupIncludeUsersForm");
 const FindMeetupRegGroupUser = require("../models/views/FindMeetupRegGroupUser");
+const Tracer = require("../helpers/tracer");
 
 class RegistrationGroupedUsers {
 /**
@@ -39,10 +40,10 @@ class RegistrationGroupedUsers {
 
   /**
    * 
-   * @param {MeetupRegistrationGroupUser} groupRegistrations 
+   * @param {MeetupRegistrationGroupUser[]} groupRegistrations 
    */
   static _removeRecords(groupRegistrations = []) {
-    return Promise.all(groupRegistrations.map(x => x.delete()));
+    return db.MeetupRegistrationGroupUser.destroy(groupRegistrations);
   }
 
   static async _createRecord(registration, slackUserId) {
@@ -82,33 +83,39 @@ class RegistrationGroupedUsers {
    * @param {string[]} includeUserIds 
    */
   static async manageIncludedUsers(ownerRegistration, includeUserIds = []) {
-    // Prevent user from adding self
-    var filteredUserIds = includeUserIds.filter(this._excludeUsers(ownerRegistration.createdBy));
-    var groupUsers = await db.MeetupRegistrationGroupUser.findAll({
-        where: {
-            slackTeamId: ownerRegistration.slackTeamId,
-            createdBy: ownerRegistration.createdBy,
-            meetupRegistrationId: ownerRegistration.id
-        }
+    return await Tracer.get().startActiveSpan("RegistrationGroupedUsers.manageIncludedUsers", async (span) => {
+      // Prevent user from adding self
+      var filteredUserIds = includeUserIds.filter(this._excludeUsers(ownerRegistration.createdBy));
+      var groupUsers = await db.MeetupRegistrationGroupUser.findAll({
+          where: {
+              slackTeamId: ownerRegistration.slackTeamId,
+              createdBy: ownerRegistration.createdBy,
+              meetupRegistrationId: ownerRegistration.id
+          }
+      });
+      if (filteredUserIds.length === 0 && groupUsers.length === 0) {
+        return;
+      }
+
+      var existingUserIds = groupUsers.map(x => x.id);
+      var toCreate = filteredUserIds.filter(x => !existingUserIds.includes(x));
+      var toDelete = existingUserIds.filter(x => !filteredUserIds.includes(x));
+
+      /**
+       * @type {MeetupRegistrationGroupUser[]}
+       */
+      var toDeleteRecords = toDelete.map(id => groupUsers.find(x => x.id === id));
+
+      const tx = await db.sequelize.transaction();
+      try {
+          await this._removeRecords(toDeleteRecords);
+          await this._createRecords(ownerRegistration, toCreate);
+      } catch (e) {
+          span.recordException(e);
+          await tx.rollback();
+          throw e;
+      }
     });
-    if (filteredUserIds.length === 0 && groupUsers.length === 0) {
-      return;
-    }
-
-    var existingUserIds = groupUsers.map(x => x.id);
-    var toCreate = filteredUserIds.filter(x => !existingUserIds.includes(x));
-    var toDelete = existingUserIds.filter(x => !filteredUserIds.includes(x));
-
-    var toDeleteRecords = toDelete.map(id => groupUsers.find(x => x.id === id));
-
-    const tx = await db.sequelize.transaction();
-    try {
-        await this._removeRecords(toDeleteRecords);
-        await this._createRecords(ownerRegistration, toCreate);
-    } catch (e) {
-        await tx.rollback();
-        throw e;
-    }
   }
 }
 
