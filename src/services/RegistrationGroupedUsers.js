@@ -89,6 +89,9 @@ class RegistrationGroupedUsers {
     return await Tracer.get().startActiveSpan("RegistrationGroupedUsers.manageIncludedUsers", async (span) => {
       // Prevent user from adding self
       var filteredUserIds = includeUserIds.filter(this._excludeUsers(ownerRegistration.createdBy));
+      /**
+       * @type {MeetupRegistrationGroupUser[]}
+       */
       var groupUsers = await db.MeetupRegistrationGroupUser.findAll({
           where: {
               slackTeamId: ownerRegistration.slackTeamId,
@@ -96,6 +99,8 @@ class RegistrationGroupedUsers {
               meetupRegistrationId: ownerRegistration.id
           }
       });
+      span.setAttribute("app.groupUsers.count", groupUsers.length);
+      return;
       if (filteredUserIds.length === 0 && groupUsers.length === 0) {
         return;
       }
@@ -112,6 +117,8 @@ class RegistrationGroupedUsers {
       // const tx = await db.sequelize.transaction();
       
       try {
+          span.setAttribute("app.createRecords", JSON.stringify(toCreate));
+          span.setAttribute("app.deleteRecords", JSON.stringify(toDelete));
           await this._removeRecords(toDeleteRecords);
           await this._createRecords(ownerRegistration, toCreate);
           // await tx.commit();
