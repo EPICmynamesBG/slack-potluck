@@ -119,7 +119,7 @@ class RegistrationGroupedUsers {
       var toCreate = filteredUserIds.filter(x => !existingUserIds.includes(x));
       var toDelete = existingUserIds.filter(x => !filteredUserIds.includes(x));
 
-      if (toCreate >= 1 || toDelete >= 1) {
+      if (toCreate.length >= 1 || toDelete.length >= 1) {
         throw new Error("Broken feature disabled");
       }
 
