@@ -110,6 +110,7 @@ class RegistrationGroupedUsers {
       try {
           await this._removeRecords(toDeleteRecords);
           await this._createRecords(ownerRegistration, toCreate);
+          await tx.commit();
       } catch (e) {
           span.recordException(e);
           await tx.rollback();
