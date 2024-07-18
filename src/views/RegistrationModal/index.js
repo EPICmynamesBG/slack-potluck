@@ -1,5 +1,4 @@
 const _ = require('lodash');
-const opentelemetry = require('@opentelemetry/api');
 
 const db = require("../../models");
 const RegistrationForm = require("./RegistrationForm");
@@ -8,6 +7,7 @@ const SignupIncludeUsersForm = require('./SignupIncludeUsersForm');
 const LimitedRegistrationModal = require('../LimitedRegistrationModal');
 const PayloadHelper = require("../../helpers/PayloadHelper");
 const ViewHelper = require("../../helpers/ViewHelper");
+const Tracer = require('../../helpers/tracer');
 
 class RegistrationModal {
   constructor(client) {
@@ -15,10 +15,6 @@ class RegistrationModal {
       throw new Error("Missing required client");
     }
     this.client = client;
-    this.tracer = opentelemetry.trace.getTracer(
-      'slack-potluck/views/RegistrationModal',
-      '1.0',
-    );
   }
 
   static VIEW_ID = "meetup.registration.modal";
@@ -28,7 +24,7 @@ class RegistrationModal {
   };
 
   async render(payload) {
-    await this.tracer.startActiveSpan("render", async (span) => {
+    await Tracer.get().startActiveSpan("RegistrationModal.render", async (span) => {
       const { channel, meetupId, slackTeamId, slackUserId } = payload;    
   
       var viewHelper = new ViewHelper(

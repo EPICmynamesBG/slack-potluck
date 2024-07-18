@@ -1,6 +1,7 @@
 const opentelemetry = require('@opentelemetry/api');
 
 const db = require("../models");
+const Tracer = require('../helpers/tracer');
 const MeetupWithRegistrationCount = require("../models/views/MeetupWithRegistrationCount");
 const MeetupAnnouncement = require("../views/MeetupAnnouncement");
 const { getInstance } = require('../helpers/logger');
@@ -29,18 +30,13 @@ class SyncJob {
 
 class SyncAnnouncementPosting {
     static DEFER_TIME = 5000; // 5 seconds
-
-    static tracer = opentelemetry.trace.getTracer(
-        'slack-potluck/services/SyncAnnouncementPosting',
-        '1.0',
-      );
     
 
     // { id: SyncJob }
     static jobs = {};
 
     static async execute(client, meetupId) {
-        await this.tracer.startActiveSpan("execute", async (_) => {
+        await Tracer.get().startActiveSpan("SyncAnouncementPosting.execute", async (_) => {
             const meetup = await MeetupWithRegistrationCount.getMeetup(meetupId);
             const announcements = await db.MeetupAnnouncement.findAll({
                 where: {
@@ -48,7 +44,7 @@ class SyncAnnouncementPosting {
                 }
             });
             const promises = announcements.map(async (announcement) => {
-                await this.tracer.startActiveSpan("execute.mapAnnouncements", async (s2) => {
+                await Tracer.get().startActiveSpan("execute.mapAnnouncements", async (s2) => {
                     s2.setAttribute("app.announcement.id", announcement.id);
                     try {
                         await client.chat.update({

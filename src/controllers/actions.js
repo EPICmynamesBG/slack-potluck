@@ -1,6 +1,7 @@
 const opentelemetry = require('@opentelemetry/api');
 
 const ErrorAssistant = require("../helpers/ErrorAssistant");
+const Tracer = require('../helpers/tracer');
 const PayloadHelper = require("../helpers/PayloadHelper");
 const AnnounceMeetup = require("../services/AnnounceMeetup");
 const CancelMeetup = require("../services/CancelMeetup");
@@ -23,10 +24,6 @@ let singleton;
 class Actions {
   constructor(app) {
     this._app = app;
-    this.tracer = opentelemetry.trace.getTracer(
-      'slack-potluck/controllers/actions',
-      '1.0',
-    );
     this._setup();
   }
 
@@ -115,7 +112,7 @@ class Actions {
 
   // redundant to shortcuts
   async meetupCreate(payload) {
-    await this.tracer.startActiveSpan("meetupCreate", async (span) => {
+    await Tracer.get().startActiveSpan("meetupCreate", async (span) => {
       const { ack, body, client, context } = payload;
 
       ack();
@@ -135,7 +132,7 @@ class Actions {
   }
 
   async announceMeetupHandler(payload) {
-    await this.tracer.startActiveSpan("announceMeetupHandler", async (_) => {
+    await Tracer.get().startActiveSpan("announceMeetupHandler", async (_) => {
       const { ack, action } = payload;
       ack();
   
@@ -155,7 +152,7 @@ class Actions {
   }
 
   async userSignupForMeetup(payload) {
-    await this.tracer.startActiveSpan("userSignupForMeetup", async (_) => {
+    await Tracer.get().startActiveSpan("userSignupForMeetup", async (_) => {
       const { ack, client } = payload;
       ack();
   
@@ -165,7 +162,7 @@ class Actions {
   }
 
   async userUnableToAttendMeetup(payload) {
-    await this.tracer.startActiveSpan("userUnableToAttendMeetup", async (_) => {
+    await Tracer.get().startActiveSpan("userUnableToAttendMeetup", async (_) => {
       const { ack } = payload;
       ack();
   
@@ -174,7 +171,7 @@ class Actions {
   }
 
   async viewAttendanceTrigger(payload) {
-    await this.tracer.startActiveSpan("viewAttendanceTrigger", async (span) => {
+    await Tracer.get().startActiveSpan("viewAttendanceTrigger", async (span) => {
       const { ack } = payload;
       ack();
   
@@ -199,7 +196,7 @@ class Actions {
   }
 
   async manageMeetupTrigger(payload) {
-    await this.tracer.startActiveSpan("manageMeetupTrigger", async (span) => {
+    await Tracer.get().startActiveSpan("manageMeetupTrigger", async (span) => {
       const { ack } = payload;
       ack();
   
@@ -224,7 +221,7 @@ class Actions {
   }
 
   async cancelMeetup(payload) {
-    await this.tracer.startActiveSpan("cancelMeetup", async (span) => {
+    await Tracer.get().startActiveSpan("cancelMeetup", async (span) => {
       const { ack } = payload;
       ack();
 
@@ -241,7 +238,7 @@ class Actions {
   }
 
   async _reRenderHome(payload) {
-    await this.tracer.startActiveSpan("_reRenderHome", async (span) => {
+    await Tracer.get().startActiveSpan("_reRenderHome", async (span) => {
       const { body, client } = payload;
       const errorHelper = new ErrorAssistant(payload);
       try {

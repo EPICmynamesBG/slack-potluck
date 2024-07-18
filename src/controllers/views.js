@@ -1,8 +1,8 @@
 const _ = require("lodash");
-const opentelemetry = require('@opentelemetry/api');
 
 const CreateMeetup = require("../services/CreateMeetup");
 const ErrorAssistant = require("../helpers/ErrorAssistant");
+const Tracer = require('../helpers/tracer');
 const FoodSignup = require("../services/FoodSignup");
 const MeetupRegistration = require("../services/MeetupRegistration");
 const MeetupScheduledResponse = require("../views/MeetupScheduledResponse");
@@ -21,10 +21,6 @@ let singleton;
 class Views {
   constructor(app) {
     this._app = app;
-    this.tracer = opentelemetry.trace.getTracer(
-      'slack-potluck/controllers/views',
-      '1.0',
-    );
     this._setup();
   }
 
@@ -68,7 +64,7 @@ class Views {
   }
 
   async createMeetupSubmit(payload) {
-    await this.tracer.startActiveSpan("createMeetupSubmit", async (span) => {
+    await Tracer.get().startActiveSpan("createMeetupSubmit", async (span) => {
       const { ack, body, client, view } = payload;
       ack();
       const helper = new ErrorAssistant(payload);
@@ -108,7 +104,7 @@ class Views {
   }
 
   async registrationModalSubmit(payload) {
-    await this.tracer.startActiveSpan("registrationModalSubmit", async (span) => {
+    await Tracer.get().startActiveSpan("registrationModalSubmit", async (span) => {
       const { ack, body, client, view } = payload;
       ack();
   
@@ -138,7 +134,7 @@ class Views {
    * @param {*} payload 
    */
   async registrationSignupClosed(payload) {
-    await this.tracer.startActiveSpan("", async (_) => {
+    await Tracer.get().startActiveSpan("", async (_) => {
       const { ack, body, client, view } = payload;
       ack();
       const meta = JSON.parse(_.get(view, "private_metadata", "{}"));
@@ -155,7 +151,7 @@ class Views {
   }
 
   async submitMeetupChanges(payload) {
-    await this.tracer.startActiveSpan("submitMeetupChanges", async (span) => {
+    await Tracer.get().startActiveSpan("submitMeetupChanges", async (span) => {
       const { ack } = payload;
       ack();
 
@@ -174,7 +170,7 @@ class Views {
   }
 
   async _reRenderHome(payload) {
-    await this.tracer.startActiveSpan("_reRenderHome", async (span) => {
+    await Tracer.get().startActiveSpan("_reRenderHome", async (span) => {
       const { body, client } = payload;
       const errorHelper = new ErrorAssistant(payload);
       try {

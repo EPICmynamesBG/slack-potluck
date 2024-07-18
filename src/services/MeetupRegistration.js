@@ -1,19 +1,14 @@
 const _ = require("lodash");
-const opentelemetry = require('@opentelemetry/api');
 
 const db = require("../models");
 const ErrorAssistant = require("../helpers/ErrorAssistant");
+const Tracer = require("../helpers/tracer");
 const RegistrationForm = require("../views/RegistrationModal/RegistrationForm");
 const SyncAnnouncementPosting = require("./SyncAnnouncementPosting");
 const RegistrationGroupedUsers = require("./RegistrationGroupedUsers");
 const { tryJoinChannel } = require('../helpers/ChannelJoiner');
 
 class MeetupRegistration {
-  static tracer = opentelemetry.trace.getTracer(
-    'slack-potluck/services/MeetupRegistration',
-    '1.0',
-  );
-
   /**
    * 
    * @param {*} errorHelper 
@@ -32,7 +27,7 @@ class MeetupRegistration {
       notes = undefined
     }
   ) {
-    return await this.tracer.startActiveSpan("_createOrUpdateRegistration", async (span) => {
+    return await Tracer.get().startActiveSpan("_createOrUpdateRegistration", async (span) => {
       try {
         await db.Meetup.findByPk(Number.parseInt(meetupId, 10));
       } catch (e) {
@@ -91,7 +86,7 @@ class MeetupRegistration {
 
 
   static async initAttending(payload) {
-    await this.tracer.startActiveSpan("initAttending", async (span) => {
+    await Tracer.get().startActiveSpan("initAttending", async (span) => {
       const { action, body, client } = payload;
       const helper = new ErrorAssistant(payload);
       const meetupId = action.value;
@@ -112,7 +107,7 @@ class MeetupRegistration {
   }
 
   static async updateAttendance(payload) {
-    await this.tracer.startActiveSpan("updateAttendance", async (span) => {
+    await Tracer.get().startActiveSpan("updateAttendance", async (span) => {
       const { body, client, view } = payload;
       const meta = JSON.parse(_.get(view, "private_metadata", "{}"));
       const { meetupId } = meta;
@@ -141,7 +136,7 @@ class MeetupRegistration {
   }
 
   static async notAttending(payload) {
-    await this.tracer.startActiveSpan("notAttending", async (span) => {
+    await Tracer.get().startActiveSpan("notAttending", async (span) => {
       const { action, body, client } = payload;
       const helper = new ErrorAssistant(payload);
       const meetupId = action.value;
@@ -170,7 +165,7 @@ class MeetupRegistration {
   }
 
   static async onMeetupRegistrationChange(client, meetupId) {
-    this.tracer.startActiveSpan("onMeetupRegistrationChange", (span) => {
+    Tracer.get().startActiveSpan("onMeetupRegistrationChange", (span) => {
       span.setAttribute("app.meetup.id", meetupId);
       SyncAnnouncementPosting.defer(client, meetupId);
     });

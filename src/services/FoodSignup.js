@@ -1,22 +1,18 @@
 const _ = require("lodash");
-const opentelemetry = require('@opentelemetry/api');
 
 const db = require("../models");
 const ErrorAssistant = require("../helpers/ErrorAssistant");
+const Tracer = require("../helpers/tracer");
 const RegistrationModal = require('../views/RegistrationModal');
 const FoodSignupForm = require('../views/RegistrationModal/FoodSignupForm');
 const PayloadHelper = require("../helpers/PayloadHelper");
 const { getInstance } = require('../helpers/logger');
 
 class FoodSignup {
-  static tracer = opentelemetry.trace.getTracer(
-    'slack-potluck/services/FoodSignup',
-    '1.0',
-  );
   static logger = getInstance('FoodSignup');
 
   static async renderSignupModal(payload) {
-    const span = this.tracer.startSpan("renderSignupModal");
+    const span = Tracer.get().startSpan("FoodSignup.renderSignupModal");
     try {
       const payloadHelper = new PayloadHelper(payload);
     
@@ -45,7 +41,7 @@ class FoodSignup {
     errorHelper,
     { meetupId, slackUserId, slackTeamId, foodType, description }
   ) {
-    await this.tracer.startActiveSpan("_createOrUpdateRegistration", async (span) => {
+    await Tracer.get().startActiveSpan("_createOrUpdateRegistration", async (span) => {
       span.setAttribute("app.user.slackUserId", slackUserId);
       span.setAttribute("app.user.slackTeamId", slackTeamId);
       let registration;
@@ -70,7 +66,7 @@ class FoodSignup {
       }
       try {
         if (registration.foodRegistration) {
-          return await this.tracer.startActiveSpan("_updateFoodRegistration", async (s2) => {
+          return await Tracer.get().startActiveSpan("_updateFoodRegistration", async (s2) => {
             s2.setAttribute("app.user.slackUserId", slackUserId);
             s2.setAttribute("app.user.slackTeamId", slackTeamId);  
             registration.foodRegistration.foodSlot = foodType;
@@ -80,7 +76,7 @@ class FoodSignup {
             return registration.foodRegistration;
           });
         }
-        return await this.tracer.startActiveSpan("_createFoodRegistration", async (s2) => {
+        return await Tracer.get().startActiveSpan("_createFoodRegistration", async (s2) => {
           s2.setAttribute("app.user.slackUserId", slackUserId);
           s2.setAttribute("app.user.slackTeamId", slackTeamId);
           return await db.MeetupRegistrationFood.create({
@@ -96,22 +92,23 @@ class FoodSignup {
         await errorHelper.handleError(e, "Failed to store food response");
         return;
       }
-  
     });
   }
 
   static async recordResponse(payload) {
-    const { body, view } = payload;
-    const meta = JSON.parse(_.get(view, "private_metadata", "{}"));
-    const { meetupId } = meta;
-    const { foodType, description } = FoodSignupForm.getFormValues(view.state);
-
-    await this._createOrUpdateRegistration(new ErrorAssistant(payload), {
-      meetupId,
-      slackTeamId: body.user.team_id,
-      slackUserId: body.user.id,
-      foodType,
-      description,
+    await Tracer.get().startActiveSpan("recordResponse", async (_) => {
+      const { body, view } = payload;
+      const meta = JSON.parse(_.get(view, "private_metadata", "{}"));
+      const { meetupId } = meta;
+      const { foodType, description } = FoodSignupForm.getFormValues(view.state);
+  
+      await this._createOrUpdateRegistration(new ErrorAssistant(payload), {
+        meetupId,
+        slackTeamId: body.user.team_id,
+        slackUserId: body.user.id,
+        foodType,
+        description,
+      });  
     });
   }
 }
