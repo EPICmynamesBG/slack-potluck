@@ -1,5 +1,3 @@
-const opentelemetry = require('@opentelemetry/api');
-
 const db = require("../models");
 const Tracer = require('../helpers/tracer');
 const MeetupWithRegistrationCount = require("../models/views/MeetupWithRegistrationCount");
