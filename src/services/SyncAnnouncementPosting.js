@@ -34,7 +34,7 @@ class SyncAnnouncementPosting {
     static jobs = {};
 
     static async execute(client, meetupId) {
-        await Tracer.get().startActiveSpan("SyncAnouncementPosting.execute", async (_) => {
+        await Tracer.get().startActiveSpan("SyncAnouncementPosting.execute", async (_span) => {
             const meetup = await MeetupWithRegistrationCount.getMeetup(meetupId);
             const announcements = await db.MeetupAnnouncement.findAll({
                 where: {

@@ -96,7 +96,7 @@ class FoodSignup {
   }
 
   static async recordResponse(payload) {
-    await Tracer.get().startActiveSpan("recordResponse", async (_) => {
+    await Tracer.get().startActiveSpan("recordResponse", async (_span) => {
       const { body, view } = payload;
       const meta = JSON.parse(_.get(view, "private_metadata", "{}"));
       const { meetupId } = meta;
