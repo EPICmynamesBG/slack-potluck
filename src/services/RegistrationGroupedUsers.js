@@ -106,14 +106,15 @@ class RegistrationGroupedUsers {
        */
       var toDeleteRecords = toDelete.map(id => groupUsers.find(x => x.id === id));
 
-      const tx = await db.sequelize.transaction();
+      // const tx = await db.sequelize.transaction();
+      
       try {
           await this._removeRecords(toDeleteRecords);
           await this._createRecords(ownerRegistration, toCreate);
-          await tx.commit();
+          // await tx.commit();
       } catch (e) {
           span.recordException(e);
-          await tx.rollback();
+          // await tx.rollback();
           throw e;
       }
     });
