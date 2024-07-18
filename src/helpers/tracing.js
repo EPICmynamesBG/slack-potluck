@@ -6,8 +6,8 @@ const { Resource } = require('@opentelemetry/resources');
 const { SemanticResourceAttributes } = require('@opentelemetry/semantic-conventions');
 const { SequelizeInstrumentation } = require('opentelemetry-instrumentation-sequelize');
 
-const { diag, DiagConsoleLogger, DiagLogLevel } = require('@opentelemetry/api');
-diag.setLogger(new DiagConsoleLogger(), DiagLogLevel.DEBUG);
+// const { diag, DiagConsoleLogger, DiagLogLevel } = require('@opentelemetry/api');
+// diag.setLogger(new DiagConsoleLogger(), DiagLogLevel.DEBUG);
 
 const sdk = new openTelemetry.NodeSDK({
     resource: new Resource({
