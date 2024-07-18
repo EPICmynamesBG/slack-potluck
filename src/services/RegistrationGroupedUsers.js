@@ -34,7 +34,7 @@ class RegistrationGroupedUsers {
   static async manageIncludedUsersFromState(errorHelper, ownerRegistration, viewState) {
     try {
         var { includedUsers } = SignupIncludeUsersForm.getFormValues(viewState);
-        return this.manageIncludedUsers(ownerRegistration, includedUsers);    
+        return await this.manageIncludedUsers(ownerRegistration, includedUsers);    
     } catch (e) {
         await errorHelper.handleError(e);
         return;
@@ -100,19 +100,24 @@ class RegistrationGroupedUsers {
           }
       });
       span.setAttribute("app.groupUsers.count", groupUsers.length);
-      return;
       if (filteredUserIds.length === 0 && groupUsers.length === 0) {
         return;
       }
 
-      var existingUserIds = groupUsers.map(x => x.id);
+      /**
+       * @type {string[]}
+       */
+      var existingUserIds = groupUsers.map(x => x.groupedSlackUserId.toString());
       var toCreate = filteredUserIds.filter(x => !existingUserIds.includes(x));
       var toDelete = existingUserIds.filter(x => !filteredUserIds.includes(x));
 
       /**
        * @type {MeetupRegistrationGroupUser[]}
        */
-      var toDeleteRecords = toDelete.map(id => groupUsers.find(x => x.id === id));
+      var toDeleteRecords = toDelete.map(id => {
+        var idx = groupUsers.findIndex(x => x.groupedSlackUserId === id);
+        return groupUsers[idx];
+      });
 
       // const tx = await db.sequelize.transaction();
       
