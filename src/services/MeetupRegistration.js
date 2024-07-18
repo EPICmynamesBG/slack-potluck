@@ -32,7 +32,7 @@ class MeetupRegistration {
       notes = undefined
     }
   ) {
-    await this.tracer.startActiveSpan("_createOrUpdateRegistration", async (span) => {
+    return await this.tracer.startActiveSpan("_createOrUpdateRegistration", async (span) => {
       try {
         await db.Meetup.findByPk(Number.parseInt(meetupId, 10));
       } catch (e) {
