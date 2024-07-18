@@ -112,7 +112,7 @@ class Actions {
 
   // redundant to shortcuts
   async meetupCreate(payload) {
-    await Tracer.get().startActiveSpan("meetupCreate", async (span) => {
+    await Tracer.withSpanAsync("meetupCreate", async (span) => {
       const { ack, body, client, context } = payload;
 
       ack();
@@ -132,7 +132,7 @@ class Actions {
   }
 
   async announceMeetupHandler(payload) {
-    await Tracer.get().startActiveSpan("announceMeetupHandler", async (_) => {
+    await Tracer.withSpanAsync("announceMeetupHandler", async (_span) => {
       const { ack, action } = payload;
       ack();
   
@@ -152,7 +152,7 @@ class Actions {
   }
 
   async userSignupForMeetup(payload) {
-    await Tracer.get().startActiveSpan("userSignupForMeetup", async (_) => {
+    await Tracer.withSpanAsync("userSignupForMeetup", async (_span) => {
       const { ack, client } = payload;
       ack();
   
@@ -162,7 +162,7 @@ class Actions {
   }
 
   async userUnableToAttendMeetup(payload) {
-    await Tracer.get().startActiveSpan("userUnableToAttendMeetup", async (_) => {
+    await Tracer.withSpanAsync("userUnableToAttendMeetup", async (_span) => {
       const { ack } = payload;
       ack();
   
@@ -171,7 +171,7 @@ class Actions {
   }
 
   async viewAttendanceTrigger(payload) {
-    await Tracer.get().startActiveSpan("viewAttendanceTrigger", async (span) => {
+    await Tracer.withSpanAsync("viewAttendanceTrigger", async (span) => {
       const { ack } = payload;
       ack();
   
@@ -196,7 +196,7 @@ class Actions {
   }
 
   async manageMeetupTrigger(payload) {
-    await Tracer.get().startActiveSpan("manageMeetupTrigger", async (span) => {
+    await Tracer.withSpanAsync("manageMeetupTrigger", async (span) => {
       const { ack } = payload;
       ack();
   
@@ -221,7 +221,7 @@ class Actions {
   }
 
   async cancelMeetup(payload) {
-    await Tracer.get().startActiveSpan("cancelMeetup", async (span) => {
+    await Tracer.withSpanAsync("cancelMeetup", async (span) => {
       const { ack } = payload;
       ack();
 
@@ -238,7 +238,7 @@ class Actions {
   }
 
   async _reRenderHome(payload) {
-    await Tracer.get().startActiveSpan("_reRenderHome", async (span) => {
+    await Tracer.withSpanAsync("_reRenderHome", async (span) => {
       const { body, client } = payload;
       const errorHelper = new ErrorAssistant(payload);
       try {

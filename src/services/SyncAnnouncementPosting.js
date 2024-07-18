@@ -34,7 +34,7 @@ class SyncAnnouncementPosting {
     static jobs = {};
 
     static async execute(client, meetupId) {
-        await Tracer.get().startActiveSpan("SyncAnouncementPosting.execute", async (_span) => {
+        await Tracer.withSpanAsync("SyncAnouncementPosting.execute", async (_span) => {
             const meetup = await MeetupWithRegistrationCount.getMeetup(meetupId);
             const announcements = await db.MeetupAnnouncement.findAll({
                 where: {
@@ -42,7 +42,7 @@ class SyncAnnouncementPosting {
                 }
             });
             const promises = announcements.map(async (announcement) => {
-                await Tracer.get().startActiveSpan("execute.mapAnnouncements", async (s2) => {
+                await Tracer.withSpanAsync("execute.mapAnnouncements", async (s2) => {
                     s2.setAttribute("app.announcement.id", announcement.id);
                     try {
                         await client.chat.update({

@@ -41,7 +41,7 @@ class FoodSignup {
     errorHelper,
     { meetupId, slackUserId, slackTeamId, foodType, description }
   ) {
-    await Tracer.get().startActiveSpan("_createOrUpdateRegistration", async (span) => {
+    await Tracer.withSpanAsync("_createOrUpdateRegistration", async (span) => {
       span.setAttribute("app.user.slackUserId", slackUserId);
       span.setAttribute("app.user.slackTeamId", slackTeamId);
       let registration;
@@ -66,7 +66,7 @@ class FoodSignup {
       }
       try {
         if (registration.foodRegistration) {
-          return await Tracer.get().startActiveSpan("_updateFoodRegistration", async (s2) => {
+          return await Tracer.withSpanAsync("_updateFoodRegistration", async (s2) => {
             s2.setAttribute("app.user.slackUserId", slackUserId);
             s2.setAttribute("app.user.slackTeamId", slackTeamId);  
             registration.foodRegistration.foodSlot = foodType;
@@ -76,7 +76,7 @@ class FoodSignup {
             return registration.foodRegistration;
           });
         }
-        return await Tracer.get().startActiveSpan("_createFoodRegistration", async (s2) => {
+        return await Tracer.withSpanAsync("_createFoodRegistration", async (s2) => {
           s2.setAttribute("app.user.slackUserId", slackUserId);
           s2.setAttribute("app.user.slackTeamId", slackTeamId);
           return await db.MeetupRegistrationFood.create({
@@ -96,7 +96,7 @@ class FoodSignup {
   }
 
   static async recordResponse(payload) {
-    await Tracer.get().startActiveSpan("recordResponse", async (_span) => {
+    await Tracer.withSpanAsync("recordResponse", async (_span) => {
       const { body, view } = payload;
       const meta = JSON.parse(_.get(view, "private_metadata", "{}"));
       const { meetupId } = meta;

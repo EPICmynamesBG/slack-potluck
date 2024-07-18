@@ -27,7 +27,7 @@ class MeetupRegistration {
       notes = undefined
     }
   ) {
-    return await Tracer.get().startActiveSpan("_createOrUpdateRegistration", async (span) => {
+    return await Tracer.withSpanAsync("_createOrUpdateRegistration", async (span) => {
       try {
         await db.Meetup.findByPk(Number.parseInt(meetupId, 10));
       } catch (e) {
@@ -86,7 +86,7 @@ class MeetupRegistration {
 
 
   static async initAttending(payload) {
-    await Tracer.get().startActiveSpan("initAttending", async (span) => {
+    await Tracer.withSpanAsync("initAttending", async (span) => {
       const { action, body, client } = payload;
       const helper = new ErrorAssistant(payload);
       const meetupId = action.value;
@@ -107,7 +107,7 @@ class MeetupRegistration {
   }
 
   static async updateAttendance(payload) {
-    await Tracer.get().startActiveSpan("updateAttendance", async (span) => {
+    await Tracer.withSpanAsync("updateAttendance", async (span) => {
       const { body, client, view } = payload;
       const meta = JSON.parse(_.get(view, "private_metadata", "{}"));
       const { meetupId } = meta;
@@ -136,7 +136,7 @@ class MeetupRegistration {
   }
 
   static async notAttending(payload) {
-    await Tracer.get().startActiveSpan("notAttending", async (span) => {
+    await Tracer.withSpanAsync("notAttending", async (span) => {
       const { action, body, client } = payload;
       const helper = new ErrorAssistant(payload);
       const meetupId = action.value;
@@ -165,7 +165,7 @@ class MeetupRegistration {
   }
 
   static async onMeetupRegistrationChange(client, meetupId) {
-    Tracer.get().startActiveSpan("onMeetupRegistrationChange", (span) => {
+    Tracer.withSpanAsync("onMeetupRegistrationChange", (span) => {
       span.setAttribute("app.meetup.id", meetupId);
       SyncAnnouncementPosting.defer(client, meetupId);
     });

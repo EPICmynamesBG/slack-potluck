@@ -86,7 +86,7 @@ class RegistrationGroupedUsers {
    * @param {string[]} includeUserIds 
    */
   static async manageIncludedUsers(ownerRegistration, includeUserIds = []) {
-    return await Tracer.get().startActiveSpan("RegistrationGroupedUsers.manageIncludedUsers", async (span) => {
+    return await Tracer.withSpanAsync("RegistrationGroupedUsers.manageIncludedUsers", async (span) => {
       // Prevent user from adding self
       var filteredUserIds = includeUserIds.filter(this._excludeUsers(ownerRegistration.createdBy));
       /**

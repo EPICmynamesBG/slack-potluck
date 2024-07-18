@@ -64,7 +64,7 @@ class Views {
   }
 
   async createMeetupSubmit(payload) {
-    await Tracer.get().startActiveSpan("createMeetupSubmit", async (span) => {
+    await Tracer.withSpanAsync("createMeetupSubmit", async (span) => {
       const { ack, body, client, view } = payload;
       ack();
       const helper = new ErrorAssistant(payload);
@@ -104,7 +104,7 @@ class Views {
   }
 
   async registrationModalSubmit(payload) {
-    await Tracer.get().startActiveSpan("registrationModalSubmit", async (span) => {
+    await Tracer.withSpanAsync("registrationModalSubmit", async (span) => {
       const { ack, body, client, view } = payload;
       ack();
   
@@ -134,7 +134,7 @@ class Views {
    * @param {*} payload 
    */
   async registrationSignupClosed(payload) {
-    await Tracer.get().startActiveSpan("", async (_) => {
+    await Tracer.withSpanAsync("", async (_span) => {
       const { ack, body, client, view } = payload;
       ack();
       const meta = JSON.parse(_.get(view, "private_metadata", "{}"));
@@ -151,7 +151,7 @@ class Views {
   }
 
   async submitMeetupChanges(payload) {
-    await Tracer.get().startActiveSpan("submitMeetupChanges", async (span) => {
+    await Tracer.withSpanAsync("submitMeetupChanges", async (span) => {
       const { ack } = payload;
       ack();
 
@@ -170,7 +170,7 @@ class Views {
   }
 
   async _reRenderHome(payload) {
-    await Tracer.get().startActiveSpan("_reRenderHome", async (span) => {
+    await Tracer.withSpanAsync("_reRenderHome", async (span) => {
       const { body, client } = payload;
       const errorHelper = new ErrorAssistant(payload);
       try {

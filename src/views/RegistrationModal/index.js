@@ -24,7 +24,7 @@ class RegistrationModal {
   };
 
   async render(payload) {
-    await Tracer.get().startActiveSpan("RegistrationModal.render", async (span) => {
+    await Tracer.withSpanAsync("RegistrationModal.render", async (span) => {
       const { channel, meetupId, slackTeamId, slackUserId } = payload;    
   
       var viewHelper = new ViewHelper(
