@@ -17,6 +17,7 @@
   "author": "EPICmynamesBG@users.noreply.github.com",
   "license": "ISC",
   "dependencies": {
+    "@opentelemetry/auto-instrumentations-node": "^0.48.0",
     "@opentelemetry/exporter-zipkin": "^1.21.0",
     "@opentelemetry/instrumentation-express": "^0.35.0",
     "@opentelemetry/instrumentation-http": "^0.48.0",
