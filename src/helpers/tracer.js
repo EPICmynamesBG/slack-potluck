@@ -25,6 +25,19 @@ class Tracer {
     }
 
     /**
+     * 
+     * @param {openTelemetry.api.Span} span 
+     * @param {Error} error 
+     */
+    static setWarning(span, error) {
+        span.setAttribute("app.warning", true);
+        span.setAttribute("app.warning.stacktrace", error.stack);
+        span.setAttribute("app.warning.message", error.message);
+        span.setAttribute("app.warning.name", error.name);
+        span.setStatus(openTelemetry.api.SpanStatusCode.OK);
+    }
+
+    /**
      * @callback withSpanCallback
      * @param {openTelemetry.api.Span} span
      * @returns {*}

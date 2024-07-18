@@ -3,6 +3,7 @@ const { FileInstallationStore } = require("@slack/bolt");
 const db = require("../models");
 const OAuthInstallationDTO = require("../DTO/OAuthInstallationDTO");
 const { getInstance } = require('../helpers/logger');
+const Tracer = require("../helpers/tracer");
 
 const logger = getInstance('OAuthInstallationStore');
 
@@ -124,14 +125,16 @@ class OAuthInstallationStore extends FileInstallationStore {
    * @returns {import("@slack/bolt").Installation}
    */
   async fetchInstallation(query) {
-    const existing = await this._findInstallation(query, logger);
+    return await Tracer.withSpanAsync("OAuthInstallationStore.fetchInstallation", async (_span) => {
+      const existing = await this._findInstallation(query, logger);
 
-    logger.debug(
-      `Fetched OAuthInstallation ${existing.id}`,
-      query
-    );
+      logger.debug(
+        `Fetched OAuthInstallation ${existing.id}`,
+        query
+      );
 
-    return (new OAuthInstallationDTO(existing)).asInstallation();
+      return (new OAuthInstallationDTO(existing)).asInstallation();
+    });
   }
 
   /**
@@ -192,12 +195,14 @@ class OAuthInstallationStore extends FileInstallationStore {
 
 
   static async authorize({ teamId, enterpriseId, userId }) {
-    var store = this.get();
-    var existing = await store._findInstallation({
-      teamId,
-      userId
+    return await Tracer.withSpanAsync("OAuthInstallationStore.authorize", async (_span) => {
+      var store = this.get();
+      var existing = await store._findInstallation({
+        teamId,
+        userId
+      });
+      return (new OAuthInstallationDTO(existing)).asInstallation();
     });
-    return (new OAuthInstallationDTO(existing)).asInstallation();
   }
 }
 
