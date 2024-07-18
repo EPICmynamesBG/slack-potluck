@@ -6,6 +6,9 @@ const { Resource } = require('@opentelemetry/resources');
 const { SemanticResourceAttributes } = require('@opentelemetry/semantic-conventions');
 const { SequelizeInstrumentation } = require('opentelemetry-instrumentation-sequelize');
 
+const { diag, DiagConsoleLogger, DiagLogLevel } = require('@opentelemetry/api');
+diag.setLogger(new DiagConsoleLogger(), DiagLogLevel.DEBUG);
+
 const sdk = new openTelemetry.NodeSDK({
     resource: new Resource({
         [SemanticResourceAttributes.SERVICE_NAME]: 'slack-potluck',
@@ -14,7 +17,7 @@ const sdk = new openTelemetry.NodeSDK({
     traceExporter: new ZipkinExporter({
         url: `${process.env.ZIPKIN_URL}/api/v2/spans`
     }),
-    instrumentations: [HttpInstrumentation, ExpressInstrumentation, SequelizeInstrumentation]
+    instrumentations: [HttpInstrumentation, ExpressInstrumentation, SequelizeInstrumentation],
 });
 
 module.exports = sdk;

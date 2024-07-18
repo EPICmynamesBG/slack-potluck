@@ -3,6 +3,9 @@ const openTelemetry = require("@opentelemetry/sdk-node");
 class Tracer {
     static _name = "slack-potluck";
 
+    /**
+     * @returns {openTelemetry.api.Tracer}
+     */
     static get() {
         return openTelemetry.api.trace.getTracer(this._name);
     }
@@ -13,6 +16,7 @@ class Tracer {
      * @param {Error} error 
      */
     static handleError(span, error) {
+        span.recordException(error);
         span.setAttribute("app.error", true);
         span.setAttribute("app.error.stacktrace", error.stack);
         span.setAttribute("app.error.message", error.message);
