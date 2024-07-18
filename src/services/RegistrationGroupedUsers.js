@@ -43,7 +43,7 @@ class RegistrationGroupedUsers {
    * @param {MeetupRegistrationGroupUser[]} groupRegistrations 
    */
   static _removeRecords(groupRegistrations = []) {
-    return db.MeetupRegistrationGroupUser.destroy(groupRegistrations);
+    return Promise.all(groupRegistrations.map((record) => record.destroy()));
   }
 
   static async _createRecord(registration, slackUserId) {
