@@ -1,3 +1,5 @@
+const opentelemetry = require('@opentelemetry/api');
+
 const ErrorAssistant = require("../helpers/ErrorAssistant");
 const PayloadHelper = require("../helpers/PayloadHelper");
 const AnnounceMeetup = require("../services/AnnounceMeetup");
@@ -21,6 +23,10 @@ let singleton;
 class Actions {
   constructor(app) {
     this._app = app;
+    this.tracer = opentelemetry.trace.getTracer(
+      'slack-potluck/controllers/actions',
+      '1.0',
+    );
     this._setup();
   }
 
@@ -109,123 +115,144 @@ class Actions {
 
   // redundant to shortcuts
   async meetupCreate(payload) {
-    const { ack, body, client, context } = payload;
+    await this.tracer.startActiveSpan("meetupCreate", async (span) => {
+      const { ack, body, client, context } = payload;
 
-    ack();
-
-    const errorHelper = new ErrorAssistant(payload);
-    try {
-      const modal = new CreateMeetupModal(client);
-      await modal.render({
-        botToken: context.botToken,
-        triggerId: body.trigger_id,
-      });
-    } catch (error) {
-      await errorHelper.handleError(error);
-    }
+      ack();
+  
+      const errorHelper = new ErrorAssistant(payload);
+      try {
+        const modal = new CreateMeetupModal(client);
+        await modal.render({
+          botToken: context.botToken,
+          triggerId: body.trigger_id,
+        });
+      } catch (error) {
+        span.recordException(e);
+        await errorHelper.handleError(error);
+      }  
+    });
   }
 
   async announceMeetupHandler(payload) {
-    const { ack, action } = payload;
-    ack();
-
-    if (
-      action.action_id ===
-      MeetupScheduledResponse.ACTIONS.IGNORE_ANNOUNCE_ACTION
-    ) {
-      await AnnounceMeetup.ignore(payload);
-    } else if (
-      action.action_id ===
-      MeetupScheduledResponse.ACTIONS.SUBMIT_ANNOUNCE_ACTION
-    ) {
-      await AnnounceMeetup.announce(payload);
-    }
-    // else nothing to be concerned with
+    await this.tracer.startActiveSpan("announceMeetupHandler", async (_) => {
+      const { ack, action } = payload;
+      ack();
+  
+      if (
+        action.action_id ===
+        MeetupScheduledResponse.ACTIONS.IGNORE_ANNOUNCE_ACTION
+      ) {
+        await AnnounceMeetup.ignore(payload);
+      } else if (
+        action.action_id ===
+        MeetupScheduledResponse.ACTIONS.SUBMIT_ANNOUNCE_ACTION
+      ) {
+        await AnnounceMeetup.announce(payload);
+      }
+      // else nothing to be concerned with  
+    });
   }
 
   async userSignupForMeetup(payload) {
-    const { ack, client } = payload;
-    ack();
-
-    await MeetupRegistration.initAttending(payload);
-    await FoodSignup.renderSignupModal(payload);
+    await this.tracer.startActiveSpan("userSignupForMeetup", async (_) => {
+      const { ack, client } = payload;
+      ack();
+  
+      await MeetupRegistration.initAttending(payload);
+      await FoodSignup.renderSignupModal(payload);  
+    });
   }
 
   async userUnableToAttendMeetup(payload) {
-    const { ack } = payload;
-    ack();
-
-    await MeetupRegistration.notAttending(payload);
+    await this.tracer.startActiveSpan("userUnableToAttendMeetup", async (_) => {
+      const { ack } = payload;
+      ack();
+  
+      await MeetupRegistration.notAttending(payload);  
+    });
   }
 
   async viewAttendanceTrigger(payload) {
-    const { ack } = payload;
-    ack();
-
-    const payloadHelper = new PayloadHelper(payload);
-    const { action, context, body, client } = payload;
-    const errorHelper = new ErrorAssistant(payload);
-    const modal = new ViewAttendanceModal(client);
-    try {
-      await modal.render({
-        channel: payloadHelper.getChannel(),
-        botToken: context.botToken,
-        triggerId: body.trigger_id,
-        meetupId: action.value,
-        slackUserId: body.user.id,
-        slackTeamId: body.user.team_id,
-      });
-    } catch (e) {
-      await errorHelper.handleError(e);
-    }
+    await this.tracer.startActiveSpan("viewAttendanceTrigger", async (span) => {
+      const { ack } = payload;
+      ack();
+  
+      const payloadHelper = new PayloadHelper(payload);
+      const { action, context, body, client } = payload;
+      const errorHelper = new ErrorAssistant(payload);
+      const modal = new ViewAttendanceModal(client);
+      try {
+        await modal.render({
+          channel: payloadHelper.getChannel(),
+          botToken: context.botToken,
+          triggerId: body.trigger_id,
+          meetupId: action.value,
+          slackUserId: body.user.id,
+          slackTeamId: body.user.team_id,
+        });
+      } catch (e) {
+        span.recordException(e);
+        await errorHelper.handleError(e);
+      }  
+    });
   }
 
   async manageMeetupTrigger(payload) {
-    const { ack } = payload;
-    ack();
-
-    const payloadHelper = new PayloadHelper(payload);
-    const { action, context, body, client } = payload;
-    const errorHelper = new ErrorAssistant(payload);
-    const modal = new ManageMeetupModal(client,);
-    try {
-      await modal.render({
-        channel: payloadHelper.getChannel(),
-        botToken: context.botToken,
-        triggerId: body.trigger_id,
-        meetupId: action.value,
-        slackUserId: body.user.id,
-        slackTeamId: body.user.team_id,
-      });
-    } catch (e) {
-      await errorHelper.handleError(e);
-    }
+    await this.tracer.startActiveSpan("manageMeetupTrigger", async (span) => {
+      const { ack } = payload;
+      ack();
+  
+      const payloadHelper = new PayloadHelper(payload);
+      const { action, context, body, client } = payload;
+      const errorHelper = new ErrorAssistant(payload);
+      const modal = new ManageMeetupModal(client,);
+      try {
+        await modal.render({
+          channel: payloadHelper.getChannel(),
+          botToken: context.botToken,
+          triggerId: body.trigger_id,
+          meetupId: action.value,
+          slackUserId: body.user.id,
+          slackTeamId: body.user.team_id,
+        });
+      } catch (e) {
+        span.recordException(e);
+        await errorHelper.handleError(e);
+      }  
+    });
   }
 
   async cancelMeetup(payload) {
-    const { ack } = payload;
-    ack();
+    await this.tracer.startActiveSpan("cancelMeetup", async (span) => {
+      const { ack } = payload;
+      ack();
 
-    const errorHelper = new ErrorAssistant(payload);
+      const errorHelper = new ErrorAssistant(payload);
 
-    try {
-      await CancelMeetup.execute(payload);
-    } catch (e) {
-      await errorHelper.handleError(e);
-    }
-    await this._reRenderHome(payload);
+      try {
+        await CancelMeetup.execute(payload);
+      } catch (e) {
+        span.recordException(e);
+        await errorHelper.handleError(e);
+      }
+      await this._reRenderHome(payload);
+    });
   }
 
   async _reRenderHome(payload) {
-    const { body, client } = payload;
-    const errorHelper = new ErrorAssistant(payload);
-    try {
-      const payloadHelper = new PayloadHelper(payload);
-      const home = new Home(client);
-      await home.render(body.user.team_id, payloadHelper.getUserId());
-    } catch (e) {
-      await errorHelper.handleError(e, "Failed to re-render app Home");
-    }
+    await this.tracer.startActiveSpan("_reRenderHome", async (span) => {
+      const { body, client } = payload;
+      const errorHelper = new ErrorAssistant(payload);
+      try {
+        const payloadHelper = new PayloadHelper(payload);
+        const home = new Home(client);
+        await home.render(body.user.team_id, payloadHelper.getUserId());
+      } catch (e) {
+        span.recordException(e);
+        await errorHelper.handleError(e, "Failed to re-render app Home");
+      }  
+    });
   }
 
   static init(app) {

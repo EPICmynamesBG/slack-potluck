@@ -1,4 +1,6 @@
 const _ = require('lodash');
+const opentelemetry = require('@opentelemetry/api');
+
 const db = require("../../models");
 const RegistrationForm = require("./RegistrationForm");
 const FoodSignupForm = require('./FoodSignupForm');
@@ -13,6 +15,10 @@ class RegistrationModal {
       throw new Error("Missing required client");
     }
     this.client = client;
+    this.tracer = opentelemetry.trace.getTracer(
+      'slack-potluck/views/RegistrationModal',
+      '1.0',
+    );
   }
 
   static VIEW_ID = "meetup.registration.modal";
@@ -22,32 +28,35 @@ class RegistrationModal {
   };
 
   async render(payload) {
-    const { channel, meetupId, slackTeamId, slackUserId } = payload;    
+    await this.tracer.startActiveSpan("render", async (span) => {
+      const { channel, meetupId, slackTeamId, slackUserId } = payload;    
   
-    var viewHelper = new ViewHelper(
-      this.client,
-      RegistrationModal.VIEW_ID,
-      payload
-    );
-    await viewHelper.initLoading('Signup', {
-      meetupId,
-      channel,
-    });
-
-    var renderView = await this._render({
-      meetupId,
-      slackTeamId,
-      slackUserId
-    });
-    try  {
-      return await viewHelper.update(renderView, {
+      var viewHelper = new ViewHelper(
+        this.client,
+        RegistrationModal.VIEW_ID,
+        payload
+      );
+      await viewHelper.initLoading('Signup', {
         meetupId,
         channel,
       });
-    } catch (e) {
-      await viewHelper.errorClose();
-      throw e;
-    }
+
+      var renderView = await this._render({
+        meetupId,
+        slackTeamId,
+        slackUserId
+      });
+      try  {
+        return await viewHelper.update(renderView, {
+          meetupId,
+          channel,
+        });
+      } catch (e) {
+        span.recordException(e);
+        await viewHelper.errorClose();
+        throw e;
+      }
+    });
   }
 
   async _render({ meetupId, slackUserId, slackTeamId }) {

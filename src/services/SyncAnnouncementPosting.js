@@ -1,3 +1,5 @@
+const opentelemetry = require('@opentelemetry/api');
+
 const db = require("../models");
 const MeetupWithRegistrationCount = require("../models/views/MeetupWithRegistrationCount");
 const MeetupAnnouncement = require("../views/MeetupAnnouncement");
@@ -28,29 +30,41 @@ class SyncJob {
 class SyncAnnouncementPosting {
     static DEFER_TIME = 5000; // 5 seconds
 
+    static tracer = opentelemetry.trace.getTracer(
+        'slack-potluck/services/SyncAnnouncementPosting',
+        '1.0',
+      );
+    
+
     // { id: SyncJob }
     static jobs = {};
 
     static async execute(client, meetupId) {
-        const meetup = await MeetupWithRegistrationCount.getMeetup(meetupId);
-        const announcements = await db.MeetupAnnouncement.findAll({
-            where: {
-                meetupId
-            }
-        });
-        const promises = announcements.map(async (announcement) => {
-            try {
-                await client.chat.update({
-                    channel: announcement.postingChannelId,
-                    ts: announcement.postingMessageId,
-                    unfurl_links: false,
-                    blocks: MeetupAnnouncement.render(meetup, true),
+        await this.tracer.startActiveSpan("execute", async (_) => {
+            const meetup = await MeetupWithRegistrationCount.getMeetup(meetupId);
+            const announcements = await db.MeetupAnnouncement.findAll({
+                where: {
+                    meetupId
+                }
+            });
+            const promises = announcements.map(async (announcement) => {
+                await this.tracer.startActiveSpan("execute.mapAnnouncements", async (s2) => {
+                    s2.setAttribute("app.announcement.id", announcement.id);
+                    try {
+                        await client.chat.update({
+                            channel: announcement.postingChannelId,
+                            ts: announcement.postingMessageId,
+                            unfurl_links: false,
+                            blocks: MeetupAnnouncement.render(meetup, true),
+                        });
+                    } catch (e) {
+                        s2.recordException(e);
+                        logger.error(`Failed to update announcement ${announcement.id}`, e);
+                    }
                 });
-            } catch (e) {
-                logger.error(`Failed to update announcement ${announcement.id}`, e);
-            }
+            });
+            await Promise.all(promises);
         });
-        await Promise.all(promises);
     }
 
     static defer(client, meetupId) {
